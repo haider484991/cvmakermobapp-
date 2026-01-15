@@ -47,7 +47,8 @@
       "Bash(npx expo-doctor)",
       "Bash(done)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git remote set-url:*)"
     ]
   }
 }

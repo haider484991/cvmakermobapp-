@@ -25,8 +25,8 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 
-const PRIVACY_POLICY_URL = 'https://haider484991.github.io/cvmakermobapp/privacy';
-const HELP_FAQ_URL = 'https://haider484991.github.io/cvmakermobapp/help';
+const PRIVACY_POLICY_URL = 'https://haider484991.github.io/cvmakermobapp-/privacy';
+const HELP_FAQ_URL = 'https://haider484991.github.io/cvmakermobapp-/help';
 const SUPPORT_EMAIL = 'haider484991@gmail.com';
 
 export default function Profile() {
