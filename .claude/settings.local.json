@@ -45,7 +45,9 @@
       "Bash(copy \"FreeResume AI Logo.png\" \"splash-icon.png\" /Y)",
       "Bash(copy \"FreeResume AI Logo.png\" \"favicon.png\" /Y)",
       "Bash(npx expo-doctor)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }
