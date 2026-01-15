@@ -47,6 +47,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "367004fb-4cad-4e2a-ac99-ddff6022688d"
+      }
+    },
+    "owner": "hayder48"
   }
 }
