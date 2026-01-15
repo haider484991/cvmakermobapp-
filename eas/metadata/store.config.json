@@ -1,0 +1,15 @@
+{
+  "configVersion": 0,
+  "android": {
+    "primaryCategory": "PRODUCTIVITY",
+    "contentRating": {
+      "questionnaire": {
+        "VIOLENCE": "NO",
+        "SEXUAL_CONTENT": "NO",
+        "PROFANITY": "NO",
+        "DRUGS_REFERENCE": "NO",
+        "GAMBLING": "NO"
+      }
+    }
+  }
+}

@@ -1,0 +1,121 @@
+import '../global.css';
+import { useEffect } from 'react';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { View, ActivityIndicator } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useTheme } from '@/hooks/useTheme';
+import { useAuth } from '@/hooks/useAuth';
+import { useAppOpenAd } from '@/hooks/useAppOpenAd';
+import { useUIStore } from '@/stores/uiStore';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 2,
+    },
+  },
+});
+
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isInitialized } = useAuth();
+  const { onboardingCompleted } = useUIStore();
+  const segments = useSegments();
+  const router = useRouter();
+  const { colors } = useTheme();
+
+  console.log('[AuthGuard] State:', { isAuthenticated, isInitialized, segments: segments.join('/') });
+
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    const inAuthGroup = segments[0] === '(auth)';
+    const inOnboardingGroup = segments[0] === '(onboarding)';
+    const inMainGroup = segments[0] === '(main)';
+    const isOnIndex = !segments[0] || segments.join('/') === '';
+
+    // Guest-friendly flow: No forced login
+    // Users can access the app without authentication
+
+    if (isAuthenticated && inAuthGroup) {
+      // User is authenticated but on auth screens
+      // Redirect to dashboard or onboarding
+      if (onboardingCompleted) {
+        router.replace('/(main)/dashboard');
+      } else {
+        router.replace('/(onboarding)/welcome');
+      }
+    } else if (isOnIndex) {
+      // User is on index/root page
+      // Redirect to onboarding or dashboard based on status
+      if (onboardingCompleted) {
+        router.replace('/(main)/dashboard');
+      } else {
+        router.replace('/(onboarding)/welcome');
+      }
+    } else if (!onboardingCompleted && inMainGroup) {
+      // User hasn't completed onboarding but trying to access main
+      // Redirect to onboarding
+      router.replace('/(onboarding)/welcome');
+    }
+  }, [isAuthenticated, isInitialized, segments, onboardingCompleted]);
+
+  // Show loading screen while checking initial auth state
+  if (!isInitialized) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: colors.primary,
+        }}
+      >
+        <ActivityIndicator size="large" color="white" />
+      </View>
+    );
+  }
+
+  return <>{children}</>;
+}
+
+function RootLayoutNav() {
+  const { isDark, colors } = useTheme();
+
+  // Initialize App Open Ad - shows ad when app launches
+  useAppOpenAd();
+
+  return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <AuthGuard>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.background },
+            animation: 'slide_from_right',
+          }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
+          <Stack.Screen name="(onboarding)" options={{ animation: 'fade' }} />
+          <Stack.Screen name="(main)" options={{ animation: 'fade' }} />
+          <Stack.Screen name="resume" />
+        </Stack>
+      </AuthGuard>
+    </>
+  );
+}
+
+export default function RootLayout() {
+  console.log('[RootLayout] Rendering...');
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <RootLayoutNav />
+      </QueryClientProvider>
+    </GestureHandlerRootView>
+  );
+}

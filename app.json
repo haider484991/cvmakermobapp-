@@ -1,30 +1,52 @@
 {
   "expo": {
-    "name": "resumeapp-temp",
-    "slug": "resumeapp-temp",
+    "name": "FreeResume AI - CV Builder",
+    "slug": "freeresume-ai",
+    "description": "Create professional resumes and CVs in minutes with FreeResume AI - the smart resume builder powered by artificial intelligence. Features AI-powered writing assistance, ATS-optimized templates, and easy PDF export.",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "scheme": "freeresumeai",
+    "updates": {
+      "enabled": false
+    },
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFFFFF"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.freeresumeai.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFFFFF"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "package": "com.freeresumeai.app"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-web-browser",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-6873688003145340~2734080674",
+          "iosAppId": "ca-app-pub-6873688003145340~2734080674"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }

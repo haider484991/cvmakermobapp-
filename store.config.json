@@ -1,0 +1,65 @@
+{
+  "configVersion": 0,
+  "appName": "FreeResume AI - CV Builder",
+  "android": {
+    "packageName": "com.freeresumeai.app",
+    "primaryCategory": "PRODUCTIVITY",
+    "secondaryCategory": "BUSINESS",
+    "contentRating": "EVERYONE",
+    "targetAudience": ["JOB_SEEKERS", "STUDENTS", "PROFESSIONALS"],
+    "listing": {
+      "en-US": {
+        "title": "FreeResume AI - CV Builder",
+        "shortDescription": "Free AI resume builder with ATS-optimized templates. Create professional CVs fast!",
+        "fullDescription": "Create professional resumes and CVs in minutes with FreeResume AI - the smart resume builder powered by artificial intelligence.\n\nKEY FEATURES:\n\u2022 AI-Powered Resume Writing - Get intelligent suggestions to improve your resume content\n\u2022 ATS-Optimized Templates - Beat applicant tracking systems with recruiter-approved formats\n\u2022 Professional Templates - Choose from modern, creative, minimal, and classic designs\n\u2022 Easy Export - Download as PDF or share directly to employers\n\u2022 Cloud Sync - Access your resumes anywhere, anytime\n\u2022 100% Free - No hidden fees or subscriptions\n\nPERFECT FOR:\n\u2713 Job seekers looking for their dream job\n\u2713 Students and recent graduates\n\u2713 Career changers and professionals\n\u2713 Anyone who needs a standout resume fast\n\nBUILD YOUR RESUME IN 3 STEPS:\n1. Choose a professional template\n2. Add your information with AI assistance\n3. Export and apply to jobs\n\nWHY CHOOSE FREERESUME AI?\nOur AI-powered resume builder helps you create job-winning resumes that pass ATS screening. With professionally designed templates and smart content suggestions, you'll have a polished resume ready in minutes - not hours.\n\nTEMPLATE CATEGORIES:\n\u2022 ATS-Optimized - Maximum compatibility with applicant tracking systems\n\u2022 Professional - Clean, corporate-friendly designs\n\u2022 Modern - Contemporary layouts that stand out\n\u2022 Creative - Bold designs for creative industries\n\u2022 Minimal - Simple, elegant formatting\n\nDownload FreeResume AI today and land your next job interview!",
+        "keywords": [
+          "resume builder",
+          "cv maker",
+          "resume maker free",
+          "cv builder",
+          "job resume",
+          "ATS resume",
+          "professional resume",
+          "AI resume",
+          "resume templates",
+          "job application",
+          "career builder",
+          "resume creator",
+          "cv templates",
+          "free resume",
+          "resume app"
+        ]
+      }
+    },
+    "graphics": {
+      "icon": "./assets/icon.png",
+      "featureGraphic": "./assets/store/feature-graphic.png",
+      "screenshots": {
+        "phone": [
+          "./assets/store/screenshots/phone-1.png",
+          "./assets/store/screenshots/phone-2.png",
+          "./assets/store/screenshots/phone-3.png",
+          "./assets/store/screenshots/phone-4.png"
+        ],
+        "tablet": [
+          "./assets/store/screenshots/tablet-1.png",
+          "./assets/store/screenshots/tablet-2.png"
+        ]
+      }
+    },
+    "privacyPolicy": "https://haider484991.github.io/cvmakermobapp/privacy",
+    "supportEmail": "haider484991@gmail.com",
+    "websiteUrl": "https://haider484991.github.io/cvmakermobapp"
+  },
+  "seoKeywords": {
+    "primary": ["resume builder", "cv maker", "AI resume"],
+    "secondary": ["job resume", "professional resume", "resume templates"],
+    "longTail": [
+      "free resume builder app",
+      "ATS optimized resume maker",
+      "AI powered cv builder",
+      "professional resume templates free",
+      "best resume app for job seekers"
+    ]
+  }
+}

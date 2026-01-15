@@ -1,0 +1,386 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --text: #1f2937;
+    --text-light: #6b7280;
+    --background: #ffffff;
+    --surface: #f9fafb;
+    --border: #e5e7eb;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    color: var(--text);
+    background: var(--background);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Navbar */
+.navbar {
+    background: var(--background);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.logo:hover {
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 24px;
+}
+
+.nav-links a {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.nav-links a:hover {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.btn-large {
+    padding: 16px 32px;
+    font-size: 1.1rem;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto 32px;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.hero .btn-primary {
+    background: white;
+    color: var(--primary);
+}
+
+.hero .btn-primary:hover {
+    background: var(--surface);
+}
+
+/* Features Section */
+.features {
+    padding: 80px 0;
+    background: var(--surface);
+}
+
+.features h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 48px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.feature-card {
+    background: white;
+    padding: 32px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+}
+
+.feature-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.feature-card p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+/* Download Section */
+.download-section {
+    padding: 80px 0;
+    text-align: center;
+    background: var(--background);
+}
+
+.download-section h2 {
+    font-size: 2rem;
+    margin-bottom: 12px;
+}
+
+.download-section p {
+    color: var(--text-light);
+    margin-bottom: 32px;
+}
+
+/* Content Pages (Privacy, Help) */
+.content-page {
+    padding: 48px 0;
+    min-height: calc(100vh - 200px);
+}
+
+.content-page h1 {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+}
+
+.content-page .last-updated,
+.content-page .subtitle {
+    color: var(--text-light);
+    margin-bottom: 32px;
+}
+
+.content-page section {
+    margin-bottom: 40px;
+}
+
+.content-page h2 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.content-page section:first-of-type h2 {
+    border-top: none;
+    padding-top: 0;
+}
+
+.content-page h3 {
+    font-size: 1.1rem;
+    margin: 20px 0 8px;
+}
+
+.content-page p {
+    margin-bottom: 12px;
+    color: var(--text);
+}
+
+.content-page ul,
+.content-page ol {
+    margin: 12px 0;
+    padding-left: 24px;
+}
+
+.content-page li {
+    margin-bottom: 8px;
+}
+
+/* FAQ Styles */
+.faq-section {
+    margin-bottom: 48px;
+}
+
+.faq-item {
+    background: var(--surface);
+    padding: 20px 24px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.faq-item h3 {
+    color: var(--text);
+    margin: 0 0 8px 0;
+    font-size: 1rem;
+}
+
+.faq-item p,
+.faq-item ul {
+    margin-bottom: 0;
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.faq-item ul {
+    margin-top: 8px;
+}
+
+/* Contact Section */
+.contact-section {
+    text-align: center;
+    padding: 48px;
+    background: var(--surface);
+    border-radius: 12px;
+    margin-top: 48px;
+}
+
+.contact-section h2 {
+    border: none;
+    padding-top: 0;
+}
+
+.contact-section p {
+    margin-bottom: 24px;
+}
+
+.response-time {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-top: 16px;
+}
+
+/* Footer */
+.footer {
+    background: var(--text);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.footer-links a:hover {
+    color: white;
+}
+
+.copyright {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero {
+        padding: 60px 0;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .features,
+    .download-section {
+        padding: 60px 0;
+    }
+
+    .content-page h1 {
+        font-size: 1.8rem;
+    }
+
+    .nav-links {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar .container {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
