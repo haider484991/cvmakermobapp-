@@ -44,3 +44,7 @@ play-store-credentials.json
 # generated native folders
 /ios
 /android
+
+# AI Tool Configs
+.claude/
+.gemini/
