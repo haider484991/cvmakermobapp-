@@ -3,6 +3,7 @@
  * Handles real-time synchronization of resumes with Supabase
  */
 
+import { DeviceEventEmitter } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { Resume } from '@/types/resume';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -122,15 +123,12 @@ class SyncService {
   }): void {
     console.log('[SyncService] Real-time change:', payload.eventType);
 
-    // Emit event for store to handle
-    const event = new CustomEvent('resume-sync', {
-      detail: {
-        type: payload.eventType,
-        data: payload.new,
-        oldData: payload.old,
-      },
+    // Emit event for store to handle using React Native's DeviceEventEmitter
+    DeviceEventEmitter.emit('resume-sync', {
+      type: payload.eventType,
+      data: payload.new,
+      oldData: payload.old,
     });
-    window.dispatchEvent(event);
   }
 
   /**

@@ -36,7 +36,7 @@ export default function PreviewResume() {
   // PDF Export hook
   const {
     isGenerating,
-    sharePDF,
+    downloadPDF,
   } = usePDFExport({ isPremium: false });
 
   // Rewarded Ad hook
@@ -83,12 +83,13 @@ export default function PreviewResume() {
       const earned = await showAd();
       if (earned) {
         // User watched the full ad, proceed with download
-        const result = await sharePDF(id, { paperSize: 'letter' });
+        const result = await downloadPDF(id, { paperSize: 'letter' });
         if (result.success) {
           setDownloadSuccess(true);
           if (hapticEnabled) {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           }
+          Alert.alert('Success', 'Resume saved to your device!');
           setTimeout(() => setDownloadSuccess(false), 3000);
         }
       } else {
@@ -100,16 +101,17 @@ export default function PreviewResume() {
       }
     } else {
       // Ad not loaded, proceed directly
-      const result = await sharePDF(id, { paperSize: 'letter' });
+      const result = await downloadPDF(id, { paperSize: 'letter' });
       if (result.success) {
         setDownloadSuccess(true);
         if (hapticEnabled) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
+        Alert.alert('Success', 'Resume saved to your device!');
         setTimeout(() => setDownloadSuccess(false), 3000);
       }
     }
-  }, [id, hapticEnabled, adLoaded, showAd, sharePDF]);
+  }, [id, hapticEnabled, adLoaded, showAd, downloadPDF]);
 
   const handleGetScore = useCallback(async () => {
     if (!resume) return;

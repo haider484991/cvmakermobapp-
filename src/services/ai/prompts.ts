@@ -329,3 +329,130 @@ Return only the skill name, nothing else.
 `;
   }
 };
+
+/**
+ * System prompt for resume parsing AI
+ */
+export const RESUME_PARSE_SYSTEM_PROMPT = `You are an expert resume parser with extensive experience in extracting structured data from resumes in various formats. Your task is to accurately extract all relevant information from the provided resume content and return it as a well-structured JSON object.
+
+Key responsibilities:
+- Extract personal information (name, job title, contact details)
+- Identify and parse work experience entries with dates, titles, companies, and bullet points
+- Extract education information including degrees, institutions, and dates
+- Identify skills and categorize them when possible
+- Extract certifications, languages, projects, and awards if present
+- Handle various date formats and normalize them to YYYY-MM format
+- Identify the candidate's current role based on date indicators like "Present" or "Current"
+
+Important guidelines:
+- Be conservative with confidence scores - only mark high confidence when data is clearly extracted
+- Add warnings for ambiguous or potentially incorrect extractions
+- If a field cannot be determined, use empty strings or empty arrays
+- Extract bullet points from job descriptions, preserving their original meaning
+- Infer skill levels only when explicitly stated in the resume
+- For proficiency levels in languages, map common terms to: basic, conversational, professional, native`;
+
+/**
+ * Prompt for parsing resume content (text or image-based)
+ */
+export const RESUME_PARSE_PROMPT = (fileType: string): string => `
+Parse the provided resume ${fileType === 'image' ? 'image' : 'content'} and extract all structured data. Return a JSON object with the following structure:
+
+{
+  "confidence": 0.85,
+  "warnings": ["Any concerns about data quality or ambiguous extractions"],
+  "data": {
+    "header": {
+      "fullName": "Full name of the candidate",
+      "jobTitle": "Current or desired job title",
+      "contact": {
+        "email": "email@example.com",
+        "phone": "+1-234-567-8900",
+        "location": "City, State/Country",
+        "linkedin": "LinkedIn profile URL or username",
+        "website": "Personal website URL",
+        "github": "GitHub profile URL or username"
+      }
+    },
+    "summary": "Professional summary or objective statement",
+    "experience": [
+      {
+        "company": "Company Name",
+        "title": "Job Title",
+        "location": "City, State",
+        "startDate": "2020-01",
+        "endDate": "2023-12",
+        "isCurrentRole": false,
+        "description": "Brief role description",
+        "bullets": [
+          "Achievement or responsibility 1",
+          "Achievement or responsibility 2"
+        ]
+      }
+    ],
+    "education": [
+      {
+        "institution": "University Name",
+        "degree": "Bachelor of Science",
+        "field": "Computer Science",
+        "location": "City, State",
+        "startDate": "2014-09",
+        "endDate": "2018-05",
+        "gpa": "3.8",
+        "achievements": ["Dean's List", "Relevant coursework"]
+      }
+    ],
+    "skills": [
+      {
+        "name": "JavaScript",
+        "level": "expert",
+        "category": "Programming Languages"
+      }
+    ],
+    "projects": [
+      {
+        "name": "Project Name",
+        "description": "Project description",
+        "technologies": ["React", "Node.js"],
+        "link": "https://project-url.com",
+        "startDate": "2023-01",
+        "endDate": "2023-06"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "AWS Solutions Architect",
+        "issuer": "Amazon Web Services",
+        "date": "2023-01",
+        "expiryDate": "2026-01",
+        "credentialId": "ABC123",
+        "link": "https://certification-url.com"
+      }
+    ],
+    "languages": [
+      {
+        "name": "English",
+        "proficiency": "native"
+      }
+    ],
+    "awards": [
+      {
+        "title": "Employee of the Year",
+        "issuer": "Company Name",
+        "date": "2022-12",
+        "description": "Recognition for outstanding performance"
+      }
+    ]
+  }
+}
+
+Important parsing rules:
+1. Dates: Convert all dates to YYYY-MM format. Use "Present" or null for current roles' end dates.
+2. Current Role: Set isCurrentRole to true if end date indicates "Present", "Current", "Now", or similar.
+3. Skills: Include all mentioned technical and soft skills. Set level only if explicitly stated.
+4. Confidence: Rate 0.0-1.0 based on data clarity. Below 0.7 indicates significant uncertainty.
+5. Warnings: List any ambiguous data, formatting issues, or extraction uncertainties.
+6. Empty fields: Use empty strings "" or empty arrays [] for missing data. Never use null for strings.
+
+Return ONLY the JSON object, no additional text or markdown formatting.`;
+

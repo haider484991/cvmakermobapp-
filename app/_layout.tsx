@@ -9,6 +9,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppOpenAd } from '@/hooks/useAppOpenAd';
 import { useUIStore } from '@/stores/uiStore';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { adPreloader } from '@/services/ads';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -87,6 +89,12 @@ function RootLayoutNav() {
   // Initialize App Open Ad - shows ad when app launches
   useAppOpenAd();
 
+  // Preload rewarded ad for downloads early
+  useEffect(() => {
+    console.log('[RootLayout] Starting ad preload...');
+    adPreloader.preload();
+  }, []);
+
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
@@ -112,10 +120,12 @@ function RootLayoutNav() {
 export default function RootLayout() {
   console.log('[RootLayout] Rendering...');
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <RootLayoutNav />
-      </QueryClientProvider>
-    </GestureHandlerRootView>
+    <ErrorBoundary>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <QueryClientProvider client={queryClient}>
+          <RootLayoutNav />
+        </QueryClientProvider>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }

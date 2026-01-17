@@ -9,6 +9,7 @@ import { useTemplateStore } from '@/stores/templateStore';
 import {
   generatePDF,
   generateAndSharePDF,
+  downloadPDFToDevice,
   previewPDF,
   getHTMLPreview,
   PDFExportOptions,
@@ -53,6 +54,11 @@ export interface UsePDFExportReturn {
    * Generate and share PDF
    */
   sharePDF: (resumeId: string, options?: Partial<PDFExportOptions>) => Promise<PDFExportResult>;
+
+  /**
+   * Download PDF to device storage
+   */
+  downloadPDF: (resumeId: string, options?: Partial<PDFExportOptions>) => Promise<PDFExportResult>;
 
   /**
    * Preview PDF in print dialog
@@ -188,6 +194,57 @@ export function usePDFExport(options: UsePDFExportOptions = {}): UsePDFExportRet
   );
 
   /**
+   * Download PDF to device storage
+   */
+  const downloadPDF = useCallback(
+    async (
+      resumeId: string,
+      exportOptions: Partial<PDFExportOptions> = {}
+    ): Promise<PDFExportResult> => {
+      setIsGenerating(true);
+      setProgress('Preparing resume...');
+      setError(null);
+
+      try {
+        const resume = getResume(resumeId);
+        if (!resume) {
+          const errorMsg = 'Resume not found';
+          setError(errorMsg);
+          return { success: false, error: errorMsg };
+        }
+
+        setProgress('Generating PDF...');
+
+        const template = getCurrentTemplate();
+        setProgress('Saving to device...');
+
+        const result = await downloadPDFToDevice(resume, template, {
+          addWatermark: !isPremium,
+          ...exportOptions,
+        });
+
+        if (result.success) {
+          setProgress('Saved!');
+          if (result.uri) {
+            setLastGeneratedUri(result.uri);
+          }
+        } else {
+          setError(result.error || 'Failed to download PDF');
+        }
+
+        return result;
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Download failed';
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    [getResume, getCurrentTemplate, isPremium]
+  );
+
+  /**
    * Preview PDF in print dialog
    */
   const preview = useCallback(
@@ -258,6 +315,7 @@ export function usePDFExport(options: UsePDFExportOptions = {}): UsePDFExportRet
     lastGeneratedUri,
     exportPDF,
     sharePDF,
+    downloadPDF,
     preview,
     getPreviewHTML,
     clearError,

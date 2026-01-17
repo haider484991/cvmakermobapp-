@@ -8,11 +8,13 @@ import { useResumeStore } from '@/stores/resumeStore';
 import { useTemplateStore } from '@/stores/templateStore';
 import { useUIStore } from '@/stores/uiStore';
 import { useSync } from '@/hooks/useSync';
+import { useResumeImport } from '@/hooks/useResumeImport';
 import { SyncStatusIndicator } from '@/components/ui/SyncStatusIndicator';
+import { ResumeImportCard, ImportReviewModal } from '@/components/features/import';
 import { Plus, FileText, MoreVertical, Trash2, Copy, Edit3, Sparkles } from 'lucide-react-native';
 import { gradientColors } from '@/constants/theme';
 import * as Haptics from 'expo-haptics';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { Resume } from '@/types/resume';
 
 export default function Dashboard() {
@@ -28,9 +30,12 @@ export default function Dashboard() {
   } = useResumeStore();
   const { getTemplate, selectedTemplateId } = useTemplateStore();
   const { isSyncing, refresh } = useSync();
+  const { selectAndParse, isReviewing, isLoading: isImporting } = useResumeImport();
 
   const [refreshing, setRefreshing] = useState(false);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const resumes = useMemo(() => getAllResumes(), [getAllResumes]);
 
@@ -44,12 +49,22 @@ export default function Dashboard() {
   }, [hapticEnabled, refresh]);
 
   const handleCreateResume = () => {
+    // Prevent duplicate creation on fast taps
+    if (isCreating) return;
+
+    setIsCreating(true);
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    const id = createResume();
-    setActiveResume(id);
-    router.push(`/resume/${id}`);
+
+    try {
+      const id = createResume();
+      setActiveResume(id);
+      router.push(`/resume/${id}`);
+    } finally {
+      // Reset after a short delay to allow navigation
+      setTimeout(() => setIsCreating(false), 1000);
+    }
   };
 
   const handleOpenResume = (id: string) => {
@@ -85,6 +100,29 @@ export default function Dashboard() {
     }
     setMenuOpenId(menuOpenId === id ? null : id);
   };
+
+  const handleImportPress = useCallback(async () => {
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    await selectAndParse();
+  }, [hapticEnabled, selectAndParse]);
+
+  const handleImportConfirm = useCallback((resumeId: string) => {
+    setShowImportModal(false);
+    router.push(`/resume/${resumeId}`);
+  }, [router]);
+
+  const handleImportCancel = useCallback(() => {
+    setShowImportModal(false);
+  }, []);
+
+  // Show import modal when reviewing
+  useEffect(() => {
+    if (isReviewing) {
+      setShowImportModal(true);
+    }
+  }, [isReviewing]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -176,8 +214,9 @@ export default function Dashboard() {
           >
             <Pressable
               onPress={handleCreateResume}
+              disabled={isCreating}
               className="rounded-[19px] p-5 flex-row items-center"
-              style={{ backgroundColor: colors.background }}
+              style={{ backgroundColor: colors.background, opacity: isCreating ? 0.7 : 1 }}
             >
               <LinearGradient
                 colors={gradientColors.primary}
@@ -199,17 +238,25 @@ export default function Dashboard() {
                   className="text-lg font-bold"
                   style={{ color: colors.text }}
                 >
-                  Create New Resume
+                  {isCreating ? 'Creating...' : 'Create New Resume'}
                 </Text>
                 <View className="flex-row items-center mt-1">
                   <Sparkles size={14} color={colors.primary} />
                   <Text style={{ color: colors.textSecondary, marginLeft: 4 }}>
-                    Start with AI assistance
+                    {isCreating ? 'Please wait' : 'Start with AI assistance'}
                   </Text>
                 </View>
               </View>
             </Pressable>
           </LinearGradient>
+        </Animated.View>
+
+        {/* Import Resume Card */}
+        <Animated.View entering={FadeInUp.delay(150)} style={{ marginTop: 12 }}>
+          <ResumeImportCard
+            onPress={handleImportPress}
+            disabled={isImporting}
+          />
         </Animated.View>
 
         {/* Resume Cards */}
@@ -366,6 +413,13 @@ export default function Dashboard() {
         {/* Bottom Spacing */}
         <View className="h-8" />
       </ScrollView>
+
+      {/* Import Review Modal */}
+      <ImportReviewModal
+        visible={showImportModal}
+        onClose={handleImportCancel}
+        onConfirm={handleImportConfirm}
+      />
     </View>
   );
 }

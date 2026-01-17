@@ -5,7 +5,12 @@
 
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import * as IntentLauncher from 'expo-intent-launcher';
 import { Paths, File, Directory } from 'expo-file-system';
+import { Platform, ToastAndroid } from 'react-native';
+
+// Import legacy FileSystem for file operations
+const LegacyFileSystem = require('expo-file-system');
 import { Resume } from '@/types/resume';
 import { ResumeTemplate } from '@/types/template';
 import { generateResumeHTML } from './htmlGenerator';
@@ -141,6 +146,74 @@ export async function generatePDF(
 }
 
 /**
+ * Download PDF to device storage (Android Downloads folder)
+ * On Android: Opens PDF in system viewer where user can save
+ * On iOS: Uses share sheet with save option
+ */
+export async function downloadPDFToDevice(
+  resume: Resume,
+  template?: ResumeTemplate,
+  options: PDFExportOptions = {}
+): Promise<PDFExportResult> {
+  try {
+    // First generate the PDF
+    const result = await generatePDF(resume, template, options);
+
+    if (!result.success || !result.uri) {
+      return result;
+    }
+
+    const sanitizedName = (resume.header.fullName?.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_') || 'Resume');
+    const fileName = `${sanitizedName}_${Date.now()}.pdf`;
+
+    if (Platform.OS === 'android') {
+      try {
+        // Copy to document directory with proper name
+        const destinationPath = `${LegacyFileSystem.documentDirectory}${fileName}`;
+
+        await LegacyFileSystem.copyAsync({
+          from: result.uri,
+          to: destinationPath,
+        });
+
+        console.log('[PDFExport] PDF copied to:', destinationPath);
+
+        // Get content URI for sharing with other apps
+        const contentUri = await LegacyFileSystem.getContentUriAsync(destinationPath);
+
+        // Open the PDF with system viewer - user can save from there
+        await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+          data: contentUri,
+          flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
+          type: 'application/pdf',
+        });
+
+        ToastAndroid.show('PDF opened - use menu to save or share', ToastAndroid.LONG);
+
+        return {
+          success: true,
+          uri: destinationPath,
+        };
+
+      } catch (androidError) {
+        console.error('[PDFExport] Android save error:', androidError);
+        // Fallback: share sheet
+        return generateAndSharePDF(resume, template, options);
+      }
+    } else {
+      // iOS - use share sheet to save
+      return generateAndSharePDF(resume, template, options);
+    }
+  } catch (error) {
+    console.error('[PDFExport] Download PDF error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to download PDF',
+    };
+  }
+}
+
+/**
  * Generate and share PDF
  */
 export async function generateAndSharePDF(
@@ -170,7 +243,7 @@ export async function generateAndSharePDF(
     // Share the PDF
     await Sharing.shareAsync(result.uri, {
       mimeType: 'application/pdf',
-      dialogTitle: 'Share Resume',
+      dialogTitle: 'Save Resume',
       UTI: 'com.adobe.pdf', // iOS specific
     });
 

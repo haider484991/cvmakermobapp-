@@ -22,6 +22,7 @@ interface ResumeState {
 
   // Actions
   createResume: (name?: string) => string;
+  importResume: (resume: Resume) => string;
   deleteResume: (id: string) => void;
   duplicateResume: (id: string) => string;
   setActiveResume: (id: string | null) => void;
@@ -83,6 +84,22 @@ export const useResumeStore = create<ResumeState>()(
           isDirty: false,
         }));
         return resume.id;
+      },
+
+      importResume: (resume) => {
+        // Ensure the resume has a unique ID and timestamps
+        const importedResume: Resume = {
+          ...resume,
+          id: Date.now().toString(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        set((state) => ({
+          resumes: { ...state.resumes, [importedResume.id]: importedResume },
+          activeResumeId: importedResume.id,
+          isDirty: false,
+        }));
+        return importedResume.id;
       },
 
       deleteResume: (id) => {

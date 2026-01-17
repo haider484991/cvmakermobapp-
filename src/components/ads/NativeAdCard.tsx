@@ -57,36 +57,42 @@ export function NativeAdCard({ style }: NativeAdCardProps) {
 
   useEffect(() => {
     // If AdMob is not available, don't try to load ads
-    if (!isAdMobAvailable) {
+    if (!isAdMobAvailable || !NativeAd || !NativeAdView || !NativeMediaView || !NativeAsset) {
       setHasError(true);
       setIsLoading(false);
       return;
     }
 
-    // Create and load the native ad
-    const ad = NativeAd.createForAdRequest(adUnitId, {
-      requestNonPersonalizedAdsOnly: true,
-    });
+    try {
+      // Create and load the native ad
+      const ad = NativeAd.createForAdRequest(adUnitId, {
+        requestNonPersonalizedAdsOnly: true,
+      });
 
-    const unsubscribeLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
-      console.log('[NativeAdCard] Ad loaded');
-      setNativeAd(ad);
-      setIsLoading(false);
-    });
+      const unsubscribeLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
+        console.log('[NativeAdCard] Ad loaded');
+        setNativeAd(ad);
+        setIsLoading(false);
+      });
 
-    const unsubscribeError = ad.addAdEventListener(AdEventType.ERROR, (error: any) => {
-      console.error('[NativeAdCard] Ad error:', error);
+      const unsubscribeError = ad.addAdEventListener(AdEventType.ERROR, (error: any) => {
+        console.error('[NativeAdCard] Ad error:', error);
+        setHasError(true);
+        setIsLoading(false);
+      });
+
+      ad.load();
+
+      return () => {
+        unsubscribeLoaded();
+        unsubscribeError();
+        ad.destroy();
+      };
+    } catch (error) {
+      console.error('[NativeAdCard] Failed to create ad:', error);
       setHasError(true);
       setIsLoading(false);
-    });
-
-    ad.load();
-
-    return () => {
-      unsubscribeLoaded();
-      unsubscribeError();
-      ad.destroy();
-    };
+    }
   }, []);
 
   // Don't render anything if there's an error
@@ -118,7 +124,7 @@ export function NativeAdCard({ style }: NativeAdCardProps) {
     );
   }
 
-  if (!nativeAd) {
+  if (!nativeAd || !NativeAdView || !NativeMediaView || !NativeAsset) {
     return null;
   }
 

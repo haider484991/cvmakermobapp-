@@ -113,15 +113,21 @@ export function useSync(): UseSyncReturn {
       // Handle different event types
       // The store should be updated based on the event
       // For now, we'll just refresh
-      if (user?.id) {
-        refresh();
+      if (user?.id && isAuthenticated) {
+        syncService.fetchResumes(user.id).then((serverResumes) => {
+          if (serverResumes.length > 0) {
+            setResumes(serverResumes);
+          }
+        }).catch((err) => {
+          console.error('[useSync] Failed to refresh after sync event:', err);
+        });
       }
     };
 
     // Use DeviceEventEmitter for React Native event handling
     const subscription = DeviceEventEmitter.addListener('resume-sync', handleSyncEvent);
     return () => subscription.remove();
-  }, [user?.id]);
+  }, [user?.id, isAuthenticated, setResumes]);
 
   /**
    * Manually trigger sync

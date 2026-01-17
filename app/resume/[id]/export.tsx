@@ -40,6 +40,7 @@ export default function ExportResume() {
     error,
     exportPDF,
     sharePDF,
+    downloadPDF,
     preview,
     clearError,
   } = usePDFExport({ isPremium: false }); // TODO: Get from subscription store
@@ -75,26 +76,79 @@ export default function ExportResume() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
-    await preview(id, { paperSize });
-  }, [id, preview, paperSize, hapticEnabled]);
+    // If ad is loaded, show it first
+    if (adLoaded) {
+      const earned = await showAd();
+      if (earned) {
+        // User watched the full ad, proceed with preview
+        await preview(id, { paperSize });
+      } else {
+        // User closed ad early, show a message
+        Alert.alert(
+          'Ad Not Completed',
+          'Please watch the full ad to preview your resume.',
+          [{ text: 'OK' }]
+        );
+      }
+    } else if (adLoading) {
+      // Ad still loading, ask user to wait
+      Alert.alert(
+        'Please Wait',
+        'Ad is loading... Please try again in a moment.',
+        [{ text: 'OK' }]
+      );
+    } else {
+      // Ad failed to load, allow preview with warning
+      Alert.alert(
+        'Ad Unavailable',
+        'Unable to load ad. You can still preview your resume.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Preview Anyway', onPress: () => preview(id, { paperSize }) }
+        ]
+      );
+    }
+  }, [id, preview, paperSize, hapticEnabled, adLoaded, adLoading, showAd]);
 
   // Core export function (called after ad or directly)
   const performExportPDF = useCallback(async () => {
     if (!id) return;
 
-    // Use sharePDF instead of exportPDF so user can save the file
-    const result = await sharePDF(id, { paperSize });
+    try {
+      // Use downloadPDF to save to device storage
+      const result = await downloadPDF(id, { paperSize });
 
-    if (result.success) {
-      setExportSuccess(true);
-      if (hapticEnabled) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (result.success) {
+        setExportSuccess(true);
+        if (hapticEnabled) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+        Alert.alert('Success', 'Resume saved to your device!');
+        setTimeout(() => setExportSuccess(false), 3000);
+      } else {
+        // Show error to user
+        if (hapticEnabled) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        }
+        Alert.alert(
+          'Download Failed',
+          result.error || 'Failed to download your resume. Please try again.',
+          [{ text: 'OK' }]
+        );
       }
-      setTimeout(() => setExportSuccess(false), 3000);
-    } else if (hapticEnabled) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } catch (err) {
+      // Handle unexpected errors
+      if (hapticEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
+      Alert.alert(
+        'Error',
+        'An unexpected error occurred. Please try again.',
+        [{ text: 'OK' }]
+      );
+      console.error('[Export] Unexpected error:', err);
     }
-  }, [id, exportPDF, paperSize, hapticEnabled]);
+  }, [id, downloadPDF, paperSize, hapticEnabled]);
 
   const handleExportPDF = useCallback(async () => {
     if (!id) return;
@@ -103,7 +157,7 @@ export default function ExportResume() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
-    // If ad is loaded, show it first
+    // Ad is required for download
     if (adLoaded) {
       const earned = await showAd();
       if (earned) {
@@ -117,26 +171,61 @@ export default function ExportResume() {
           [{ text: 'OK' }]
         );
       }
+    } else if (adLoading) {
+      // Ad still loading, ask user to wait
+      Alert.alert(
+        'Please Wait',
+        'Ad is loading... Please try again in a moment.',
+        [{ text: 'OK' }]
+      );
     } else {
-      // Ad not loaded, allow immediate download (don't block user)
-      await performExportPDF();
+      // Ad failed to load, allow download with warning
+      Alert.alert(
+        'Ad Unavailable',
+        'Unable to load ad. You can still download your resume.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Download Anyway', onPress: () => performExportPDF() }
+        ]
+      );
     }
-  }, [id, hapticEnabled, adLoaded, showAd, performExportPDF]);
+  }, [id, hapticEnabled, adLoaded, adLoading, showAd, performExportPDF]);
 
   // Core share function (called after ad or directly)
   const performSharePDF = useCallback(async () => {
     if (!id) return;
 
-    const result = await sharePDF(id, { paperSize });
+    try {
+      const result = await sharePDF(id, { paperSize });
 
-    if (result.success) {
-      setExportSuccess(true);
-      if (hapticEnabled) {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (result.success) {
+        setExportSuccess(true);
+        if (hapticEnabled) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+        setTimeout(() => setExportSuccess(false), 3000);
+      } else {
+        // Show error to user
+        if (hapticEnabled) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        }
+        Alert.alert(
+          'Share Failed',
+          result.error || 'Failed to share your resume. Please try again.',
+          [{ text: 'OK' }]
+        );
       }
-      setTimeout(() => setExportSuccess(false), 3000);
-    } else if (hapticEnabled) {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } catch (err) {
+      // Handle unexpected errors
+      if (hapticEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
+      Alert.alert(
+        'Error',
+        'An unexpected error occurred. Please try again.',
+        [{ text: 'OK' }]
+      );
+      console.error('[Export] Share unexpected error:', err);
     }
   }, [id, sharePDF, paperSize, hapticEnabled]);
 
@@ -147,7 +236,7 @@ export default function ExportResume() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
-    // If ad is loaded, show it first
+    // Ad is required for share
     if (adLoaded) {
       const earned = await showAd();
       if (earned) {
@@ -161,11 +250,25 @@ export default function ExportResume() {
           [{ text: 'OK' }]
         );
       }
+    } else if (adLoading) {
+      // Ad still loading, ask user to wait
+      Alert.alert(
+        'Please Wait',
+        'Ad is loading... Please try again in a moment.',
+        [{ text: 'OK' }]
+      );
     } else {
-      // Ad not loaded, allow immediate share (don't block user)
-      await performSharePDF();
+      // Ad failed to load, allow share with warning
+      Alert.alert(
+        'Ad Unavailable',
+        'Unable to load ad. You can still share your resume.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Share Anyway', onPress: () => performSharePDF() }
+        ]
+      );
     }
-  }, [id, hapticEnabled, adLoaded, showAd, performSharePDF]);
+  }, [id, hapticEnabled, adLoaded, adLoading, showAd, performSharePDF]);
 
   const handlePaperSizeChange = (size: PaperSize) => {
     if (hapticEnabled) {
@@ -315,24 +418,45 @@ export default function ExportResume() {
           <Animated.View entering={FadeInUp.delay(250)}>
             <Pressable
               onPress={handlePreview}
-              disabled={isGenerating}
+              disabled={isGenerating || adLoading}
               className="p-4 rounded-xl mb-3 flex-row items-center"
-              style={{ backgroundColor: colors.surface }}
+              style={{
+                backgroundColor: colors.surface,
+                borderWidth: 2,
+                borderColor: adLoaded ? colors.warning : colors.border,
+                opacity: adLoading ? 0.7 : 1,
+              }}
             >
               <View
                 className="w-12 h-12 rounded-xl items-center justify-center mr-3"
-                style={{ backgroundColor: colors.textSecondary + '15' }}
+                style={{ backgroundColor: adLoaded ? colors.warning : colors.textSecondary + '15' }}
               >
-                <Eye size={24} color={colors.textSecondary} />
+                {adLoading ? (
+                  <ActivityIndicator color={colors.textSecondary} size="small" />
+                ) : adLoaded ? (
+                  <Play size={24} color="white" />
+                ) : (
+                  <Eye size={24} color={colors.textSecondary} />
+                )}
               </View>
               <View className="flex-1">
                 <Text className="font-semibold" style={{ color: colors.text }}>
-                  Preview PDF
+                  {adLoaded ? 'Watch Ad to Preview' : adLoading ? 'Loading Ad...' : 'Preview PDF'}
                 </Text>
                 <Text className="text-sm" style={{ color: colors.textSecondary }}>
-                  See how your resume will look
+                  {adLoaded ? 'Watch a short ad to preview' : 'See how your resume will look'}
                 </Text>
               </View>
+              {adLoaded && (
+                <View
+                  className="px-2 py-1 rounded-full"
+                  style={{ backgroundColor: colors.warning + '20' }}
+                >
+                  <Text className="text-xs font-semibold" style={{ color: colors.warning }}>
+                    FREE
+                  </Text>
+                </View>
+              )}
             </Pressable>
           </Animated.View>
 
@@ -340,12 +464,13 @@ export default function ExportResume() {
           <Animated.View entering={FadeInUp.delay(300)}>
             <Pressable
               onPress={handleExportPDF}
-              disabled={isGenerating}
+              disabled={isGenerating || adLoading}
               className="p-4 rounded-xl mb-3 flex-row items-center"
               style={{
                 backgroundColor: colors.surface,
                 borderWidth: 2,
-                borderColor: adLoaded ? colors.warning : colors.primary,
+                borderColor: adLoaded ? colors.warning : colors.border,
+                opacity: adLoading ? 0.7 : 1,
               }}
             >
               <View
@@ -356,6 +481,8 @@ export default function ExportResume() {
                   <ActivityIndicator color="white" size="small" />
                 ) : exportSuccess ? (
                   <Check size={24} color="white" />
+                ) : adLoading ? (
+                  <ActivityIndicator color="white" size="small" />
                 ) : adLoaded ? (
                   <Play size={24} color="white" />
                 ) : (
@@ -364,13 +491,13 @@ export default function ExportResume() {
               </View>
               <View className="flex-1">
                 <Text className="font-semibold" style={{ color: colors.text }}>
-                  {adLoaded ? 'Watch Ad to Download' : 'Download PDF'}
+                  {adLoaded ? 'Watch Ad to Download' : adLoading ? 'Loading Ad...' : 'Download PDF'}
                 </Text>
                 <Text className="text-sm" style={{ color: colors.textSecondary }}>
-                  {adLoaded ? 'Watch a short ad to download for free' : 'Save to your device'}
+                  {adLoaded ? 'Watch a short ad to download for free' : adLoading ? 'Please wait...' : 'Watch ad required'}
                 </Text>
               </View>
-              {adLoaded ? (
+              {adLoaded && (
                 <View
                   className="px-2 py-1 rounded-full"
                   style={{ backgroundColor: colors.warning + '20' }}
@@ -379,8 +506,6 @@ export default function ExportResume() {
                     FREE
                   </Text>
                 </View>
-              ) : (
-                <FileText size={20} color={colors.primary} />
               )}
             </Pressable>
           </Animated.View>

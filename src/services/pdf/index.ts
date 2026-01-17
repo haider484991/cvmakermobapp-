@@ -6,6 +6,7 @@ export { default as generateResumeHTML } from './htmlGenerator';
 export {
   generatePDF,
   generateAndSharePDF,
+  downloadPDFToDevice,
   previewPDF,
   getHTMLPreview,
   deletePDF,
