@@ -11,6 +11,9 @@ import { usePDFExport } from '@/hooks/usePDFExport';
 import { useDownloadAd } from '@/hooks/useDownloadAd';
 import { useGamification } from '@/hooks/useGamification';
 import { interstitialAd } from '@/services/ads';
+import { reviewSignals } from '@/services/review/reviewManager';
+import { useReviewPrompt } from '@/hooks/useReviewPrompt';
+import { ReviewPromptModal } from '@/components/features/review/ReviewPromptModal';
 import { Button } from '@/components/ui';
 import {
   ArrowLeft,
@@ -53,6 +56,11 @@ export default function ExportResume() {
 
   // Gamification tracking
   const { trackResumeExported, trackShare } = useGamification();
+
+  // Review prompt: surfaces the "Enjoying X?" modal after a value moment.
+  // tryPrompt() is a safe no-op if the user isn't eligible (cooldown, too
+  // few sessions, etc.) so we can call it on every success.
+  const { tryPrompt, modalProps: reviewModalProps } = useReviewPrompt();
 
   const [paperSize, setPaperSize] = useState<PaperSize>('letter');
   const [exportSuccess, setExportSuccess] = useState(false);
@@ -106,6 +114,10 @@ export default function ExportResume() {
         // Fire an interstitial after the success alert. Frequency-capped
         // and silently no-ops if not loaded — never blocks the success path.
         setTimeout(() => { interstitialAd.tryShow(); }, 1500);
+        // Record a positive review signal and attempt to surface the
+        // prompt. tryPrompt() bails silently if the user isn't eligible.
+        reviewSignals.pdfExported().catch(() => {});
+        setTimeout(() => { tryPrompt(); }, 3500);
       } else {
         // Show error to user
         if (hapticEnabled) {
@@ -189,6 +201,9 @@ export default function ExportResume() {
         setTimeout(() => setExportSuccess(false), 3000);
         // Fire an interstitial after the share completes (capped).
         setTimeout(() => { interstitialAd.tryShow(); }, 1500);
+        // Share is also a strong positive signal — record + try prompt.
+        reviewSignals.pdfExported().catch(() => {});
+        setTimeout(() => { tryPrompt(); }, 3500);
       } else {
         // Show error to user
         if (hapticEnabled) {
@@ -582,6 +597,11 @@ export default function ExportResume() {
           </Animated.View>
         </View>
       </ScrollView>
+
+      {/* Review prompt — only renders if eligibility passed inside
+          useReviewPrompt. Filter modal funnels happy users to Play Store
+          and unhappy users to email feedback (protects 5★ rating). */}
+      <ReviewPromptModal {...reviewModalProps} />
     </SafeAreaView>
   );
 }

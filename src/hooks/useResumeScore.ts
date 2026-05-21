@@ -6,6 +6,7 @@
 import { useState, useCallback } from 'react';
 import { scoreResume, getQuickScore, type ResumeScore } from '@/services/ai/resumeScorer';
 import { useGamification } from '@/hooks/useGamification';
+import { reviewSignals } from '@/services/review/reviewManager';
 import type { Resume } from '@/types/resume';
 
 interface UseResumeScoreReturn {
@@ -41,6 +42,9 @@ export function useResumeScore(resume: Resume | null): UseResumeScoreReturn {
         setScore(result.score);
         // Track AI usage for gamification
         trackAIUsed();
+        // Record the score for review-eligibility — high scores
+        // (>= 80) count as a "moment of value" toward the prompt.
+        reviewSignals.scoreAchieved(result.score.overall).catch(() => {});
       } else {
         setError(result.error || 'Failed to analyze resume');
       }

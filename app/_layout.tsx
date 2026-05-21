@@ -12,6 +12,7 @@ import { useUIStore } from '@/stores/uiStore';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { adPreloader, interstitialAd, adsInit } from '@/services/ads';
 import { initI18n } from '@/i18n';
+import { recordSession } from '@/services/review/reviewManager';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -135,6 +136,8 @@ export default function RootLayout() {
   const [i18nReady, setI18nReady] = useState(false);
   useEffect(() => {
     initI18n().finally(() => setI18nReady(true));
+    // Count this launch toward review-eligibility (idempotent per day).
+    recordSession().catch(() => {});
   }, []);
 
   if (!i18nReady) {

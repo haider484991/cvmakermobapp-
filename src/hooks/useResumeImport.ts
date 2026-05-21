@@ -15,6 +15,7 @@ import {
 } from '@/services/fileImport/filePicker';
 import { parseResumeWithAI } from '@/services/ai/resumeParser';
 import { mapParsedDataToResume, getImportStats } from '@/services/fileImport/resumeMapper';
+import { reviewSignals } from '@/services/review/reviewManager';
 import type { SelectedFile, ParsedResumeData, ImportStats } from '@/types/resumeImport';
 import type { Resume } from '@/types/resume';
 
@@ -159,6 +160,9 @@ export function useResumeImport() {
 
         store.setStatus('success');
         setActiveResume(id);
+
+        // Record positive signal for the review prompt manager.
+        reviewSignals.resumeImported().catch(() => {});
 
         // Reset after a short delay
         setTimeout(() => store.reset(), 1500);
