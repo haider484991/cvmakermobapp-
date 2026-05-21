@@ -1,4 +1,4 @@
-import { useState, useId } from 'react';
+import { useState, useId, useCallback } from 'react';
 import {
   View,
   TextInput,
@@ -10,6 +10,7 @@ import {
 import { useTheme } from '@/hooks/useTheme';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { getInputA11yProps, MIN_TOUCH_TARGET } from '@/utils/accessibility';
+import { ValidationResult } from '@/utils/validation';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -23,6 +24,14 @@ interface InputProps extends TextInputProps {
    * Whether the field is required
    */
   required?: boolean;
+  /**
+   * Validation function to run on blur
+   */
+  validate?: (value: string) => ValidationResult;
+  /**
+   * Whether to validate on change (in addition to blur)
+   */
+  validateOnChange?: boolean;
 }
 
 export function Input({
@@ -34,14 +43,31 @@ export function Input({
   containerStyle,
   isPassword,
   required,
+  validate,
+  validateOnChange,
   ...props
 }: InputProps) {
   const { colors } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [validationError, setValidationError] = useState<string | undefined>();
+  const [hasBeenBlurred, setHasBeenBlurred] = useState(false);
+
+  // Run validation
+  const runValidation = useCallback((value: string) => {
+    if (validate) {
+      const result = validate(value);
+      setValidationError(result.isValid ? undefined : result.error);
+      return result.isValid;
+    }
+    return true;
+  }, [validate]);
+
+  // Determine which error to show (prop error takes precedence)
+  const displayError = error || validationError;
 
   const getBorderColor = () => {
-    if (error) return colors.error;
+    if (displayError) return colors.error;
     if (isFocused) return colors.primary;
     return colors.border;
   };
@@ -107,7 +133,19 @@ export function Input({
           }}
           onBlur={(e) => {
             setIsFocused(false);
+            setHasBeenBlurred(true);
+            // Validate on blur
+            if (validate && typeof props.value === 'string') {
+              runValidation(props.value);
+            }
             props.onBlur?.(e);
+          }}
+          onChangeText={(text) => {
+            // Validate on change if enabled and field has been blurred once
+            if (validateOnChange && hasBeenBlurred && validate) {
+              runValidation(text);
+            }
+            props.onChangeText?.(text);
           }}
           style={[
             {
@@ -148,7 +186,7 @@ export function Input({
         )}
       </View>
 
-      {error && (
+      {displayError && (
         <Text
           style={{
             color: colors.error,
@@ -158,11 +196,11 @@ export function Input({
           accessibilityRole="alert"
           accessibilityLiveRegion="polite"
         >
-          {error}
+          {displayError}
         </Text>
       )}
 
-      {hint && !error && (
+      {hint && !displayError && (
         <Text
           style={{
             color: colors.textMuted,

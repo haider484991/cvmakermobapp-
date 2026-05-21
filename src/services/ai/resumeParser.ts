@@ -14,10 +14,12 @@ import type { AIError } from '@/types/ai';
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 
 /**
- * Vision-capable model for parsing resumes
- * Using a model with vision support for image-based resumes
+ * Models for parsing resumes
+ * Using Gemini for PDFs (supports document understanding)
+ * Using GPT-4o-mini for images (good vision support)
  */
-const VISION_MODEL = 'openai/gpt-4o-mini';
+const DOCUMENT_MODEL = 'google/gemini-2.0-flash-001';
+const VISION_MODEL = 'google/gemini-2.0-flash-001';
 
 /**
  * Temperature for consistent parsing
@@ -61,39 +63,27 @@ export async function parseResumeWithAI(
   const apiKey = getApiKey();
 
   try {
-    // Build the message content based on file type
     let userContent: any[];
+    let modelToUse: string;
 
-    if (fileType === 'image') {
-      // For images, use vision API with image_url
-      userContent = [
-        {
-          type: 'text',
-          text: RESUME_PARSE_PROMPT(fileType),
+    // Use Gemini for all file types - it has good multimodal support
+    modelToUse = fileType === 'image' ? VISION_MODEL : DOCUMENT_MODEL;
+
+    // Gemini uses the OpenAI-compatible format with image_url for all file types
+    userContent = [
+      {
+        type: 'text',
+        text: RESUME_PARSE_PROMPT(fileType),
+      },
+      {
+        type: 'image_url',
+        image_url: {
+          url: `data:${mimeType};base64,${base64Content}`,
         },
-        {
-          type: 'image_url',
-          image_url: {
-            url: `data:${mimeType};base64,${base64Content}`,
-          },
-        },
-      ];
-    } else {
-      // For PDFs and DOCX, send as base64 encoded document
-      // Vision models can handle PDF content when sent properly
-      userContent = [
-        {
-          type: 'text',
-          text: RESUME_PARSE_PROMPT(fileType),
-        },
-        {
-          type: 'image_url',
-          image_url: {
-            url: `data:${mimeType};base64,${base64Content}`,
-          },
-        },
-      ];
-    }
+      },
+    ];
+
+    console.log('[ResumeParser] Using model:', modelToUse, 'for file type:', fileType);
 
     const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
       method: 'POST',
@@ -104,7 +94,7 @@ export async function parseResumeWithAI(
         'X-Title': 'FreeResume AI',
       },
       body: JSON.stringify({
-        model: VISION_MODEL,
+        model: modelToUse,
         messages: [
           {
             role: 'system',
@@ -124,14 +114,24 @@ export async function parseResumeWithAI(
       const errorData = await response.json().catch(() => ({}));
       const errorMessage = errorData?.error?.message || `API error: ${response.status}`;
 
+      console.error('[ResumeParser] API Error:', response.status, errorMessage, errorData);
+
       if (response.status === 401) {
-        throw createAIError('API_KEY_INVALID', 'Invalid API key');
+        throw createAIError('API_KEY_INVALID', 'Invalid API key. Please check your configuration.');
       } else if (response.status === 429) {
-        throw createAIError('RATE_LIMITED', 'Rate limit exceeded. Please try again later.');
+        throw createAIError('RATE_LIMITED', 'Rate limit exceeded. Please try again in a few minutes.');
       } else if (response.status === 503) {
-        throw createAIError('MODEL_UNAVAILABLE', 'Model is currently unavailable');
+        throw createAIError('MODEL_UNAVAILABLE', 'AI service is temporarily unavailable. Please try again.');
+      } else if (response.status === 400) {
+        // Bad request - likely file format issue
+        if (errorMessage.includes('file') || errorMessage.includes('format') || errorMessage.includes('content')) {
+          throw createAIError('PARSE_ERROR', 'Unable to process this file. Try using an image (PNG/JPG) of your resume instead.');
+        }
+        throw createAIError('PARSE_ERROR', errorMessage);
+      } else if (response.status === 413) {
+        throw createAIError('PARSE_ERROR', 'File is too large. Please use a smaller file or an image.');
       }
-      throw createAIError('UNKNOWN_ERROR', errorMessage);
+      throw createAIError('UNKNOWN_ERROR', `Failed to parse resume: ${errorMessage}`);
     }
 
     const data = await response.json();

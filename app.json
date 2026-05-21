@@ -3,8 +3,8 @@
     "name": "FreeResume AI - CV Builder",
     "slug": "freeresume-ai",
     "description": "Create professional resumes and CVs in minutes with FreeResume AI - the smart resume builder powered by artificial intelligence. Features AI-powered writing assistance, ATS-optimized templates, and easy PDF export.",
-    "version": "1.0.1",
-    "orientation": "portrait",
+    "version": "1.5.1",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -28,7 +28,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.freeresumeai.app",
-      "versionCode": 2
+      "versionCode": 4
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -44,7 +44,18 @@
           "androidAppId": "ca-app-pub-6873688003145340~2734080674",
           "iosAppId": "ca-app-pub-6873688003145340~2734080674"
         }
-      ]
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0"
+          }
+        }
+      ],
+      "expo-system-ui"
     ],
     "experiments": {
       "typedRoutes": true

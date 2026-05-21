@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ScrollView, Switch, Alert, Linking, Platform } from 'react-native';
+import { View, Text, Pressable, ScrollView, Switch, Alert, Linking, Platform, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -7,6 +7,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { useUIStore } from '@/stores/uiStore';
+import { useNotifications } from '@/hooks/useNotifications';
 import { gradientColors } from '@/constants/theme';
 import {
   User,
@@ -22,8 +23,22 @@ import {
   Mail,
   Star,
   ExternalLink,
+  Trash2,
+  Award,
+  Share2,
+  Users,
+  BellRing,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import { useGamification } from '@/hooks/useGamification';
+import {
+  XPProgressBar,
+  StreakCounter,
+  StatsCard,
+  AchievementBadge,
+  LevelBadge,
+} from '@/components/gamification';
+import { ShareCard } from '@/components/features/social';
 
 const PRIVACY_POLICY_URL = 'https://haider484991.github.io/cvmakermobapp-/privacy';
 const HELP_FAQ_URL = 'https://haider484991.github.io/cvmakermobapp-/help';
@@ -41,7 +56,17 @@ export default function Profile() {
     initials,
     subscriptionTier,
     signOut,
+    deleteAccount,
   } = useAuth();
+
+  const { achievements, currentLevel, totalXP } = useGamification();
+  const unlockedAchievements = achievements.filter(a => a.unlockedAt);
+  const {
+    isPermissionGranted,
+    preferences: notificationPrefs,
+    requestNotificationPermission,
+    updatePreferences,
+  } = useNotifications();
 
   const handleToggleDarkMode = () => {
     if (hapticEnabled) {
@@ -84,6 +109,61 @@ export default function Profile() {
     );
   };
 
+  const handleDeleteAccount = () => {
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    }
+
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to permanently delete your account? This action cannot be undone and will delete:\n\n• Your profile information\n• All your saved resumes\n• Your account credentials',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete Account',
+          style: 'destructive',
+          onPress: () => {
+            // Second confirmation for safety
+            Alert.alert(
+              'Final Confirmation',
+              'This is your last chance to cancel. Your account and all data will be permanently deleted.',
+              [
+                {
+                  text: 'Cancel',
+                  style: 'cancel',
+                },
+                {
+                  text: 'Delete Forever',
+                  style: 'destructive',
+                  onPress: async () => {
+                    const { error } = await deleteAccount();
+                    if (error) {
+                      Alert.alert('Error', 'Failed to delete account. Please try again or contact support.');
+                    } else {
+                      Alert.alert(
+                        'Account Deleted',
+                        'Your account has been successfully deleted.',
+                        [
+                          {
+                            text: 'OK',
+                            onPress: () => router.replace('/(auth)/login'),
+                          },
+                        ]
+                      );
+                    }
+                  },
+                },
+              ]
+            );
+          },
+        },
+      ]
+    );
+  };
+
   const handleSignIn = () => {
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -115,6 +195,28 @@ export default function Profile() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     await WebBrowser.openBrowserAsync(HELP_FAQ_URL);
+  };
+
+  const handleToggleNotifications = async () => {
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+
+    if (!isPermissionGranted) {
+      const granted = await requestNotificationPermission();
+      if (granted) {
+        await updatePreferences({ enabled: true });
+      }
+    } else {
+      await updatePreferences({ enabled: !notificationPrefs.enabled });
+    }
+  };
+
+  const handleToggleStreakReminders = async () => {
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    await updatePreferences({ streakReminders: !notificationPrefs.streakReminders });
   };
 
   const handleOpenNotificationSettings = () => {
@@ -315,9 +417,56 @@ export default function Profile() {
           </Animated.View>
         )}
 
+        {/* Gamification Section */}
+        <View className="px-6 mb-6">
+          {/* XP Progress */}
+          <Animated.View entering={FadeInUp.delay(250)}>
+            <XPProgressBar />
+          </Animated.View>
+
+          {/* Streak Counter */}
+          <Animated.View entering={FadeInUp.delay(300)} style={{ marginTop: 12 }}>
+            <StreakCounter />
+          </Animated.View>
+
+          {/* Achievements */}
+          <Animated.View entering={FadeInUp.delay(350)} style={{ marginTop: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '600',
+                  color: colors.text,
+                }}
+              >
+                Achievements
+              </Text>
+              <Text style={{ fontSize: 13, color: colors.textSecondary }}>
+                {unlockedAchievements.length}/{achievements.length} unlocked
+              </Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingRight: 16 }}
+            >
+              {achievements.slice(0, 8).map((achievement, index) => (
+                <View key={achievement.id} style={{ marginRight: 16 }}>
+                  <AchievementBadge achievement={achievement} size="medium" />
+                </View>
+              ))}
+            </ScrollView>
+          </Animated.View>
+
+          {/* Stats Card */}
+          <Animated.View entering={FadeInUp.delay(400)} style={{ marginTop: 16 }}>
+            <StatsCard />
+          </Animated.View>
+        </View>
+
         {/* Settings */}
         <View className="px-6">
-          <Animated.View entering={FadeInUp.delay(300)}>
+          <Animated.View entering={FadeInUp.delay(450)}>
             <Text
               className="text-sm font-medium mb-3 uppercase"
               style={{ color: colors.textMuted }}
@@ -344,14 +493,44 @@ export default function Profile() {
             />
 
             <SettingItem
-              icon={Bell}
-              label="Notifications"
-              value="Manage in settings"
-              onPress={handleOpenNotificationSettings}
+              icon={BellRing}
+              label="Push Notifications"
+              isToggle
+              toggleValue={notificationPrefs.enabled && isPermissionGranted}
+              onToggle={handleToggleNotifications}
+              showChevron={false}
             />
+
+            {notificationPrefs.enabled && isPermissionGranted && (
+              <SettingItem
+                icon={Bell}
+                label="Streak Reminders"
+                value="Get reminded to maintain your streak"
+                isToggle
+                toggleValue={notificationPrefs.streakReminders}
+                onToggle={handleToggleStreakReminders}
+                showChevron={false}
+              />
+            )}
           </Animated.View>
 
-          <Animated.View entering={FadeInUp.delay(400)} className="mt-6">
+          {/* Social Section */}
+          <Animated.View entering={FadeInUp.delay(475)} className="mt-6">
+            <Text
+              className="text-sm font-medium mb-3 uppercase"
+              style={{ color: colors.textMuted }}
+            >
+              Social
+            </Text>
+
+            <ShareCard variant="referral" />
+
+            <View style={{ height: 12 }} />
+
+            <ShareCard variant="share" />
+          </Animated.View>
+
+          <Animated.View entering={FadeInUp.delay(500)} className="mt-6">
             <Text
               className="text-sm font-medium mb-3 uppercase"
               style={{ color: colors.textMuted }}
@@ -379,13 +558,34 @@ export default function Profile() {
             />
           </Animated.View>
 
-          {/* Sign Out - Only show if authenticated */}
+          {/* Sign Out and Delete Account - Only show if authenticated */}
           {isAuthenticated && (
-            <Animated.View entering={FadeInUp.delay(500)} className="mt-6 mb-8">
+            <Animated.View entering={FadeInUp.delay(550)} className="mt-6">
               <SettingItem
                 icon={LogOut}
                 label="Sign Out"
                 onPress={handleSignOut}
+                showChevron={false}
+                iconColor={colors.error}
+                destructive
+              />
+            </Animated.View>
+          )}
+
+          {/* Delete Account - Separate section for destructive action */}
+          {isAuthenticated && (
+            <Animated.View entering={FadeInUp.delay(600)} className="mt-4 mb-8">
+              <Text
+                className="text-sm font-medium mb-3 uppercase"
+                style={{ color: colors.error }}
+              >
+                Danger Zone
+              </Text>
+              <SettingItem
+                icon={Trash2}
+                label="Delete Account"
+                value="Permanently delete your account and data"
+                onPress={handleDeleteAccount}
                 showChevron={false}
                 iconColor={colors.error}
                 destructive

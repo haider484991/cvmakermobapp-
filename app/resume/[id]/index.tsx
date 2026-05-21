@@ -11,6 +11,8 @@ import { useLinkedIn } from '@/hooks/useLinkedIn';
 import { useGenerateSummary, useEnhanceBullets, useSuggestSkills, useScoreResume } from '@/hooks/useAI';
 import { buildContextFromResume } from '@/services/ai/resumeAI';
 import { AIFloatingButton } from '@/components/features/ai-assistant';
+import { ResumeScoreInline } from '@/components/features/scoring';
+import { NextStepCard } from '@/components/features/resume';
 import { LinkedInImportButton } from '@/components/features/linkedin';
 import { mapLinkedInToResume } from '@/services/linkedin/profileMapper';
 import { LinkedInProfile } from '@/types/linkedin';
@@ -289,11 +291,22 @@ export default function ResumeEditor() {
         </View>
       </View>
 
+      {/* Next-step guidance — replaces the user's "what do I do first?"
+          confusion with a single explicit CTA pointing at the next gap. */}
+      <View className="mx-4 mt-4">
+        <NextStepCard resume={resume} onContinue={handleEditSection} />
+      </View>
+
+      {/* AI Resume Score — secondary, lives below the primary CTA. */}
+      <View className="mx-4 mt-3">
+        <ResumeScoreInline resume={resume} />
+      </View>
+
       {/* AI Assistant Banner */}
       <Animated.View entering={FadeIn.delay(200)}>
         <Pressable
           onPress={handleGenerateSummary}
-          className="mx-4 mt-4 p-4 rounded-xl flex-row items-center"
+          className="mx-4 mt-3 p-4 rounded-xl flex-row items-center"
           style={{
             backgroundColor: colors.primary + '10',
             borderWidth: 1,
@@ -318,13 +331,14 @@ export default function ResumeEditor() {
         </Pressable>
       </Animated.View>
 
-      {/* Sections List */}
+      {/* Sections List — kept for direct access to any section, but now
+          secondary since NextStepCard above tells users where to go next. */}
       <ScrollView className="flex-1 px-4 mt-4" showsVerticalScrollIndicator={false}>
         <Text
-          className="text-sm font-medium mb-3 uppercase"
-          style={{ color: colors.textMuted }}
+          className="text-xs font-medium mb-3 uppercase"
+          style={{ color: colors.textMuted, letterSpacing: 1 }}
         >
-          Resume Sections
+          Or jump to any section
         </Text>
 
         {resume.sections

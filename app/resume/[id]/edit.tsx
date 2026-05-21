@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp, FadeIn, FadeOut } from 'react-native-reanimated';
@@ -11,10 +11,11 @@ import { useGenerateSummary, useEnhanceBullets, useSuggestSkills } from '@/hooks
 import { buildContextFromResume } from '@/services/ai/resumeAI';
 import { AISuggestionCard } from '@/components/features/ai-assistant';
 import { Button, Input, Card, SavePromptModal } from '@/components/ui';
-import { ArrowLeft, Sparkles, Plus, Trash2, Check, Loader2 } from 'lucide-react-native';
+import { ArrowLeft, Sparkles, Plus, Trash2, Check, Loader2, Eye } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { SectionType, WorkExperience, Education } from '@/types/resume';
 import type { SkillSuggestion } from '@/types/ai';
+import { validateEmail, validatePhone, validateLinkedIn, validateUrl, validateName, validateGPA } from '@/utils/validation';
 
 export default function EditSection() {
   const { id, section } = useLocalSearchParams<{ id: string; section: SectionType }>();
@@ -245,6 +246,8 @@ export default function EditSection() {
         onChangeText={(text) => wrappedUpdateHeader({ fullName: text })}
         placeholder="John Doe"
         containerStyle={{ marginBottom: 16 }}
+        validate={validateName}
+        validateOnChange
       />
       <Input
         label="Job Title"
@@ -261,7 +264,10 @@ export default function EditSection() {
         }
         placeholder="john@example.com"
         keyboardType="email-address"
+        autoCapitalize="none"
         containerStyle={{ marginBottom: 16 }}
+        validate={validateEmail}
+        validateOnChange
       />
       <Input
         label="Phone"
@@ -272,6 +278,8 @@ export default function EditSection() {
         placeholder="+1 (555) 000-0000"
         keyboardType="phone-pad"
         containerStyle={{ marginBottom: 16 }}
+        validate={validatePhone}
+        validateOnChange
       />
       <Input
         label="Location"
@@ -289,7 +297,10 @@ export default function EditSection() {
           wrappedUpdateHeader({ contact: { ...resume.header.contact, linkedin: text } })
         }
         placeholder="linkedin.com/in/johndoe"
+        autoCapitalize="none"
         containerStyle={{ marginBottom: 16 }}
+        validate={validateLinkedIn}
+        validateOnChange
       />
       <Input
         label="Website (optional)"
@@ -298,6 +309,9 @@ export default function EditSection() {
           wrappedUpdateHeader({ contact: { ...resume.header.contact, website: text } })
         }
         placeholder="johndoe.com"
+        autoCapitalize="none"
+        validate={validateUrl}
+        validateOnChange
       />
     </Animated.View>
   );
@@ -662,6 +676,8 @@ export default function EditSection() {
               onChangeText={(text) => wrappedUpdateEducation(edu.id, { gpa: text })}
               placeholder="3.8"
               keyboardType="decimal-pad"
+              validate={validateGPA}
+              validateOnChange
             />
           </Card>
         ))}
@@ -897,38 +913,141 @@ export default function EditSection() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
-      {/* Header */}
-      <View
-        className="flex-row items-center px-4 py-3 border-b"
-        style={{ borderColor: colors.border }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <Pressable onPress={handleBack} className="p-2 mr-2">
-          <ArrowLeft size={24} color={colors.text} />
-        </Pressable>
-        <Text className="text-xl font-semibold" style={{ color: colors.text }}>
-          {getSectionTitle()}
-        </Text>
-      </View>
+        {/* Header — polished to match Stitch design: back arrow + brand wordmark
+            on left, Preview pill on right. The step indicator + section title
+            move into a "hero" block right under the header. */}
+        <View
+          className="flex-row items-center justify-between px-4 py-3 border-b"
+          style={{ borderColor: colors.border, backgroundColor: colors.background }}
+        >
+          <View className="flex-row items-center flex-1">
+            <Pressable onPress={handleBack} className="p-2 mr-1" hitSlop={8}>
+              <ArrowLeft size={22} color={colors.text} />
+            </Pressable>
+            <Text
+              className="font-semibold"
+              style={{ color: colors.text, fontSize: 15, letterSpacing: 0.2 }}
+            >
+              FreeResume AI
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => router.push(`/resume/${id}/preview`)}
+            className="flex-row items-center px-3 py-1.5 rounded-full"
+            style={{ backgroundColor: colors.primary + '15' }}
+            hitSlop={6}
+          >
+            <Eye size={14} color={colors.primary} />
+            <Text
+              className="ml-1.5 font-semibold"
+              style={{ color: colors.primary, fontSize: 13 }}
+            >
+              Preview
+            </Text>
+          </Pressable>
+        </View>
 
-      {/* Content */}
-      <ScrollView
-        className="flex-1 px-4 py-4"
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {renderSectionContent()}
-        <View className="h-8" />
-      </ScrollView>
+        {/* Step indicator + section title hero — gives users clear context
+            ("STEP 2 OF 5") so the flow stops feeling lost. Step is computed
+            from the resume.sections order. Total is the count of visible
+            sections only, so hidden/optional ones don't inflate it. */}
+        {(() => {
+          const visibleSections = (resume?.sections || [])
+            .filter((s) => s.isVisible)
+            .sort((a, b) => a.order - b.order);
+          const idx = visibleSections.findIndex((s) => s.type === section);
+          const step = idx >= 0 ? idx + 1 : 1;
+          const total = Math.max(visibleSections.length, 1);
+          return (
+            <View className="px-5 pt-5 pb-3">
+              <Text
+                style={{
+                  color: colors.primary,
+                  fontSize: 11,
+                  fontWeight: '700',
+                  letterSpacing: 1.4,
+                }}
+              >
+                STEP {step} OF {total}
+              </Text>
+              <Text
+                className="font-bold mt-1"
+                style={{ color: colors.text, fontSize: 28, letterSpacing: -0.5 }}
+              >
+                {getSectionTitle()}
+              </Text>
+              {/* Thin progress bar */}
+              <View
+                className="h-1 rounded-full mt-4 overflow-hidden"
+                style={{ backgroundColor: colors.border }}
+              >
+                <View
+                  style={{
+                    backgroundColor: colors.primary,
+                    height: '100%',
+                    width: `${(step / total) * 100}%`,
+                    borderRadius: 999,
+                  }}
+                />
+              </View>
+            </View>
+          );
+        })()}
 
-      {/* Save Button */}
-      <View
-        className="px-4 py-4 border-t"
-        style={{ borderColor: colors.border, backgroundColor: colors.surface }}
-      >
-        <Button onPress={handleBack} fullWidth>
-          Done
-        </Button>
-      </View>
+        {/* Content — wrapped in a polished surface card so individual inputs
+            feel grouped and "premium" rather than floating on the page. */}
+        <ScrollView
+          className="flex-1 px-4"
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 110, paddingTop: 4 }}
+        >
+          <View
+            className="rounded-2xl p-4"
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
+            {renderSectionContent()}
+          </View>
+          <View className="h-8" />
+        </ScrollView>
+
+        {/* Sticky bottom action bar — primary "Done" CTA with a checkmark
+            affordance so the user gets a clear "save and back" signal. */}
+        <View
+          className="px-4 pt-3 pb-4 border-t"
+          style={{ borderColor: colors.border, backgroundColor: colors.background }}
+        >
+          <Pressable
+            onPress={handleBack}
+            className="flex-row items-center justify-center py-3.5 rounded-2xl"
+            style={{
+              backgroundColor: colors.primary,
+              shadowColor: colors.primary,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.25,
+              shadowRadius: 10,
+              elevation: 5,
+            }}
+          >
+            <Check size={18} color="white" strokeWidth={2.5} />
+            <Text
+              className="ml-2 font-bold"
+              style={{ color: 'white', fontSize: 16, letterSpacing: 0.2 }}
+            >
+              Save & Continue
+            </Text>
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
 
       {/* Save Prompt Modal for Guest Users */}
       <SavePromptModal

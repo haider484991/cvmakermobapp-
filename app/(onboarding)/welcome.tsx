@@ -4,7 +4,7 @@
  * Design: Teal-blue gradient with glassmorphism cards
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, Pressable, Alert, Image, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -31,15 +31,15 @@ import {
   ArrowRight,
   Check,
 } from 'lucide-react-native';
-import { useLinkedIn } from '@/hooks/useLinkedIn';
 import { useResumeStore } from '@/stores/resumeStore';
 import { useUIStore } from '@/stores/uiStore';
-import { LinkedInImportButton } from '@/components/features/linkedin';
+import { useResumeImport } from '@/hooks/useResumeImport';
+import { ImportReviewModal } from '@/components/features/import';
 import { GradientBackground } from '@/components/ui';
-import { mapLinkedInToResume } from '@/services/linkedin/profileMapper';
-import { LinkedInProfile } from '@/types/linkedin';
 import { gradientColors } from '@/constants/theme';
 import * as Haptics from 'expo-haptics';
+import { Upload } from 'lucide-react-native';
+import { ActivityIndicator } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -190,10 +190,18 @@ function SparkleEffect() {
 
 export default function Welcome() {
   const router = useRouter();
-  const { isLoading: isLinkedInLoading } = useLinkedIn();
-  const { createResume, getResume } = useResumeStore();
   const { setOnboardingCompleted } = useUIStore();
-  const [isImporting, setIsImporting] = useState(false);
+  const {
+    selectAndParse,
+    isLoading: isImporting,
+    isReviewing,
+  } = useResumeImport();
+  const [showImportModal, setShowImportModal] = useState(false);
+
+  // Open the review modal as soon as the AI parser finishes.
+  React.useEffect(() => {
+    if (isReviewing) setShowImportModal(true);
+  }, [isReviewing]);
 
   // Button press animation
   const buttonScale = useSharedValue(1);
@@ -215,37 +223,25 @@ export default function Welcome() {
     router.replace('/(main)/dashboard');
   };
 
-  const handleLinkedInSuccess = async (linkedInProfile: LinkedInProfile) => {
+  const handleImportResume = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
-      setIsImporting(true);
-      const resumeId = createResume(`${linkedInProfile.firstName}'s Resume`);
-      const createdResume = getResume(resumeId);
-
-      if (createdResume) {
-        mapLinkedInToResume(linkedInProfile, createdResume);
-      }
-
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      setOnboardingCompleted(true);
-      router.replace('/(main)/dashboard');
+      await selectAndParse();
     } catch (error) {
-      console.error('[Welcome] LinkedIn import error:', error);
       Alert.alert(
-        'Import Error',
-        'There was an error importing your LinkedIn profile. Please try again.',
-        [{ text: 'OK' }]
+        'Import Failed',
+        'We couldn\'t read that file. Try a PDF, Word doc, or photo of your resume.',
+        [{ text: 'OK' }],
       );
-    } finally {
-      setIsImporting(false);
     }
   };
 
-  const handleLinkedInError = (error: string) => {
-    Alert.alert(
-      'LinkedIn Import Failed',
-      error || 'Unable to import from LinkedIn. Please try again or continue manually.',
-      [{ text: 'OK' }]
-    );
+  // Once the user confirms the parsed data, finish onboarding and land
+  // them on the dashboard with their freshly-imported resume.
+  const handleImportConfirmed = (_resumeId: string) => {
+    setShowImportModal(false);
+    setOnboardingCompleted(true);
+    router.replace('/(main)/dashboard');
   };
 
   return (
@@ -371,11 +367,11 @@ export default function Welcome() {
                 onPress={handleGetStarted}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
-                disabled={isImporting || isLinkedInLoading}
+                disabled={isImporting}
                 style={{
                   overflow: 'hidden',
                   borderRadius: 18,
-                  opacity: isImporting || isLinkedInLoading ? 0.7 : 1,
+                  opacity: isImporting ? 0.7 : 1,
                 }}
               >
                 <LinearGradient
@@ -417,16 +413,41 @@ export default function Welcome() {
               </Pressable>
             </Animated.View>
 
-            {/* LinkedIn Import Button */}
+            {/* Import Existing Resume — outline button. The file-based
+                import is the killer onboarding path: a brand-new user with
+                an existing PDF lands on the dashboard with a fully filled
+                resume in ~10 seconds. */}
             <View style={{ marginTop: 14 }}>
-              <LinkedInImportButton
-                variant="outline"
-                fullWidth
-                label="Import from LinkedIn"
-                onSuccess={handleLinkedInSuccess}
-                onError={handleLinkedInError}
+              <Pressable
+                onPress={handleImportResume}
                 disabled={isImporting}
-              />
+                style={{
+                  borderRadius: 16,
+                  borderWidth: 2,
+                  borderColor: 'rgba(255,255,255,0.55)',
+                  paddingVertical: 16,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: isImporting ? 0.7 : 1,
+                }}
+              >
+                {isImporting ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Upload size={18} color="white" strokeWidth={2.4} />
+                )}
+                <Text
+                  style={{
+                    color: 'white',
+                    fontSize: 16,
+                    fontWeight: '700',
+                    marginLeft: 10,
+                  }}
+                >
+                  {isImporting ? 'Reading your resume…' : 'I already have a resume'}
+                </Text>
+              </Pressable>
             </View>
 
             {/* Value Points */}
@@ -484,6 +505,12 @@ export default function Welcome() {
           </Animated.View>
         </ScrollView>
       </SafeAreaView>
+
+      <ImportReviewModal
+        visible={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onConfirm={handleImportConfirmed}
+      />
     </GradientBackground>
   );
 }

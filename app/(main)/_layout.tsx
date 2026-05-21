@@ -1,10 +1,15 @@
 import { Tabs } from 'expo-router';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
 import { Home, Layout, User } from 'lucide-react-native';
 
 export default function MainLayout() {
   const { colors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
+
+  // Calculate bottom padding for safe area (especially for gesture navigation)
+  const bottomPadding = Math.max(insets.bottom, 8);
 
   return (
     <Tabs
@@ -17,8 +22,8 @@ export default function MainLayout() {
           borderTopColor: colors.border,
           borderTopWidth: 1,
           paddingTop: 8,
-          paddingBottom: 8,
-          height: 65,
+          paddingBottom: bottomPadding,
+          height: 60 + bottomPadding,
         },
         tabBarLabelStyle: {
           fontSize: 12,

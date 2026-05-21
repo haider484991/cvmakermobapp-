@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAppOpenAd } from '@/hooks/useAppOpenAd';
 import { useUIStore } from '@/stores/uiStore';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { adPreloader } from '@/services/ads';
+import { adPreloader, interstitialAd, adsInit } from '@/services/ads';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,7 +28,9 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { colors } = useTheme();
 
-  console.log('[AuthGuard] State:', { isAuthenticated, isInitialized, segments: segments.join('/') });
+  if (__DEV__) {
+    console.log('[AuthGuard] State:', { isAuthenticated, isInitialized, segments: segments.join('/') });
+  }
 
   useEffect(() => {
     if (!isInitialized) return;
@@ -86,14 +88,21 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 function RootLayoutNav() {
   const { isDark, colors } = useTheme();
 
-  // Initialize App Open Ad - shows ad when app launches
-  useAppOpenAd();
-
-  // Preload rewarded ad for downloads early
+  // Kick off the ad pipeline: gather UMP consent, initialize MobileAds,
+  // then warm the rewarded + interstitial pools. Each step is independently
+  // safe to fail (Expo Go, missing module, no network).
   useEffect(() => {
-    console.log('[RootLayout] Starting ad preload...');
-    adPreloader.preload();
+    (async () => {
+      const ready = await adsInit.ready();
+      if (!ready) return;
+      adPreloader.preload();
+      interstitialAd.preload();
+    })();
   }, []);
+
+  // App Open Ad on cold launch (frequency-capped to 1 per 4h, skipped on
+  // very first launch so users actually reach the dashboard).
+  useAppOpenAd();
 
   return (
     <>
@@ -118,7 +127,6 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  console.log('[RootLayout] Rendering...');
   return (
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }}>

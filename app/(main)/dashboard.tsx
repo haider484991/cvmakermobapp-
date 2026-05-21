@@ -9,8 +9,16 @@ import { useTemplateStore } from '@/stores/templateStore';
 import { useUIStore } from '@/stores/uiStore';
 import { useSync } from '@/hooks/useSync';
 import { useResumeImport } from '@/hooks/useResumeImport';
+import { useGamification } from '@/hooks/useGamification';
 import { SyncStatusIndicator } from '@/components/ui/SyncStatusIndicator';
-import { ResumeImportCard, ImportReviewModal } from '@/components/features/import';
+import { PremiumImportHero, ImportReviewModal } from '@/components/features/import';
+import {
+  XPProgressBar,
+  StreakCounter,
+  DailyBonusCard,
+  LevelBadge,
+  AchievementUnlockModal,
+} from '@/components/gamification';
 import { Plus, FileText, MoreVertical, Trash2, Copy, Edit3, Sparkles } from 'lucide-react-native';
 import { gradientColors } from '@/constants/theme';
 import * as Haptics from 'expo-haptics';
@@ -31,6 +39,13 @@ export default function Dashboard() {
   const { getTemplate, selectedTemplateId } = useTemplateStore();
   const { isSyncing, refresh } = useSync();
   const { selectAndParse, isReviewing, isLoading: isImporting } = useResumeImport();
+  const {
+    showAchievementModal,
+    currentUnlock,
+    dismissAchievement,
+    trackResumeCreated,
+    dailyBonusClaimed,
+  } = useGamification();
 
   const [refreshing, setRefreshing] = useState(false);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
@@ -60,6 +75,8 @@ export default function Dashboard() {
     try {
       const id = createResume();
       setActiveResume(id);
+      // Track for gamification
+      trackResumeCreated();
       router.push(`/resume/${id}`);
     } finally {
       // Reset after a short delay to allow navigation
@@ -204,59 +221,73 @@ export default function Dashboard() {
           />
         }
       >
-        {/* Create New Card */}
-        <Animated.View entering={FadeInUp.delay(100)} style={{ marginTop: 24 }}>
-          <LinearGradient
-            colors={gradientColors.primary}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ borderRadius: 20, padding: 1 }}
-          >
-            <Pressable
-              onPress={handleCreateResume}
-              disabled={isCreating}
-              className="rounded-[19px] p-5 flex-row items-center"
-              style={{ backgroundColor: colors.background, opacity: isCreating ? 0.7 : 1 }}
-            >
-              <LinearGradient
-                colors={gradientColors.primary}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: 16,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: 16,
-                }}
-              >
-                <Plus size={26} color="white" strokeWidth={2.5} />
-              </LinearGradient>
-              <View className="flex-1">
-                <Text
-                  className="text-lg font-bold"
-                  style={{ color: colors.text }}
-                >
-                  {isCreating ? 'Creating...' : 'Create New Resume'}
-                </Text>
-                <View className="flex-row items-center mt-1">
-                  <Sparkles size={14} color={colors.primary} />
-                  <Text style={{ color: colors.textSecondary, marginLeft: 4 }}>
-                    {isCreating ? 'Please wait' : 'Start with AI assistance'}
-                  </Text>
-                </View>
-              </View>
-            </Pressable>
-          </LinearGradient>
+        {/* Gamification Section */}
+        <Animated.View entering={FadeInUp.delay(50)} style={{ marginTop: 24 }}>
+          {/* XP Progress with Level and Streak */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+            <View style={{ flex: 1, marginRight: 12 }}>
+              <XPProgressBar compact />
+            </View>
+            <StreakCounter compact />
+          </View>
+
+          {/* Daily Bonus - only show if not claimed */}
+          {!dailyBonusClaimed && (
+            <View style={{ marginBottom: 12 }}>
+              <DailyBonusCard />
+            </View>
+          )}
         </Animated.View>
 
-        {/* Import Resume Card */}
-        <Animated.View entering={FadeInUp.delay(150)} style={{ marginTop: 12 }}>
-          <ResumeImportCard
+        {/* Premium Import Hero — primary CTA. Importing an existing resume
+            converts faster than starting from scratch, so it owns the most
+            valuable real estate on this screen. */}
+        <Animated.View entering={FadeInUp.delay(100)} style={{ marginTop: 12 }}>
+          <PremiumImportHero
             onPress={handleImportPress}
             disabled={isImporting}
           />
+        </Animated.View>
+
+        {/* Create New Card — secondary path for users without a resume yet. */}
+        <Animated.View entering={FadeInUp.delay(150)} style={{ marginTop: 12 }}>
+          <Pressable
+            onPress={handleCreateResume}
+            disabled={isCreating}
+            className="rounded-2xl p-5 flex-row items-center"
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.border,
+              opacity: isCreating ? 0.7 : 1,
+            }}
+          >
+            <View
+              className="items-center justify-center mr-4"
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 14,
+                backgroundColor: colors.primary + '15',
+              }}
+            >
+              <Plus size={24} color={colors.primary} strokeWidth={2.5} />
+            </View>
+            <View className="flex-1">
+              <Text
+                className="text-base font-semibold"
+                style={{ color: colors.text }}
+              >
+                {isCreating ? 'Creating…' : 'Start from Scratch'}
+              </Text>
+              <View className="flex-row items-center mt-1">
+                <Sparkles size={12} color={colors.textSecondary} />
+                <Text className="text-xs" style={{ color: colors.textSecondary, marginLeft: 4 }}>
+                  Build a new resume with AI assistance
+                </Text>
+              </View>
+            </View>
+          </Pressable>
         </Animated.View>
 
         {/* Resume Cards */}
@@ -419,6 +450,13 @@ export default function Dashboard() {
         visible={showImportModal}
         onClose={handleImportCancel}
         onConfirm={handleImportConfirm}
+      />
+
+      {/* Achievement Unlock Modal */}
+      <AchievementUnlockModal
+        achievement={currentUnlock}
+        visible={showAchievementModal}
+        onClose={dismissAchievement}
       />
     </View>
   );

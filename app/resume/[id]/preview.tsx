@@ -13,6 +13,7 @@ import { useDownloadAd } from '@/hooks/useDownloadAd';
 import { AIScoreCard } from '@/components/features/ai-assistant';
 import { Button } from '@/components/ui';
 import { getTemplateComponent } from '@/components/templates';
+import { TemplateSwitcher } from '@/components/features/templates';
 import { ArrowLeft, Download, Share2, Sparkles, X, FileText, Settings, Play } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 
@@ -318,6 +319,11 @@ export default function PreviewResume() {
           </Text>
         </Animated.View>
       )}
+
+      {/* Template Switcher — swap templates without leaving preview. */}
+      <View style={{ marginTop: 12 }}>
+        <TemplateSwitcher />
+      </View>
 
       {/* Preview Content */}
       <ScrollView

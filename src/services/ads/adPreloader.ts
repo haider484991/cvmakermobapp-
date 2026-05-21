@@ -1,16 +1,17 @@
 /**
- * Ad Preloader Service
- * Preloads rewarded ads in the background when the app starts
- * so they're ready by the time the user needs them.
+ * Rewarded ad preloader.
+ *
+ * Keeps a rewarded ad warm so the user never waits when they tap Download.
+ * Uses centralized config + UMP gating + frequency cap.
  */
 
-import Constants, { ExecutionEnvironment } from 'expo-constants';
+import { AD_REQUEST_OPTIONS, AD_UNIT_IDS, isExpoGo } from './adConfig';
+import { adFrequencyCap } from './adFrequencyCap';
+import { adsInit } from './adsInit';
 
-// Ad Unit ID
-const PRODUCTION_AD_UNIT_ID = 'ca-app-pub-6873688003145340/5972479923';
-
-// Check if running in Expo Go
-const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+function devLog(...args: unknown[]) {
+  if (__DEV__) console.log('[AdPreloader]', ...args);
+}
 
 class AdPreloaderService {
   private rewardedAd: any = null;
@@ -22,219 +23,170 @@ class AdPreloaderService {
   private RewardedAd: any = null;
   private RewardedAdEventType: any = null;
   private AdEventType: any = null;
-  private TestIds: any = null;
   private unsubscribers: (() => void)[] = [];
 
-  constructor() {
-    this.initializeAdMob();
-  }
+  private async ensureModuleLoaded(): Promise<boolean> {
+    if (this.RewardedAd) return true;
+    if (isExpoGo) return false;
 
-  private initializeAdMob() {
-    if (isExpoGo) {
-      console.log('[AdPreloader] Running in Expo Go, ads disabled');
-      return;
-    }
+    const ready = await adsInit.ready();
+    if (!ready) return false;
 
     try {
-      const mobileAds = require('react-native-google-mobile-ads');
-      this.RewardedAd = mobileAds.RewardedAd;
-      this.RewardedAdEventType = mobileAds.RewardedAdEventType;
-      this.AdEventType = mobileAds.AdEventType;
-      this.TestIds = mobileAds.TestIds;
-
+      const m = require('react-native-google-mobile-ads');
+      this.RewardedAd = m.RewardedAd;
+      this.RewardedAdEventType = m.RewardedAdEventType;
+      this.AdEventType = m.AdEventType;
       this.createAdInstance();
-    } catch (error) {
-      console.log('[AdPreloader] AdMob not available:', error);
+      return true;
+    } catch (err) {
+      devLog('Module unavailable', err);
+      return false;
     }
   }
 
   private createAdInstance() {
     if (!this.RewardedAd) return;
-
-    const adUnitId = __DEV__ ? this.TestIds.REWARDED : PRODUCTION_AD_UNIT_ID;
-
-    this.rewardedAd = this.RewardedAd.createForAdRequest(adUnitId, {
-      requestNonPersonalizedAdsOnly: true,
-      keywords: ['resume', 'job', 'career', 'employment'],
-    });
-
-    // Set up listeners
+    this.rewardedAd = this.RewardedAd.createForAdRequest(
+      AD_UNIT_IDS.rewarded,
+      AD_REQUEST_OPTIONS,
+    );
     this.setupListeners();
   }
 
   private setupListeners() {
     if (!this.rewardedAd) return;
 
-    // Clear old listeners
-    this.unsubscribers.forEach(unsub => unsub());
+    this.unsubscribers.forEach((unsub) => unsub());
     this.unsubscribers = [];
 
     const unsubLoaded = this.rewardedAd.addAdEventListener(
       this.RewardedAdEventType.LOADED,
       () => {
-        console.log('[AdPreloader] Ad loaded successfully');
+        devLog('Loaded');
         this.isLoaded = true;
         this.isLoading = false;
         this.loadAttempts = 0;
         this.notifyListeners(true);
-      }
+      },
     );
 
     const unsubError = this.rewardedAd.addAdEventListener(
       this.AdEventType.ERROR,
-      (error: any) => {
-        console.log('[AdPreloader] Ad load error:', error?.message);
+      (err: any) => {
+        devLog('Load error', err?.message);
         this.isLoaded = false;
         this.isLoading = false;
 
-        // Retry with exponential backoff
         if (this.loadAttempts < this.maxAttempts) {
-          const delay = Math.min(3000 * Math.pow(2, this.loadAttempts), 30000);
-          console.log(`[AdPreloader] Retrying in ${delay}ms (attempt ${this.loadAttempts + 1}/${this.maxAttempts})`);
+          const delay = Math.min(3000 * Math.pow(2, this.loadAttempts), 30_000);
           setTimeout(() => this.preload(), delay);
         } else {
-          console.log('[AdPreloader] Max attempts reached');
           this.notifyListeners(false);
         }
-      }
+      },
     );
 
     const unsubClosed = this.rewardedAd.addAdEventListener(
       this.AdEventType.CLOSED,
       () => {
-        console.log('[AdPreloader] Ad closed, preloading next');
         this.isLoaded = false;
         this.loadAttempts = 0;
-        // Preload next ad after a short delay
         setTimeout(() => this.preload(), 1000);
-      }
+      },
     );
 
     this.unsubscribers.push(unsubLoaded, unsubError, unsubClosed);
   }
 
-  /**
-   * Start preloading the ad
-   */
-  preload(): void {
-    if (isExpoGo || !this.rewardedAd) {
-      console.log('[AdPreloader] Cannot preload - not available');
-      return;
-    }
+  async preload(): Promise<void> {
+    const ok = await this.ensureModuleLoaded();
+    if (!ok || !this.rewardedAd) return;
 
-    if (this.isLoaded || this.isLoading) {
-      console.log('[AdPreloader] Already loaded or loading');
-      return;
-    }
+    if (this.isLoaded || this.isLoading) return;
 
     this.isLoading = true;
     this.loadAttempts++;
 
     try {
-      console.log(`[AdPreloader] Starting preload (attempt ${this.loadAttempts})`);
       this.rewardedAd.load();
-    } catch (error) {
-      console.error('[AdPreloader] Preload error:', error);
+    } catch (err) {
+      devLog('Preload threw', err);
       this.isLoading = false;
     }
   }
 
-  /**
-   * Check if ad is ready
-   */
   isReady(): boolean {
     return this.isLoaded;
   }
 
-  /**
-   * Check if ad is currently loading
-   */
   isCurrentlyLoading(): boolean {
     return this.isLoading;
   }
 
-  /**
-   * Get the ad instance for showing
-   */
   getAd(): any {
     return this.rewardedAd;
   }
 
-  /**
-   * Subscribe to load state changes
-   */
   subscribe(callback: (loaded: boolean) => void): () => void {
     this.listeners.add(callback);
-    // Immediately notify of current state
     callback(this.isLoaded);
     return () => this.listeners.delete(callback);
   }
 
   private notifyListeners(loaded: boolean) {
-    this.listeners.forEach(callback => callback(loaded));
+    this.listeners.forEach((cb) => cb(loaded));
   }
 
-  /**
-   * Show the ad and return promise
-   */
   async showAd(): Promise<boolean> {
-    if (!this.isLoaded || !this.rewardedAd) {
-      console.log('[AdPreloader] Ad not ready');
-      return false;
-    }
+    if (!this.isLoaded || !this.rewardedAd) return false;
 
     return new Promise((resolve) => {
       let resolved = false;
+      let earned = false;
 
       const unsubReward = this.rewardedAd.addAdEventListener(
         this.RewardedAdEventType.EARNED_REWARD,
         () => {
-          console.log('[AdPreloader] User earned reward');
-          if (!resolved) {
-            resolved = true;
-            resolve(true);
-          }
-        }
+          earned = true;
+        },
       );
 
       const unsubClosed = this.rewardedAd.addAdEventListener(
         this.AdEventType.CLOSED,
         () => {
-          console.log('[AdPreloader] Ad closed');
           unsubReward();
           unsubClosed();
           this.isLoaded = false;
+          adFrequencyCap.markShown('rewarded');
           if (!resolved) {
             resolved = true;
-            resolve(false);
+            resolve(earned);
           }
-          // Preload next ad
           setTimeout(() => this.preload(), 500);
-        }
+        },
       );
 
       try {
         this.rewardedAd.show();
-      } catch (error) {
-        console.error('[AdPreloader] Show error:', error);
+      } catch (err) {
+        devLog('Show error', err);
         unsubReward();
         unsubClosed();
-        resolve(false);
+        if (!resolved) {
+          resolved = true;
+          resolve(false);
+        }
       }
     });
   }
 
-  /**
-   * Clean up resources
-   */
   cleanup() {
-    this.unsubscribers.forEach(unsub => unsub());
+    this.unsubscribers.forEach((unsub) => unsub());
     this.unsubscribers = [];
     this.listeners.clear();
   }
 }
 
-// Export singleton instance
 export const adPreloader = new AdPreloaderService();
-
 export default adPreloader;

@@ -18,6 +18,7 @@ export const useAuth = () => {
     signIn,
     signUp,
     signOut,
+    deleteAccount,
     resetPassword,
     updatePassword,
     refreshSession,
@@ -75,6 +76,12 @@ export const useAuth = () => {
     [updatePassword, clearError]
   );
 
+  // Convenience method to handle account deletion
+  const handleDeleteAccount = useCallback(async () => {
+    clearError();
+    return deleteAccount();
+  }, [deleteAccount, clearError]);
+
   // Get user's display name
   const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email || '';
 
@@ -130,6 +137,7 @@ export const useAuth = () => {
     signIn: handleSignIn,
     signUp: handleSignUp,
     signOut: handleSignOut,
+    deleteAccount: handleDeleteAccount,
     resetPassword: handleResetPassword,
     updatePassword: handleUpdatePassword,
     refreshSession,

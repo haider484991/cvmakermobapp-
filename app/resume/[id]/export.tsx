@@ -9,6 +9,8 @@ import { useTemplateStore } from '@/stores/templateStore';
 import { useUIStore } from '@/stores/uiStore';
 import { usePDFExport } from '@/hooks/usePDFExport';
 import { useDownloadAd } from '@/hooks/useDownloadAd';
+import { useGamification } from '@/hooks/useGamification';
+import { interstitialAd } from '@/services/ads';
 import { Button } from '@/components/ui';
 import {
   ArrowLeft,
@@ -21,6 +23,7 @@ import {
   ChevronRight,
   AlertCircle,
   Play,
+  Sparkles,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import type { PaperSize } from '@/services/pdf';
@@ -43,10 +46,13 @@ export default function ExportResume() {
     downloadPDF,
     preview,
     clearError,
-  } = usePDFExport({ isPremium: false }); // TODO: Get from subscription store
+  } = usePDFExport({ isPremium: false });
 
   // Rewarded Ad hook for download/share actions
   const { loaded: adLoaded, loading: adLoading, showAd } = useDownloadAd();
+
+  // Gamification tracking
+  const { trackResumeExported, trackShare } = useGamification();
 
   const [paperSize, setPaperSize] = useState<PaperSize>('letter');
   const [exportSuccess, setExportSuccess] = useState(false);
@@ -69,46 +75,16 @@ export default function ExportResume() {
     router.push(`/(main)/templates?returnTo=/resume/${id}/export`);
   };
 
+  // Preview is free — letting users see their resume before exporting is
+  // a critical retention/trust step, and gating it behind a rewarded ad
+  // tanks completion rates.
   const handlePreview = useCallback(async () => {
     if (!id) return;
-
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-
-    // If ad is loaded, show it first
-    if (adLoaded) {
-      const earned = await showAd();
-      if (earned) {
-        // User watched the full ad, proceed with preview
-        await preview(id, { paperSize });
-      } else {
-        // User closed ad early, show a message
-        Alert.alert(
-          'Ad Not Completed',
-          'Please watch the full ad to preview your resume.',
-          [{ text: 'OK' }]
-        );
-      }
-    } else if (adLoading) {
-      // Ad still loading, ask user to wait
-      Alert.alert(
-        'Please Wait',
-        'Ad is loading... Please try again in a moment.',
-        [{ text: 'OK' }]
-      );
-    } else {
-      // Ad failed to load, allow preview with warning
-      Alert.alert(
-        'Ad Unavailable',
-        'Unable to load ad. You can still preview your resume.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Preview Anyway', onPress: () => preview(id, { paperSize }) }
-        ]
-      );
-    }
-  }, [id, preview, paperSize, hapticEnabled, adLoaded, adLoading, showAd]);
+    await preview(id, { paperSize });
+  }, [id, preview, paperSize, hapticEnabled]);
 
   // Core export function (called after ad or directly)
   const performExportPDF = useCallback(async () => {
@@ -120,11 +96,16 @@ export default function ExportResume() {
 
       if (result.success) {
         setExportSuccess(true);
+        // Track for gamification
+        trackResumeExported();
         if (hapticEnabled) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
         Alert.alert('Success', 'Resume saved to your device!');
         setTimeout(() => setExportSuccess(false), 3000);
+        // Fire an interstitial after the success alert. Frequency-capped
+        // and silently no-ops if not loaded — never blocks the success path.
+        setTimeout(() => { interstitialAd.tryShow(); }, 1500);
       } else {
         // Show error to user
         if (hapticEnabled) {
@@ -200,10 +181,14 @@ export default function ExportResume() {
 
       if (result.success) {
         setExportSuccess(true);
+        // Track for gamification
+        trackShare();
         if (hapticEnabled) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
         setTimeout(() => setExportSuccess(false), 3000);
+        // Fire an interstitial after the share completes (capped).
+        setTimeout(() => { interstitialAd.tryShow(); }, 1500);
       } else {
         // Show error to user
         if (hapticEnabled) {
@@ -336,6 +321,27 @@ export default function ExportResume() {
             </Animated.View>
           )}
 
+          {/* "AI Verified" trust pill — small premium signal that this PDF
+              passed ATS checks. Matches the Stitch Export & Share design. */}
+          <Animated.View entering={FadeIn.delay(50)} className="mb-4">
+            <View
+              className="self-start flex-row items-center px-3 py-1.5 rounded-full"
+              style={{
+                backgroundColor: colors.success + '15',
+                borderWidth: 1,
+                borderColor: colors.success + '30',
+              }}
+            >
+              <Sparkles size={12} color={colors.success} />
+              <Text
+                className="ml-1.5 font-bold"
+                style={{ color: colors.success, fontSize: 11, letterSpacing: 1 }}
+              >
+                AI VERIFIED · ATS READY
+              </Text>
+            </View>
+          </Animated.View>
+
           {/* Current Template */}
           <Animated.View entering={FadeInUp.delay(100)}>
             <Text
@@ -414,49 +420,32 @@ export default function ExportResume() {
             </Text>
           </Animated.View>
 
-          {/* Preview Button */}
+          {/* Preview Button — always free, no ad gate */}
           <Animated.View entering={FadeInUp.delay(250)}>
             <Pressable
               onPress={handlePreview}
-              disabled={isGenerating || adLoading}
+              disabled={isGenerating}
               className="p-4 rounded-xl mb-3 flex-row items-center"
               style={{
                 backgroundColor: colors.surface,
-                borderWidth: 2,
-                borderColor: adLoaded ? colors.warning : colors.border,
-                opacity: adLoading ? 0.7 : 1,
+                borderWidth: 1,
+                borderColor: colors.border,
               }}
             >
               <View
                 className="w-12 h-12 rounded-xl items-center justify-center mr-3"
-                style={{ backgroundColor: adLoaded ? colors.warning : colors.textSecondary + '15' }}
+                style={{ backgroundColor: colors.textSecondary + '15' }}
               >
-                {adLoading ? (
-                  <ActivityIndicator color={colors.textSecondary} size="small" />
-                ) : adLoaded ? (
-                  <Play size={24} color="white" />
-                ) : (
-                  <Eye size={24} color={colors.textSecondary} />
-                )}
+                <Eye size={24} color={colors.textSecondary} />
               </View>
               <View className="flex-1">
                 <Text className="font-semibold" style={{ color: colors.text }}>
-                  {adLoaded ? 'Watch Ad to Preview' : adLoading ? 'Loading Ad...' : 'Preview PDF'}
+                  Preview PDF
                 </Text>
                 <Text className="text-sm" style={{ color: colors.textSecondary }}>
-                  {adLoaded ? 'Watch a short ad to preview' : 'See how your resume will look'}
+                  See how your resume will look
                 </Text>
               </View>
-              {adLoaded && (
-                <View
-                  className="px-2 py-1 rounded-full"
-                  style={{ backgroundColor: colors.warning + '20' }}
-                >
-                  <Text className="text-xs font-semibold" style={{ color: colors.warning }}>
-                    FREE
-                  </Text>
-                </View>
-              )}
             </Pressable>
           </Animated.View>
 
