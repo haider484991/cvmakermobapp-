@@ -3,7 +3,11 @@ import type { Resume, WorkExperience } from './resume';
 /**
  * Available AI models via OpenRouter
  */
-export type AIModel = 'x-ai/grok-4.1-fast';
+/**
+ * Available AI models via OpenRouter.
+ * NOTE: grok-4.1-fast was deprecated by xAI in 2026. Migrated to grok-4.3.
+ */
+export type AIModel = 'x-ai/grok-4.3';
 
 export type AIModelTier = 'fast' | 'quality' | 'budget';
 

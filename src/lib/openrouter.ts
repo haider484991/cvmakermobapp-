@@ -11,28 +11,28 @@ const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
  */
 export const AI_MODELS: Record<AIModelTier, AIModelConfig> = {
   fast: {
-    id: 'x-ai/grok-4.1-fast',
-    name: 'Grok 4.1 Fast',
+    id: 'x-ai/grok-4.3',
+    name: 'Grok 4.3',
     tier: 'fast',
     description: 'Fast responses for quick suggestions',
     maxTokens: 4096,
-    costPer1KTokens: 0.00025,
+    costPer1KTokens: 0.0005,
   },
   quality: {
-    id: 'x-ai/grok-4.1-fast',
-    name: 'Grok 4.1 Fast',
+    id: 'x-ai/grok-4.3',
+    name: 'Grok 4.3',
     tier: 'quality',
     description: 'High-quality responses for detailed analysis',
     maxTokens: 4096,
-    costPer1KTokens: 0.003,
+    costPer1KTokens: 0.0025,
   },
   budget: {
-    id: 'x-ai/grok-4.1-fast',
-    name: 'Grok 4.1 Fast',
+    id: 'x-ai/grok-4.3',
+    name: 'Grok 4.3',
     tier: 'budget',
     description: 'Cost-effective option for basic suggestions',
     maxTokens: 4096,
-    costPer1KTokens: 0.0008,
+    costPer1KTokens: 0.0005,
   },
 };
 

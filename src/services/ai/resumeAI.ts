@@ -31,7 +31,7 @@ import type { Resume, WorkExperience } from '@/types/resume';
  * Default request options
  */
 const DEFAULT_OPTIONS: Required<AIRequestOptions> = {
-  model: 'x-ai/grok-4.1-fast',
+  model: 'x-ai/grok-4.3',
   temperature: 0.7,
   maxTokens: 2048,
 };

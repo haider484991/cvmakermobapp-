@@ -124,7 +124,7 @@ export const useAIStore = create<AIState>()(
       suggestionCache: {},
       usageRecords: [],
       totalTokensUsed: 0,
-      preferredModel: 'x-ai/grok-4.1-fast',
+      preferredModel: 'x-ai/grok-4.3',
 
       // Generation state management
       setGenerating: (isGenerating, operation = null) =>

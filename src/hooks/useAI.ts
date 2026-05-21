@@ -308,7 +308,7 @@ export function useStreamingSummary() {
           },
           onComplete: (fullText, tokensUsed) => {
             stopStreaming();
-            trackUsage('summary', options?.model || 'x-ai/grok-4.1-fast', tokensUsed);
+            trackUsage('summary', options?.model || 'x-ai/grok-4.3', tokensUsed);
           },
           onError: (error) => {
             setError(error);
@@ -356,7 +356,7 @@ export function useStreamingBulletEnhancement() {
           },
           onComplete: (fullText, tokensUsed) => {
             stopStreaming();
-            trackUsage('bullets', options?.model || 'x-ai/grok-4.1-fast', tokensUsed);
+            trackUsage('bullets', options?.model || 'x-ai/grok-4.3', tokensUsed);
           },
           onError: (error) => {
             setError(error);
