@@ -9,6 +9,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUIStore } from '@/stores/uiStore';
 import { useNotifications } from '@/hooks/useNotifications';
 import { gradientColors } from '@/constants/theme';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LanguagePicker } from '@/components/features/settings/LanguagePicker';
+import { SUPPORTED_LOCALES } from '@/i18n';
+import { Globe } from 'lucide-react-native';
 import {
   User,
   Moon,
@@ -58,6 +63,12 @@ export default function Profile() {
     signOut,
     deleteAccount,
   } = useAuth();
+
+  const { t, i18n } = useTranslation();
+  const [languagePickerOpen, setLanguagePickerOpen] = useState(false);
+  const currentLocale = SUPPORTED_LOCALES.find(
+    (l) => l.code === (i18n.resolvedLanguage || i18n.language),
+  );
 
   const { achievements, currentLevel, totalXP } = useGamification();
   const unlockedAchievements = achievements.filter(a => a.unlockedAt);
@@ -474,6 +485,15 @@ export default function Profile() {
               Preferences
             </Text>
 
+            {/* Language picker — opens a modal sheet with all 12 supported
+                locales. Placed at the top of Preferences for discoverability. */}
+            <SettingItem
+              icon={Globe}
+              label={t('profile.language')}
+              value={currentLocale?.nativeName || 'English'}
+              onPress={() => setLanguagePickerOpen(true)}
+            />
+
             <SettingItem
               icon={Moon}
               label="Dark Mode"
@@ -609,6 +629,11 @@ export default function Profile() {
           )}
         </Animated.View>
       </ScrollView>
+
+      <LanguagePicker
+        visible={languagePickerOpen}
+        onClose={() => setLanguagePickerOpen(false)}
+      />
     </View>
   );
 }

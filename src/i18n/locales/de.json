@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "Zurück",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saveAndContinue": "Speichern & Fortfahren",
+    "done": "Fertig",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "continue": "Fortfahren",
+    "skip": "Überspringen",
+    "loading": "Wird geladen…",
+    "error": "Etwas ist schiefgelaufen",
+    "retry": "Erneut versuchen",
+    "dismiss": "Schließen",
+    "apply": "Übernehmen",
+    "preview": "Vorschau",
+    "share": "Teilen",
+    "download": "Herunterladen",
+    "free": "Kostenlos",
+    "premium": "Premium",
+    "yes": "Ja",
+    "no": "Nein",
+    "ok": "OK"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "Deine Karriere, KI-unterstützt"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "Gestalte deine Karriere mit intelligentem Design",
+      "subhead": "KI-gestützter Lebenslauf-Editor. Für immer kostenlos.",
+      "getStarted": "Kostenlos starten",
+      "haveResume": "Ich habe bereits einen Lebenslauf",
+      "importing": "Lebenslauf wird gelesen…",
+      "importFailed": "Wir konnten die Datei nicht lesen. Versuche es mit einem PDF, Word-Dokument oder einem Foto deines Lebenslaufs.",
+      "trusted": "Vertraut von über 10.000 Jobsuchenden weltweit"
+    }
+  },
+  "dashboard": {
+    "title": "Meine Lebensläufe",
+    "subtitle": "{{count}} Lebenslauf",
+    "subtitle_plural": "{{count}} Lebensläufe",
+    "empty": "Erstelle deinen ersten Lebenslauf",
+    "importHero": {
+      "badge": "AI POWERED",
+      "title": "Du hast bereits einen Lebenslauf?",
+      "subtitle": "Lade PDF, Word oder ein Foto hoch – KI erstellt ihn in 10 Sekunden neu."
+    },
+    "createNew": "Von Grund auf neu",
+    "createNewSub": "Erstelle einen neuen Lebenslauf mit KI-Unterstützung",
+    "creating": "Wird erstellt…",
+    "lastEdited": "Zuletzt bearbeitet {{date}}"
+  },
+  "editor": {
+    "stepOf": "SCHRITT {{current}} VON {{total}}",
+    "sections": {
+      "header": "Persönliche Informationen",
+      "summary": "Berufliche Zusammenfassung",
+      "experience": "Berufserfahrung",
+      "education": "Ausbildung",
+      "skills": "Fähigkeiten",
+      "projects": "Projekte",
+      "certifications": "Zertifizierungen",
+      "languages": "Sprachen",
+      "awards": "Auszeichnungen"
+    },
+    "fields": {
+      "fullName": "Vollständiger Name",
+      "jobTitle": "Berufsbezeichnung",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "location": "Ort",
+      "linkedin": "LinkedIn (optional)",
+      "website": "Website (optional)",
+      "company": "Unternehmen",
+      "title": "Titel",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "currentRole": "Ich arbeite derzeit hier",
+      "description": "Beschreibung",
+      "institution": "Institution",
+      "degree": "Abschluss",
+      "field": "Studienfach",
+      "gpa": "Notendurchschnitt"
+    },
+    "addExperience": "Erfahrung hinzufügen",
+    "addEducation": "Ausbildung hinzufügen",
+    "addSkill": "Fähigkeit hinzufügen",
+    "addProject": "Projekt hinzufügen",
+    "aiAssistant": {
+      "title": "KI-Schreibassistent",
+      "subtitle": "Hilfe beim Verfassen überzeugender Inhalte",
+      "suggestionsTitle": "KI-VORSCHLÄGE",
+      "applyAll": "Alle übernehmen",
+      "applySuggestion": "Vorschlag übernehmen",
+      "tapToImprove": "Tippen, um mit KI zu verbessern"
+    }
+  },
+  "templates": {
+    "title": "Vorlage auswählen",
+    "premiumBadge": "PREMIUM-VORLAGEN",
+    "subtitle": "{{total}} ATS-optimierte Designs · {{free}} kostenlos, {{premium}} Premium",
+    "categories": {
+      "all": "Alle",
+      "atsOptimized": "ATS-optimiert",
+      "professional": "Professionell",
+      "modern": "Modern",
+      "creative": "Kreativ",
+      "minimal": "Minimal"
+    },
+    "selected": "{{name}} ausgewählt",
+    "tapToApply": "Tippe auf eine Vorlage, um sie anzuwenden"
+  },
+  "preview": {
+    "title": "Vorschau",
+    "aiScore": {
+      "button": "KI-Bewertung",
+      "subtitle": "Analysiere deinen Lebenslauf mit KI",
+      "analyzing": "Lebenslauf wird analysiert…"
+    },
+    "jobDescription": {
+      "title": "Zieljob (optional)",
+      "placeholder": "Füge hier die Stellenbeschreibung für eine maßgeschneiderte Analyse ein…"
+    }
+  },
+  "score": {
+    "label": "LEBENSLAUF-BEWERTUNG",
+    "headlineGreat": "Sieht gut aus",
+    "headlineGood": "Solide – Potenzial vorhanden",
+    "headlineOk": "Auf dem richtigen Weg",
+    "headlineLow": "Mehr Details hinzufügen",
+    "tapForAnalysis": "Tippen für KI-Analyse & Tipps",
+    "modalTitle": "KI-Lebenslauf-Analyse",
+    "atsScore": "ATS-Score: {{value}}%",
+    "categories": {
+      "title": "Bewertungsübersicht",
+      "content": "Inhaltsqualität",
+      "formatting": "Formatierung",
+      "keywords": "Schlüsselwörter",
+      "impact": "Wirkung",
+      "completeness": "Vollständigkeit"
+    },
+    "strengths": "Stärken",
+    "improvements": "Verbesserungspotenzial",
+    "tips": "Profi-Tipps",
+    "reanalyze": "Lebenslauf neu analysieren",
+    "verdictExcellent": "Hervorragender Lebenslauf!",
+    "verdictGood": "Guter Lebenslauf",
+    "verdictNeedsWork": "Lebenslauf braucht Verbesserung"
+  },
+  "export": {
+    "title": "Lebenslauf exportieren",
+    "verifiedBadge": "KI-VERIFIZIERT · ATS-BEREIT",
+    "currentTemplate": "AKTUELLE VORLAGE",
+    "paperSize": "PAPIERFORMAT",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "PDF-Vorschau",
+    "previewSub": "So wird dein Lebenslauf aussehen",
+    "downloadPdf": "PDF herunterladen",
+    "downloadSub": "Auf deinem Gerät speichern",
+    "sharePdf": "Lebenslauf teilen",
+    "shareSub": "Per E-Mail, Nachrichten oder anderen Apps senden",
+    "success": "Lebenslauf auf deinem Gerät gespeichert!",
+    "tips": {
+      "title": "Export-Tipps",
+      "body": "• PDF-Format ist am besten für Bewerbungen\n• US Letter ist in Nordamerika üblich\n• A4 ist Standard in Europa und den meisten anderen Ländern\n• Immer Korrektur lesen vor dem Versenden"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "language": "Sprache",
+    "languageSub": "Wähle deine bevorzugte Sprache",
+    "darkMode": "Dunkelmodus",
+    "haptics": "Haptisches Feedback",
+    "signOut": "Abmelden",
+    "signIn": "Anmelden",
+    "deleteAccount": "Konto löschen"
+  },
+  "auth": {
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "forgotPassword": "Passwort vergessen?",
+    "createAccount": "Konto erstellen",
+    "alreadyHave": "Du hast bereits ein Konto?",
+    "dontHave": "Du hast noch kein Konto?"
+  }
+}

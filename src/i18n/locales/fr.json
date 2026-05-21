@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "Retour",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saveAndContinue": "Enregistrer et continuer",
+    "done": "Terminé",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "continue": "Continuer",
+    "skip": "Ignorer",
+    "loading": "Chargement…",
+    "error": "Une erreur s'est produite",
+    "retry": "Réessayer",
+    "dismiss": "Fermer",
+    "apply": "Appliquer",
+    "preview": "Aperçu",
+    "share": "Partager",
+    "download": "Télécharger",
+    "free": "Gratuit",
+    "premium": "Premium",
+    "yes": "Oui",
+    "no": "Non",
+    "ok": "OK"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "Votre parcours professionnel, optimisé par l'IA"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "Construisez votre carrière avec un design intelligent",
+      "subhead": "Créateur de CV optimisé par l'IA. Gratuit pour toujours.",
+      "getStarted": "Commencer gratuitement",
+      "haveResume": "J'ai déjà un CV",
+      "importing": "Lecture de votre CV…",
+      "importFailed": "Impossible de lire ce fichier. Essayez un PDF, un document Word ou une photo de votre CV.",
+      "trusted": "Approuvé par plus de 10 000 chercheurs d'emploi dans le monde"
+    }
+  },
+  "dashboard": {
+    "title": "Mes CV",
+    "subtitle": "{{count}} CV",
+    "subtitle_plural": "{{count}} CV",
+    "empty": "Créez votre premier CV",
+    "importHero": {
+      "badge": "POWERED BY AI",
+      "title": "Vous avez déjà un CV ?",
+      "subtitle": "Importez un PDF, un Word ou une photo — l'IA le reconstruit en 10 secondes."
+    },
+    "createNew": "Commencer de zéro",
+    "createNewSub": "Créez un nouveau CV avec l'aide de l'IA",
+    "creating": "Création en cours…",
+    "lastEdited": "Dernière modification le {{date}}"
+  },
+  "editor": {
+    "stepOf": "ÉTAPE {{current}} SUR {{total}}",
+    "sections": {
+      "header": "Informations personnelles",
+      "summary": "Résumé professionnel",
+      "experience": "Expérience professionnelle",
+      "education": "Formation",
+      "skills": "Compétences",
+      "projects": "Projets",
+      "certifications": "Certifications",
+      "languages": "Langues",
+      "awards": "Récompenses"
+    },
+    "fields": {
+      "fullName": "Nom complet",
+      "jobTitle": "Intitulé du poste",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "location": "Localisation",
+      "linkedin": "LinkedIn (facultatif)",
+      "website": "Site web (facultatif)",
+      "company": "Entreprise",
+      "title": "Intitulé",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "currentRole": "J'occupe actuellement ce poste",
+      "description": "Description",
+      "institution": "Établissement",
+      "degree": "Diplôme",
+      "field": "Domaine d'études",
+      "gpa": "Moyenne"
+    },
+    "addExperience": "Ajouter une expérience",
+    "addEducation": "Ajouter une formation",
+    "addSkill": "Ajouter une compétence",
+    "addProject": "Ajouter un projet",
+    "aiAssistant": {
+      "title": "Assistant d'écriture IA",
+      "subtitle": "Obtenez de l'aide pour rédiger un contenu percutant",
+      "suggestionsTitle": "SUGGESTIONS IA",
+      "applyAll": "Tout appliquer",
+      "applySuggestion": "Appliquer la suggestion",
+      "tapToImprove": "Appuyez pour améliorer avec l'IA"
+    }
+  },
+  "templates": {
+    "title": "Choisissez votre modèle",
+    "premiumBadge": "MODÈLES PREMIUM",
+    "subtitle": "{{total}} designs optimisés ATS · {{free}} gratuits, {{premium}} premium",
+    "categories": {
+      "all": "Tous",
+      "atsOptimized": "Optimisés ATS",
+      "professional": "Professionnel",
+      "modern": "Moderne",
+      "creative": "Créatif",
+      "minimal": "Minimaliste"
+    },
+    "selected": "{{name}} sélectionné",
+    "tapToApply": "Appuyez sur un modèle pour l'appliquer"
+  },
+  "preview": {
+    "title": "Aperçu",
+    "aiScore": {
+      "button": "Obtenir le score IA",
+      "subtitle": "Analysez votre CV avec l'IA",
+      "analyzing": "Analyse de votre CV en cours…"
+    },
+    "jobDescription": {
+      "title": "Poste visé (facultatif)",
+      "placeholder": "Collez ici la description du poste pour une analyse personnalisée…"
+    }
+  },
+  "score": {
+    "label": "SCORE DU CV",
+    "headlineGreat": "Excellent résultat",
+    "headlineGood": "Solide — des progrès possibles",
+    "headlineOk": "En bonne voie",
+    "headlineLow": "Ajoutez plus de détails",
+    "tapForAnalysis": "Appuyez pour l'analyse IA et les conseils",
+    "modalTitle": "Analyse IA du CV",
+    "atsScore": "Score ATS : {{value}} %",
+    "categories": {
+      "title": "Détail du score",
+      "content": "Qualité du contenu",
+      "formatting": "Mise en forme",
+      "keywords": "Mots-clés",
+      "impact": "Impact",
+      "completeness": "Complétude"
+    },
+    "strengths": "Points forts",
+    "improvements": "Points à améliorer",
+    "tips": "Conseils pro",
+    "reanalyze": "Réanalyser le CV",
+    "verdictExcellent": "CV excellent !",
+    "verdictGood": "Bon CV",
+    "verdictNeedsWork": "CV à améliorer"
+  },
+  "export": {
+    "title": "Exporter le CV",
+    "verifiedBadge": "VÉRIFIÉ PAR IA · PRÊT POUR ATS",
+    "currentTemplate": "MODÈLE ACTUEL",
+    "paperSize": "FORMAT DE PAPIER",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "Aperçu PDF",
+    "previewSub": "Visualisez le rendu de votre CV",
+    "downloadPdf": "Télécharger le PDF",
+    "downloadSub": "Enregistrer sur votre appareil",
+    "sharePdf": "Partager le CV",
+    "shareSub": "Envoyer par e-mail, messages ou autres apps",
+    "success": "CV enregistré sur votre appareil !",
+    "tips": {
+      "title": "Conseils d'export",
+      "body": "• Le format PDF est idéal pour les candidatures\n• US Letter est courant en Amérique du Nord\n• A4 est la norme en Europe et dans la plupart des autres pays\n• Relisez toujours avant d'envoyer"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "language": "Langue",
+    "languageSub": "Choisissez votre langue préférée",
+    "darkMode": "Mode sombre",
+    "haptics": "Retour haptique",
+    "signOut": "Se déconnecter",
+    "signIn": "Se connecter",
+    "deleteAccount": "Supprimer le compte"
+  },
+  "auth": {
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "createAccount": "Créer un compte",
+    "alreadyHave": "Vous avez déjà un compte ?",
+    "dontHave": "Vous n'avez pas de compte ?"
+  }
+}

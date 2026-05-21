@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp, FadeIn, useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
 import { useTheme } from '@/hooks/useTheme';
 import { Star, Lock, Check, Target, ArrowLeft } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import * as Haptics from 'expo-haptics';
 import { useTemplateStore } from '@/stores/templateStore';
 import { useUIStore } from '@/stores/uiStore';
@@ -159,6 +160,7 @@ function TemplateCard({ template, isSelected, onSelect, index }: TemplateCardPro
 
 export default function Templates() {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const router = useRouter();
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { hapticEnabled } = useUIStore();
@@ -272,7 +274,7 @@ export default function Templates() {
                   className="ml-1 font-bold"
                   style={{ color: colors.primary, fontSize: 10, letterSpacing: 1.2 }}
                 >
-                  PREMIUM TEMPLATES
+                  {t('templates.premiumBadge')}
                 </Text>
               </View>
             </View>
@@ -280,13 +282,13 @@ export default function Templates() {
               className="font-bold"
               style={{ color: colors.text, fontSize: 32, letterSpacing: -0.6 }}
             >
-              Choose Your{'\n'}Template
+              {t('templates.title')}
             </Text>
             <Text
               style={{ color: colors.textSecondary, fontSize: 14 }}
               className="mt-2"
             >
-              {templates.length} ATS-optimized designs · {freeCount} free, {premiumCount} premium
+              {t('templates.subtitle', { total: templates.length, free: freeCount, premium: premiumCount })}
             </Text>
           </>
         )}

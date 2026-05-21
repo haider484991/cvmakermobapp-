@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "Kembali",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "saveAndContinue": "Simpan & Lanjutkan",
+    "done": "Selesai",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "create": "Buat",
+    "next": "Selanjutnya",
+    "previous": "Sebelumnya",
+    "continue": "Lanjutkan",
+    "skip": "Lewati",
+    "loading": "Memuat…",
+    "error": "Terjadi kesalahan",
+    "retry": "Coba Lagi",
+    "dismiss": "Tutup",
+    "apply": "Terapkan",
+    "preview": "Pratinjau",
+    "share": "Bagikan",
+    "download": "Unduh",
+    "free": "Gratis",
+    "premium": "Premium",
+    "yes": "Ya",
+    "no": "Tidak",
+    "ok": "OK"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "Perjalanan karirmu, ditingkatkan AI"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "Bangun karirmu dengan desain cerdas",
+      "subhead": "Pembuat resume berbasis AI. Gratis selamanya.",
+      "getStarted": "Mulai Gratis",
+      "haveResume": "Saya sudah punya resume",
+      "importing": "Membaca resume Anda…",
+      "importFailed": "Kami tidak bisa membaca file itu. Coba PDF, dokumen Word, atau foto resume Anda.",
+      "trusted": "Dipercaya lebih dari 10.000 pencari kerja di seluruh dunia"
+    }
+  },
+  "dashboard": {
+    "title": "Resume Saya",
+    "subtitle": "{{count}} resume",
+    "subtitle_plural": "{{count}} resume",
+    "empty": "Buat resume pertamamu",
+    "importHero": {
+      "badge": "AI POWERED",
+      "title": "Sudah punya resume?",
+      "subtitle": "Unggah PDF, Word, atau foto — AI akan membangun ulang dalam 10 detik."
+    },
+    "createNew": "Mulai dari Awal",
+    "createNewSub": "Buat resume baru dengan bantuan AI",
+    "creating": "Membuat…",
+    "lastEdited": "Terakhir diedit {{date}}"
+  },
+  "editor": {
+    "stepOf": "LANGKAH {{current}} DARI {{total}}",
+    "sections": {
+      "header": "Informasi Pribadi",
+      "summary": "Ringkasan Profesional",
+      "experience": "Pengalaman Kerja",
+      "education": "Pendidikan",
+      "skills": "Keahlian",
+      "projects": "Proyek",
+      "certifications": "Sertifikasi",
+      "languages": "Bahasa",
+      "awards": "Penghargaan"
+    },
+    "fields": {
+      "fullName": "Nama Lengkap",
+      "jobTitle": "Jabatan",
+      "email": "Email",
+      "phone": "Telepon",
+      "location": "Lokasi",
+      "linkedin": "LinkedIn (opsional)",
+      "website": "Situs Web (opsional)",
+      "company": "Perusahaan",
+      "title": "Jabatan",
+      "startDate": "Tanggal Mulai",
+      "endDate": "Tanggal Berakhir",
+      "currentRole": "Saya masih bekerja di sini",
+      "description": "Deskripsi",
+      "institution": "Institusi",
+      "degree": "Gelar",
+      "field": "Bidang Studi",
+      "gpa": "IPK"
+    },
+    "addExperience": "Tambah Pengalaman",
+    "addEducation": "Tambah Pendidikan",
+    "addSkill": "Tambah Keahlian",
+    "addProject": "Tambah Proyek",
+    "aiAssistant": {
+      "title": "Asisten Menulis AI",
+      "subtitle": "Dapatkan bantuan menulis konten menarik",
+      "suggestionsTitle": "SARAN AI",
+      "applyAll": "Terapkan Semua",
+      "applySuggestion": "Terapkan Saran",
+      "tapToImprove": "Ketuk untuk tingkatkan dengan AI"
+    }
+  },
+  "templates": {
+    "title": "Pilih Template",
+    "premiumBadge": "TEMPLATE PREMIUM",
+    "subtitle": "{{total}} desain ATS-optimized · {{free}} gratis, {{premium}} premium",
+    "categories": {
+      "all": "Semua",
+      "atsOptimized": "ATS-Optimized",
+      "professional": "Profesional",
+      "modern": "Modern",
+      "creative": "Kreatif",
+      "minimal": "Minimal"
+    },
+    "selected": "{{name}} dipilih",
+    "tapToApply": "Ketuk template untuk menerapkannya"
+  },
+  "preview": {
+    "title": "Pratinjau",
+    "aiScore": {
+      "button": "Dapatkan Skor AI",
+      "subtitle": "Analisis resume Anda dengan AI",
+      "analyzing": "Menganalisis resume Anda…"
+    },
+    "jobDescription": {
+      "title": "Pekerjaan Target (Opsional)",
+      "placeholder": "Tempel deskripsi pekerjaan di sini untuk analisis yang disesuaikan…"
+    }
+  },
+  "score": {
+    "label": "SKOR RESUME",
+    "headlineGreat": "Terlihat bagus",
+    "headlineGood": "Solid — masih bisa ditingkatkan",
+    "headlineOk": "Semakin baik",
+    "headlineLow": "Tambahkan lebih banyak detail",
+    "tapForAnalysis": "Ketuk untuk analisis & tips AI",
+    "modalTitle": "Analisis Resume AI",
+    "atsScore": "Skor ATS: {{value}}%",
+    "categories": {
+      "title": "Rincian Skor",
+      "content": "Kualitas Konten",
+      "formatting": "Format",
+      "keywords": "Kata Kunci",
+      "impact": "Dampak",
+      "completeness": "Kelengkapan"
+    },
+    "strengths": "Kelebihan",
+    "improvements": "Area yang Perlu Ditingkatkan",
+    "tips": "Tips Pro",
+    "reanalyze": "Analisis Ulang Resume",
+    "verdictExcellent": "Resume Sangat Baik!",
+    "verdictGood": "Resume Bagus",
+    "verdictNeedsWork": "Resume Perlu Perbaikan"
+  },
+  "export": {
+    "title": "Ekspor Resume",
+    "verifiedBadge": "AI VERIFIED · ATS READY",
+    "currentTemplate": "TEMPLATE SAAT INI",
+    "paperSize": "UKURAN KERTAS",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "Pratinjau PDF",
+    "previewSub": "Lihat bagaimana resume Anda akan tampil",
+    "downloadPdf": "Unduh PDF",
+    "downloadSub": "Simpan ke perangkat Anda",
+    "sharePdf": "Bagikan Resume",
+    "shareSub": "Kirim via email, pesan, atau aplikasi lain",
+    "success": "Resume disimpan ke perangkat Anda!",
+    "tips": {
+      "title": "Tips Ekspor",
+      "body": "• Format PDF terbaik untuk lamaran kerja\n• US Letter umum di Amerika Utara\n• A4 standar di Eropa dan sebagian besar negara lain\n• Selalu periksa ulang sebelum mengirim"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "language": "Bahasa",
+    "languageSub": "Pilih bahasa yang Anda inginkan",
+    "darkMode": "Mode Gelap",
+    "haptics": "Umpan Balik Haptik",
+    "signOut": "Keluar",
+    "signIn": "Masuk",
+    "deleteAccount": "Hapus Akun"
+  },
+  "auth": {
+    "signIn": "Masuk",
+    "signUp": "Daftar",
+    "email": "Email",
+    "password": "Kata Sandi",
+    "forgotPassword": "Lupa kata sandi?",
+    "createAccount": "Buat Akun",
+    "alreadyHave": "Sudah punya akun?",
+    "dontHave": "Belum punya akun?"
+  }
+}

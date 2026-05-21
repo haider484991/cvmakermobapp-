@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "Atrás",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saveAndContinue": "Guardar y continuar",
+    "done": "Listo",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "continue": "Continuar",
+    "skip": "Omitir",
+    "loading": "Cargando…",
+    "error": "Algo salió mal",
+    "retry": "Reintentar",
+    "dismiss": "Descartar",
+    "apply": "Aplicar",
+    "preview": "Vista previa",
+    "share": "Compartir",
+    "download": "Descargar",
+    "free": "Gratis",
+    "premium": "Premium",
+    "yes": "Sí",
+    "no": "No",
+    "ok": "Aceptar"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "Tu carrera, potenciada con IA"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "Construye tu carrera con diseño inteligente",
+      "subhead": "Creador de CV con IA. Gratis para siempre.",
+      "getStarted": "Empezar gratis",
+      "haveResume": "Ya tengo un CV",
+      "importing": "Leyendo tu CV…",
+      "importFailed": "No pudimos leer ese archivo. Prueba con un PDF, Word o foto de tu CV.",
+      "trusted": "Confían en nosotros más de 10.000 personas en busca de empleo"
+    }
+  },
+  "dashboard": {
+    "title": "Mis CVs",
+    "subtitle": "{{count}} CV",
+    "subtitle_plural": "{{count}} CVs",
+    "empty": "Crea tu primer CV",
+    "importHero": {
+      "badge": "CON IA",
+      "title": "¿Ya tienes un CV?",
+      "subtitle": "Sube un PDF, Word o foto — la IA lo rehace en 10 segundos."
+    },
+    "createNew": "Empezar desde cero",
+    "createNewSub": "Crea un nuevo CV con ayuda de IA",
+    "creating": "Creando…",
+    "lastEdited": "Editado {{date}}"
+  },
+  "editor": {
+    "stepOf": "PASO {{current}} DE {{total}}",
+    "sections": {
+      "header": "Información personal",
+      "summary": "Resumen profesional",
+      "experience": "Experiencia laboral",
+      "education": "Educación",
+      "skills": "Habilidades",
+      "projects": "Proyectos",
+      "certifications": "Certificaciones",
+      "languages": "Idiomas",
+      "awards": "Premios"
+    },
+    "fields": {
+      "fullName": "Nombre completo",
+      "jobTitle": "Puesto",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "location": "Ubicación",
+      "linkedin": "LinkedIn (opcional)",
+      "website": "Sitio web (opcional)",
+      "company": "Empresa",
+      "title": "Cargo",
+      "startDate": "Fecha de inicio",
+      "endDate": "Fecha de fin",
+      "currentRole": "Trabajo aquí actualmente",
+      "description": "Descripción",
+      "institution": "Institución",
+      "degree": "Título",
+      "field": "Área de estudio",
+      "gpa": "Promedio"
+    },
+    "addExperience": "Añadir experiencia",
+    "addEducation": "Añadir educación",
+    "addSkill": "Añadir habilidad",
+    "addProject": "Añadir proyecto",
+    "aiAssistant": {
+      "title": "Asistente de escritura con IA",
+      "subtitle": "Recibe ayuda para redactar contenido convincente",
+      "suggestionsTitle": "SUGERENCIAS DE IA",
+      "applyAll": "Aplicar todo",
+      "applySuggestion": "Aplicar sugerencia",
+      "tapToImprove": "Toca para mejorar con IA"
+    }
+  },
+  "templates": {
+    "title": "Elige tu plantilla",
+    "premiumBadge": "PLANTILLAS PREMIUM",
+    "subtitle": "{{total}} diseños optimizados para ATS · {{free}} gratis, {{premium}} premium",
+    "categories": {
+      "all": "Todas",
+      "atsOptimized": "Optimizadas ATS",
+      "professional": "Profesionales",
+      "modern": "Modernas",
+      "creative": "Creativas",
+      "minimal": "Minimalistas"
+    },
+    "selected": "{{name}} seleccionada",
+    "tapToApply": "Toca una plantilla para aplicarla"
+  },
+  "preview": {
+    "title": "Vista previa",
+    "aiScore": {
+      "button": "Obtener puntuación IA",
+      "subtitle": "Analiza tu CV con IA",
+      "analyzing": "Analizando tu CV…"
+    },
+    "jobDescription": {
+      "title": "Empleo objetivo (opcional)",
+      "placeholder": "Pega aquí la descripción del puesto para un análisis personalizado…"
+    }
+  },
+  "score": {
+    "label": "PUNTUACIÓN",
+    "headlineGreat": "Excelente",
+    "headlineGood": "Bueno — hay margen de mejora",
+    "headlineOk": "Casi listo",
+    "headlineLow": "Añade más detalles",
+    "tapForAnalysis": "Toca para análisis y consejos con IA",
+    "modalTitle": "Análisis de CV con IA",
+    "atsScore": "Compatibilidad ATS: {{value}}%",
+    "categories": {
+      "title": "Desglose de la puntuación",
+      "content": "Calidad del contenido",
+      "formatting": "Formato",
+      "keywords": "Palabras clave",
+      "impact": "Impacto",
+      "completeness": "Completitud"
+    },
+    "strengths": "Puntos fuertes",
+    "improvements": "Áreas a mejorar",
+    "tips": "Consejos profesionales",
+    "reanalyze": "Analizar de nuevo",
+    "verdictExcellent": "¡CV excelente!",
+    "verdictGood": "Buen CV",
+    "verdictNeedsWork": "El CV necesita mejoras"
+  },
+  "export": {
+    "title": "Exportar CV",
+    "verifiedBadge": "VERIFICADO POR IA · LISTO PARA ATS",
+    "currentTemplate": "PLANTILLA ACTUAL",
+    "paperSize": "TAMAÑO DEL PAPEL",
+    "letter": "Carta (US)",
+    "a4": "A4",
+    "previewPdf": "Vista previa del PDF",
+    "previewSub": "Mira cómo se verá tu CV",
+    "downloadPdf": "Descargar PDF",
+    "downloadSub": "Guardar en tu dispositivo",
+    "sharePdf": "Compartir CV",
+    "shareSub": "Envíalo por correo, mensaje u otras apps",
+    "success": "¡CV guardado en tu dispositivo!",
+    "tips": {
+      "title": "Consejos para exportar",
+      "body": "• El PDF es el mejor formato para postulaciones\n• Carta (US) es estándar en Norteamérica\n• A4 es estándar en Europa y el resto del mundo\n• Siempre revisa antes de enviar"
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "language": "Idioma",
+    "languageSub": "Elige tu idioma preferido",
+    "darkMode": "Modo oscuro",
+    "haptics": "Vibración táctil",
+    "signOut": "Cerrar sesión",
+    "signIn": "Iniciar sesión",
+    "deleteAccount": "Eliminar cuenta"
+  },
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste la contraseña?",
+    "createAccount": "Crear cuenta",
+    "alreadyHave": "¿Ya tienes una cuenta?",
+    "dontHave": "¿No tienes una cuenta?"
+  }
+}

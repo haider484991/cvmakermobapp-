@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Keyboa
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp, FadeIn, FadeOut } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { useResumeStore } from '@/stores/resumeStore';
@@ -21,6 +22,7 @@ export default function EditSection() {
   const { id, section } = useLocalSearchParams<{ id: string; section: SectionType }>();
   const router = useRouter();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const { shouldShowSavePrompt } = useUIStore();
   const {
@@ -897,18 +899,13 @@ export default function EditSection() {
   };
 
   const getSectionTitle = () => {
-    const titles: Record<string, string> = {
-      header: 'Personal Information',
-      summary: 'Professional Summary',
-      experience: 'Work Experience',
-      education: 'Education',
-      skills: 'Skills',
-      projects: 'Projects',
-      certifications: 'Certifications',
-      languages: 'Languages',
-      awards: 'Awards',
-    };
-    return titles[section as string] || 'Edit Section';
+    // Section title is now i18n-driven via the editor.sections.<key> bundle.
+    // If the section param doesn't match a known key (rare), fall back to
+    // a generic translated label.
+    if (section && t(`editor.sections.${section}`) !== `editor.sections.${section}`) {
+      return t(`editor.sections.${section}`);
+    }
+    return t('common.edit');
   };
 
   return (
@@ -947,7 +944,7 @@ export default function EditSection() {
               className="ml-1.5 font-semibold"
               style={{ color: colors.primary, fontSize: 13 }}
             >
-              Preview
+              {t('common.preview')}
             </Text>
           </Pressable>
         </View>
@@ -973,7 +970,7 @@ export default function EditSection() {
                   letterSpacing: 1.4,
                 }}
               >
-                STEP {step} OF {total}
+                {t('editor.stepOf', { current: step, total })}
               </Text>
               <Text
                 className="font-bold mt-1"
@@ -1043,7 +1040,7 @@ export default function EditSection() {
               className="ml-2 font-bold"
               style={{ color: 'white', fontSize: 16, letterSpacing: 0.2 }}
             >
-              Save & Continue
+              {t('common.saveAndContinue')}
             </Text>
           </Pressable>
         </View>

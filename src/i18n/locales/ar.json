@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "رجوع",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "saveAndContinue": "حفظ ومتابعة",
+    "done": "تم",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إنشاء",
+    "next": "التالي",
+    "previous": "السابق",
+    "continue": "متابعة",
+    "skip": "تخطي",
+    "loading": "جارٍ التحميل…",
+    "error": "حدث خطأ ما",
+    "retry": "حاول مرة أخرى",
+    "dismiss": "تجاهل",
+    "apply": "تطبيق",
+    "preview": "معاينة",
+    "share": "مشاركة",
+    "download": "تنزيل",
+    "free": "مجاني",
+    "premium": "مميز",
+    "yes": "نعم",
+    "no": "لا",
+    "ok": "موافق"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "رحلتك المهنية، معززة بالذكاء الاصطناعي"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "ابنِ مسيرتك المهنية بتصميم ذكي",
+      "subhead": "منشئ سير ذاتية مدعوم بالذكاء الاصطناعي. مجاني إلى الأبد.",
+      "getStarted": "ابدأ مجاناً",
+      "haveResume": "لدي سيرة ذاتية بالفعل",
+      "importing": "جارٍ قراءة سيرتك الذاتية…",
+      "importFailed": "لم نتمكن من قراءة هذا الملف. جرّب PDF أو Word أو صورة لسيرتك الذاتية.",
+      "trusted": "موثوق به من قبل أكثر من 10,000 باحث عن عمل حول العالم"
+    }
+  },
+  "dashboard": {
+    "title": "سيرتي الذاتية",
+    "subtitle": "{{count}} سيرة ذاتية",
+    "subtitle_plural": "{{count}} سير ذاتية",
+    "empty": "أنشئ سيرتك الذاتية الأولى",
+    "importHero": {
+      "badge": "AI POWERED",
+      "title": "لديك سيرة ذاتية بالفعل؟",
+      "subtitle": "ارفع PDF أو Word أو صورة — وسيعيد الذكاء الاصطناعي بناءها في 10 ثوانٍ."
+    },
+    "createNew": "ابدأ من الصفر",
+    "createNewSub": "أنشئ سيرة ذاتية جديدة بمساعدة الذكاء الاصطناعي",
+    "creating": "جارٍ الإنشاء…",
+    "lastEdited": "آخر تعديل {{date}}"
+  },
+  "editor": {
+    "stepOf": "الخطوة {{current}} من {{total}}",
+    "sections": {
+      "header": "المعلومات الشخصية",
+      "summary": "الملخص المهني",
+      "experience": "الخبرة العملية",
+      "education": "التعليم",
+      "skills": "المهارات",
+      "projects": "المشاريع",
+      "certifications": "الشهادات",
+      "languages": "اللغات",
+      "awards": "الجوائز"
+    },
+    "fields": {
+      "fullName": "الاسم الكامل",
+      "jobTitle": "المسمى الوظيفي",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف",
+      "location": "الموقع",
+      "linkedin": "LinkedIn (اختياري)",
+      "website": "الموقع الإلكتروني (اختياري)",
+      "company": "الشركة",
+      "title": "المسمى الوظيفي",
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ الانتهاء",
+      "currentRole": "أعمل هنا حالياً",
+      "description": "الوصف",
+      "institution": "المؤسسة",
+      "degree": "الدرجة العلمية",
+      "field": "مجال الدراسة",
+      "gpa": "المعدل التراكمي"
+    },
+    "addExperience": "إضافة خبرة",
+    "addEducation": "إضافة تعليم",
+    "addSkill": "إضافة مهارة",
+    "addProject": "إضافة مشروع",
+    "aiAssistant": {
+      "title": "مساعد الكتابة بالذكاء الاصطناعي",
+      "subtitle": "احصل على مساعدة في كتابة محتوى جذاب",
+      "suggestionsTitle": "AI SUGGESTIONS",
+      "applyAll": "تطبيق الكل",
+      "applySuggestion": "تطبيق الاقتراح",
+      "tapToImprove": "اضغط للتحسين بالذكاء الاصطناعي"
+    }
+  },
+  "templates": {
+    "title": "اختر القالب",
+    "premiumBadge": "PREMIUM TEMPLATES",
+    "subtitle": "{{total}} تصميم مُحسَّن لـ ATS · {{free}} مجاني، {{premium}} مميز",
+    "categories": {
+      "all": "الكل",
+      "atsOptimized": "مُحسَّن لـ ATS",
+      "professional": "احترافي",
+      "modern": "عصري",
+      "creative": "إبداعي",
+      "minimal": "بسيط"
+    },
+    "selected": "تم اختيار {{name}}",
+    "tapToApply": "اضغط على قالب لتطبيقه"
+  },
+  "preview": {
+    "title": "معاينة",
+    "aiScore": {
+      "button": "احصل على تقييم الذكاء الاصطناعي",
+      "subtitle": "حلل سيرتك الذاتية بالذكاء الاصطناعي",
+      "analyzing": "جارٍ تحليل سيرتك الذاتية…"
+    },
+    "jobDescription": {
+      "title": "الوظيفة المستهدفة (اختياري)",
+      "placeholder": "الصق وصف الوظيفة هنا لتحليل مخصص…"
+    }
+  },
+  "score": {
+    "label": "RESUME SCORE",
+    "headlineGreat": "تبدو رائعة",
+    "headlineGood": "جيدة — مجال للتطوير",
+    "headlineOk": "في الطريق الصحيح",
+    "headlineLow": "أضف المزيد من التفاصيل",
+    "tapForAnalysis": "اضغط لتحليل الذكاء الاصطناعي والنصائح",
+    "modalTitle": "تحليل السيرة الذاتية بالذكاء الاصطناعي",
+    "atsScore": "ATS Score: {{value}}%",
+    "categories": {
+      "title": "تفصيل النتيجة",
+      "content": "جودة المحتوى",
+      "formatting": "التنسيق",
+      "keywords": "الكلمات المفتاحية",
+      "impact": "التأثير",
+      "completeness": "الاكتمال"
+    },
+    "strengths": "نقاط القوة",
+    "improvements": "مجالات التحسين",
+    "tips": "نصائح احترافية",
+    "reanalyze": "إعادة تحليل السيرة الذاتية",
+    "verdictExcellent": "سيرة ذاتية ممتازة!",
+    "verdictGood": "سيرة ذاتية جيدة",
+    "verdictNeedsWork": "السيرة الذاتية تحتاج إلى تحسين"
+  },
+  "export": {
+    "title": "تصدير السيرة الذاتية",
+    "verifiedBadge": "AI VERIFIED · ATS READY",
+    "currentTemplate": "القالب الحالي",
+    "paperSize": "حجم الورق",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "معاينة PDF",
+    "previewSub": "شاهد كيف ستبدو سيرتك الذاتية",
+    "downloadPdf": "تنزيل PDF",
+    "downloadSub": "حفظ على جهازك",
+    "sharePdf": "مشاركة السيرة الذاتية",
+    "shareSub": "إرسال عبر البريد الإلكتروني أو الرسائل أو التطبيقات الأخرى",
+    "success": "تم حفظ السيرة الذاتية على جهازك!",
+    "tips": {
+      "title": "نصائح التصدير",
+      "body": "• صيغة PDF هي الأفضل للتقدم للوظائف\n• US Letter شائع في أمريكا الشمالية\n• A4 هو المعيار في أوروبا ومعظم الدول الأخرى\n• راجع دائماً قبل الإرسال"
+    }
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "language": "اللغة",
+    "languageSub": "اختر لغتك المفضلة",
+    "darkMode": "الوضع الداكن",
+    "haptics": "اللمس التفاعلي",
+    "signOut": "تسجيل الخروج",
+    "signIn": "تسجيل الدخول",
+    "deleteAccount": "حذف الحساب"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "createAccount": "إنشاء حساب",
+    "alreadyHave": "لديك حساب بالفعل؟",
+    "dontHave": "ليس لديك حساب؟"
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saveAndContinue": "Save & Continue",
+    "done": "Done",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "next": "Next",
+    "previous": "Previous",
+    "continue": "Continue",
+    "skip": "Skip",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Try Again",
+    "dismiss": "Dismiss",
+    "apply": "Apply",
+    "preview": "Preview",
+    "share": "Share",
+    "download": "Download",
+    "free": "Free",
+    "premium": "Premium",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "Your career journey, AI-enhanced"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "Build your career with intelligent design",
+      "subhead": "AI-powered resume builder. Free forever.",
+      "getStarted": "Get Started Free",
+      "haveResume": "I already have a resume",
+      "importing": "Reading your resume…",
+      "importFailed": "We couldn't read that file. Try a PDF, Word doc, or photo of your resume.",
+      "trusted": "Trusted by 10,000+ job seekers worldwide"
+    }
+  },
+  "dashboard": {
+    "title": "My Resumes",
+    "subtitle": "{{count}} resume",
+    "subtitle_plural": "{{count}} resumes",
+    "empty": "Create your first resume",
+    "importHero": {
+      "badge": "AI POWERED",
+      "title": "Have a resume already?",
+      "subtitle": "Upload PDF, Word, or a photo — AI rebuilds it in 10 seconds."
+    },
+    "createNew": "Start from Scratch",
+    "createNewSub": "Build a new resume with AI assistance",
+    "creating": "Creating…",
+    "lastEdited": "Last edited {{date}}"
+  },
+  "editor": {
+    "stepOf": "STEP {{current}} OF {{total}}",
+    "sections": {
+      "header": "Personal Information",
+      "summary": "Professional Summary",
+      "experience": "Work Experience",
+      "education": "Education",
+      "skills": "Skills",
+      "projects": "Projects",
+      "certifications": "Certifications",
+      "languages": "Languages",
+      "awards": "Awards"
+    },
+    "fields": {
+      "fullName": "Full Name",
+      "jobTitle": "Job Title",
+      "email": "Email",
+      "phone": "Phone",
+      "location": "Location",
+      "linkedin": "LinkedIn (optional)",
+      "website": "Website (optional)",
+      "company": "Company",
+      "title": "Title",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "currentRole": "I currently work here",
+      "description": "Description",
+      "institution": "Institution",
+      "degree": "Degree",
+      "field": "Field of Study",
+      "gpa": "GPA"
+    },
+    "addExperience": "Add Experience",
+    "addEducation": "Add Education",
+    "addSkill": "Add Skill",
+    "addProject": "Add Project",
+    "aiAssistant": {
+      "title": "AI Writing Assistant",
+      "subtitle": "Get help writing compelling content",
+      "suggestionsTitle": "AI SUGGESTIONS",
+      "applyAll": "Apply All",
+      "applySuggestion": "Apply Suggestion",
+      "tapToImprove": "Tap to improve with AI"
+    }
+  },
+  "templates": {
+    "title": "Choose Your Template",
+    "premiumBadge": "PREMIUM TEMPLATES",
+    "subtitle": "{{total}} ATS-optimized designs · {{free}} free, {{premium}} premium",
+    "categories": {
+      "all": "All",
+      "atsOptimized": "ATS-Optimized",
+      "professional": "Professional",
+      "modern": "Modern",
+      "creative": "Creative",
+      "minimal": "Minimal"
+    },
+    "selected": "{{name}} selected",
+    "tapToApply": "Tap a template to apply it"
+  },
+  "preview": {
+    "title": "Preview",
+    "aiScore": {
+      "button": "Get AI Score",
+      "subtitle": "Analyze your resume with AI",
+      "analyzing": "Analyzing your resume…"
+    },
+    "jobDescription": {
+      "title": "Target Job (Optional)",
+      "placeholder": "Paste the job description here for tailored analysis…"
+    }
+  },
+  "score": {
+    "label": "RESUME SCORE",
+    "headlineGreat": "Looking great",
+    "headlineGood": "Solid — room to grow",
+    "headlineOk": "Getting there",
+    "headlineLow": "Add more details",
+    "tapForAnalysis": "Tap for AI analysis & tips",
+    "modalTitle": "AI Resume Analysis",
+    "atsScore": "ATS Score: {{value}}%",
+    "categories": {
+      "title": "Score Breakdown",
+      "content": "Content Quality",
+      "formatting": "Formatting",
+      "keywords": "Keywords",
+      "impact": "Impact",
+      "completeness": "Completeness"
+    },
+    "strengths": "Strengths",
+    "improvements": "Areas to Improve",
+    "tips": "Pro Tips",
+    "reanalyze": "Re-analyze Resume",
+    "verdictExcellent": "Excellent Resume!",
+    "verdictGood": "Good Resume",
+    "verdictNeedsWork": "Resume Needs Improvement"
+  },
+  "export": {
+    "title": "Export Resume",
+    "verifiedBadge": "AI VERIFIED · ATS READY",
+    "currentTemplate": "CURRENT TEMPLATE",
+    "paperSize": "PAPER SIZE",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "Preview PDF",
+    "previewSub": "See how your resume will look",
+    "downloadPdf": "Download PDF",
+    "downloadSub": "Save to your device",
+    "sharePdf": "Share Resume",
+    "shareSub": "Send via email, messages, or other apps",
+    "success": "Resume saved to your device!",
+    "tips": {
+      "title": "Export Tips",
+      "body": "• PDF format is best for job applications\n• US Letter is common in North America\n• A4 is standard in Europe and most other countries\n• Always proofread before sending"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "language": "Language",
+    "languageSub": "Choose your preferred language",
+    "darkMode": "Dark Mode",
+    "haptics": "Haptic Feedback",
+    "signOut": "Sign Out",
+    "signIn": "Sign In",
+    "deleteAccount": "Delete Account"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "createAccount": "Create Account",
+    "alreadyHave": "Already have an account?",
+    "dontHave": "Don't have an account?"
+  }
+}

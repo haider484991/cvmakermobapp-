@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "वापस",
+    "cancel": "रद्द करें",
+    "save": "सेव करें",
+    "saveAndContinue": "सेव करें और जारी रखें",
+    "done": "हो गया",
+    "delete": "हटाएं",
+    "edit": "संपादित करें",
+    "create": "बनाएं",
+    "next": "अगला",
+    "previous": "पिछला",
+    "continue": "जारी रखें",
+    "skip": "छोड़ें",
+    "loading": "लोड हो रहा है…",
+    "error": "कुछ गलत हो गया",
+    "retry": "पुनः प्रयास करें",
+    "dismiss": "खारिज करें",
+    "apply": "लागू करें",
+    "preview": "पूर्वावलोकन",
+    "share": "साझा करें",
+    "download": "डाउनलोड करें",
+    "free": "मुफ्त",
+    "premium": "प्रीमियम",
+    "yes": "हाँ",
+    "no": "नहीं",
+    "ok": "ठीक है"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "आपकी करियर यात्रा, AI-संवर्धित"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "बुद्धिमान डिज़ाइन के साथ अपना करियर बनाएं",
+      "subhead": "AI-संचालित रिज्यूमे बिल्डर। हमेशा मुफ्त।",
+      "getStarted": "मुफ्त शुरू करें",
+      "haveResume": "मेरे पास पहले से रिज्यूमे है",
+      "importing": "आपका रिज्यूमे पढ़ा जा रहा है…",
+      "importFailed": "हम उस फ़ाइल को पढ़ नहीं सके। PDF, Word डॉक या अपने रिज्यूमे की फ़ोटो आज़माएं।",
+      "trusted": "दुनिया भर के 10,000+ नौकरी चाहने वालों द्वारा भरोसा किया गया"
+    }
+  },
+  "dashboard": {
+    "title": "मेरे रिज्यूमे",
+    "subtitle": "{{count}} रिज्यूमे",
+    "subtitle_plural": "{{count}} रिज्यूमे",
+    "empty": "अपना पहला रिज्यूमे बनाएं",
+    "importHero": {
+      "badge": "AI POWERED",
+      "title": "पहले से रिज्यूमे है?",
+      "subtitle": "PDF, Word या फ़ोटो अपलोड करें — AI इसे 10 सेकंड में बना देगा।"
+    },
+    "createNew": "शुरू से बनाएं",
+    "createNewSub": "AI सहायता से नया रिज्यूमे बनाएं",
+    "creating": "बनाया जा रहा है…",
+    "lastEdited": "आखिरी संपादन {{date}}"
+  },
+  "editor": {
+    "stepOf": "STEP {{current}} OF {{total}}",
+    "sections": {
+      "header": "व्यक्तिगत जानकारी",
+      "summary": "प्रोफेशनल सारांश",
+      "experience": "कार्य अनुभव",
+      "education": "शिक्षा",
+      "skills": "स्किल्स",
+      "projects": "प्रोजेक्ट्स",
+      "certifications": "प्रमाणपत्र",
+      "languages": "भाषाएं",
+      "awards": "पुरस्कार"
+    },
+    "fields": {
+      "fullName": "पूरा नाम",
+      "jobTitle": "जॉब टाइटल",
+      "email": "ईमेल",
+      "phone": "फोन",
+      "location": "स्थान",
+      "linkedin": "LinkedIn (वैकल्पिक)",
+      "website": "वेबसाइट (वैकल्पिक)",
+      "company": "कंपनी",
+      "title": "टाइटल",
+      "startDate": "शुरू करने की तारीख",
+      "endDate": "समाप्ति की तारीख",
+      "currentRole": "मैं वर्तमान में यहां काम करता हूं",
+      "description": "विवरण",
+      "institution": "संस्था",
+      "degree": "डिग्री",
+      "field": "अध्ययन का क्षेत्र",
+      "gpa": "GPA"
+    },
+    "addExperience": "अनुभव जोड़ें",
+    "addEducation": "शिक्षा जोड़ें",
+    "addSkill": "स्किल जोड़ें",
+    "addProject": "प्रोजेक्ट जोड़ें",
+    "aiAssistant": {
+      "title": "AI राइटिंग असिस्टेंट",
+      "subtitle": "आकर्षक कंटेंट लिखने में मदद लें",
+      "suggestionsTitle": "AI SUGGESTIONS",
+      "applyAll": "सभी लागू करें",
+      "applySuggestion": "सुझाव लागू करें",
+      "tapToImprove": "AI से सुधारने के लिए टैप करें"
+    }
+  },
+  "templates": {
+    "title": "अपना टेम्प्लेट चुनें",
+    "premiumBadge": "PREMIUM TEMPLATES",
+    "subtitle": "{{total}} ATS-optimized डिज़ाइन · {{free}} मुफ्त, {{premium}} प्रीमियम",
+    "categories": {
+      "all": "सभी",
+      "atsOptimized": "ATS-Optimized",
+      "professional": "प्रोफेशनल",
+      "modern": "मॉडर्न",
+      "creative": "क्रिएटिव",
+      "minimal": "मिनिमल"
+    },
+    "selected": "{{name}} चुना गया",
+    "tapToApply": "लागू करने के लिए टेम्प्लेट पर टैप करें"
+  },
+  "preview": {
+    "title": "पूर्वावलोकन",
+    "aiScore": {
+      "button": "AI स्कोर प्राप्त करें",
+      "subtitle": "AI से अपने रिज्यूमे का विश्लेषण करें",
+      "analyzing": "आपके रिज्यूमे का विश्लेषण हो रहा है…"
+    },
+    "jobDescription": {
+      "title": "टारगेट जॉब (वैकल्पिक)",
+      "placeholder": "अनुकूलित विश्लेषण के लिए जॉब डिस्क्रिप्शन यहां पेस्ट करें…"
+    }
+  },
+  "score": {
+    "label": "RESUME SCORE",
+    "headlineGreat": "बहुत अच्छा लग रहा है",
+    "headlineGood": "ठोस — सुधार की गुंजाइश",
+    "headlineOk": "राह पर हैं",
+    "headlineLow": "और डिटेल्स जोड़ें",
+    "tapForAnalysis": "AI विश्लेषण और टिप्स के लिए टैप करें",
+    "modalTitle": "AI रिज्यूमे विश्लेषण",
+    "atsScore": "ATS Score: {{value}}%",
+    "categories": {
+      "title": "स्कोर ब्रेकडाउन",
+      "content": "कंटेंट क्वालिटी",
+      "formatting": "फॉर्मेटिंग",
+      "keywords": "कीवर्ड्स",
+      "impact": "इम्पैक्ट",
+      "completeness": "पूर्णता"
+    },
+    "strengths": "ताकत",
+    "improvements": "सुधार के क्षेत्र",
+    "tips": "प्रो टिप्स",
+    "reanalyze": "रिज्यूमे पुनः विश्लेषित करें",
+    "verdictExcellent": "शानदार रिज्यूमे!",
+    "verdictGood": "अच्छा रिज्यूमे",
+    "verdictNeedsWork": "रिज्यूमे में सुधार की जरूरत"
+  },
+  "export": {
+    "title": "रिज्यूमे एक्सपोर्ट करें",
+    "verifiedBadge": "AI VERIFIED · ATS READY",
+    "currentTemplate": "CURRENT TEMPLATE",
+    "paperSize": "PAPER SIZE",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "PDF पूर्वावलोकन",
+    "previewSub": "देखें कि आपका रिज्यूमे कैसा दिखेगा",
+    "downloadPdf": "PDF डाउनलोड करें",
+    "downloadSub": "अपने डिवाइस पर सेव करें",
+    "sharePdf": "रिज्यूमे साझा करें",
+    "shareSub": "ईमेल, मैसेज या अन्य ऐप्स से भेजें",
+    "success": "रिज्यूमे आपके डिवाइस पर सेव हो गया!",
+    "tips": {
+      "title": "एक्सपोर्ट टिप्स",
+      "body": "• जॉब एप्लिकेशन के लिए PDF फॉर्मेट सबसे अच्छा है\n• US Letter नॉर्थ अमेरिका में आम है\n• A4 यूरोप और ज्यादातर अन्य देशों में स्टैंडर्ड है\n• भेजने से पहले हमेशा प्रूफरीड करें"
+    }
+  },
+  "profile": {
+    "title": "प्रोफाइल",
+    "language": "भाषा",
+    "languageSub": "अपनी पसंदीदा भाषा चुनें",
+    "darkMode": "डार्क मोड",
+    "haptics": "हैप्टिक फीडबैक",
+    "signOut": "साइन आउट करें",
+    "signIn": "साइन इन करें",
+    "deleteAccount": "अकाउंट डिलीट करें"
+  },
+  "auth": {
+    "signIn": "साइन इन करें",
+    "signUp": "साइन अप करें",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "forgotPassword": "पासवर्ड भूल गए?",
+    "createAccount": "अकाउंट बनाएं",
+    "alreadyHave": "पहले से अकाउंट है?",
+    "dontHave": "अकाउंट नहीं है?"
+  }
+}

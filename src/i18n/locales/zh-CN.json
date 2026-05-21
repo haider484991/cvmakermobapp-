@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "返回",
+    "cancel": "取消",
+    "save": "保存",
+    "saveAndContinue": "保存并继续",
+    "done": "完成",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "next": "下一步",
+    "previous": "上一步",
+    "continue": "继续",
+    "skip": "跳过",
+    "loading": "加载中…",
+    "error": "出错了",
+    "retry": "重试",
+    "dismiss": "关闭",
+    "apply": "应用",
+    "preview": "预览",
+    "share": "分享",
+    "download": "下载",
+    "free": "免费",
+    "premium": "高级",
+    "yes": "是",
+    "no": "否",
+    "ok": "确定"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "AI 赋能您的职业之旅"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "用智能设计打造职业生涯",
+      "subhead": "AI 驱动的简历构建工具，永久免费。",
+      "getStarted": "免费开始",
+      "haveResume": "我已有简历",
+      "importing": "正在读取简历…",
+      "importFailed": "无法读取该文件。请尝试 PDF、Word 文档或简历照片。",
+      "trusted": "全球 10,000+ 求职者信赖"
+    }
+  },
+  "dashboard": {
+    "title": "我的简历",
+    "subtitle": "{{count}} 份简历",
+    "subtitle_plural": "{{count}} 份简历",
+    "empty": "创建第一份简历",
+    "importHero": {
+      "badge": "AI POWERED",
+      "title": "已有简历？",
+      "subtitle": "上传 PDF、Word 或照片，AI 10 秒重建。"
+    },
+    "createNew": "从头开始",
+    "createNewSub": "在 AI 协助下新建简历",
+    "creating": "创建中…",
+    "lastEdited": "上次编辑 {{date}}"
+  },
+  "editor": {
+    "stepOf": "第 {{current}} 步，共 {{total}} 步",
+    "sections": {
+      "header": "个人信息",
+      "summary": "专业总结",
+      "experience": "工作经历",
+      "education": "教育背景",
+      "skills": "技能",
+      "projects": "项目经历",
+      "certifications": "证书",
+      "languages": "语言",
+      "awards": "奖项"
+    },
+    "fields": {
+      "fullName": "姓名",
+      "jobTitle": "职位",
+      "email": "邮箱",
+      "phone": "电话",
+      "location": "地点",
+      "linkedin": "LinkedIn（可选）",
+      "website": "网站（可选）",
+      "company": "公司",
+      "title": "职位",
+      "startDate": "开始日期",
+      "endDate": "结束日期",
+      "currentRole": "我目前在此工作",
+      "description": "描述",
+      "institution": "学校",
+      "degree": "学位",
+      "field": "专业",
+      "gpa": "GPA"
+    },
+    "addExperience": "添加经历",
+    "addEducation": "添加教育",
+    "addSkill": "添加技能",
+    "addProject": "添加项目",
+    "aiAssistant": {
+      "title": "AI 写作助手",
+      "subtitle": "获取撰写精彩内容的帮助",
+      "suggestionsTitle": "AI 建议",
+      "applyAll": "全部应用",
+      "applySuggestion": "应用建议",
+      "tapToImprove": "点击用 AI 优化"
+    }
+  },
+  "templates": {
+    "title": "选择模板",
+    "premiumBadge": "高级模板",
+    "subtitle": "{{total}} 款 ATS 优化设计 · {{free}} 免费，{{premium}} 高级",
+    "categories": {
+      "all": "全部",
+      "atsOptimized": "ATS 优化",
+      "professional": "专业",
+      "modern": "现代",
+      "creative": "创意",
+      "minimal": "极简"
+    },
+    "selected": "已选择 {{name}}",
+    "tapToApply": "点击模板应用"
+  },
+  "preview": {
+    "title": "预览",
+    "aiScore": {
+      "button": "获取 AI 评分",
+      "subtitle": "用 AI 分析简历",
+      "analyzing": "正在分析简历…"
+    },
+    "jobDescription": {
+      "title": "目标职位（可选）",
+      "placeholder": "在此粘贴职位描述以获取定制分析…"
+    }
+  },
+  "score": {
+    "label": "简历评分",
+    "headlineGreat": "表现优秀",
+    "headlineGood": "不错，还有提升空间",
+    "headlineOk": "继续加油",
+    "headlineLow": "补充更多细节",
+    "tapForAnalysis": "点击查看 AI 分析与建议",
+    "modalTitle": "AI 简历分析",
+    "atsScore": "ATS 评分：{{value}}%",
+    "categories": {
+      "title": "评分明细",
+      "content": "内容质量",
+      "formatting": "格式",
+      "keywords": "关键词",
+      "impact": "影响力",
+      "completeness": "完整度"
+    },
+    "strengths": "优势",
+    "improvements": "待改进",
+    "tips": "专业建议",
+    "reanalyze": "重新分析",
+    "verdictExcellent": "优秀简历！",
+    "verdictGood": "良好简历",
+    "verdictNeedsWork": "简历需改进"
+  },
+  "export": {
+    "title": "导出简历",
+    "verifiedBadge": "AI 已验证 · ATS 就绪",
+    "currentTemplate": "当前模板",
+    "paperSize": "纸张尺寸",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "预览 PDF",
+    "previewSub": "查看简历效果",
+    "downloadPdf": "下载 PDF",
+    "downloadSub": "保存到设备",
+    "sharePdf": "分享简历",
+    "shareSub": "通过邮件、消息或其他应用发送",
+    "success": "简历已保存到设备！",
+    "tips": {
+      "title": "导出提示",
+      "body": "• PDF 格式最适合求职申请\n• US Letter 在北美常用\n• A4 是欧洲及多数国家的标准\n• 发送前请仔细校对"
+    }
+  },
+  "profile": {
+    "title": "个人资料",
+    "language": "语言",
+    "languageSub": "选择偏好语言",
+    "darkMode": "深色模式",
+    "haptics": "触觉反馈",
+    "signOut": "退出登录",
+    "signIn": "登录",
+    "deleteAccount": "删除账户"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signUp": "注册",
+    "email": "邮箱",
+    "password": "密码",
+    "forgotPassword": "忘记密码？",
+    "createAccount": "创建账户",
+    "alreadyHave": "已有账户？",
+    "dontHave": "还没有账户？"
+  }
+}

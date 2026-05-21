@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "戻る",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "saveAndContinue": "保存して続行",
+    "done": "完了",
+    "delete": "削除",
+    "edit": "編集",
+    "create": "作成",
+    "next": "次へ",
+    "previous": "前へ",
+    "continue": "続行",
+    "skip": "スキップ",
+    "loading": "読み込み中…",
+    "error": "問題が発生しました",
+    "retry": "再試行",
+    "dismiss": "閉じる",
+    "apply": "適用",
+    "preview": "プレビュー",
+    "share": "共有",
+    "download": "ダウンロード",
+    "free": "無料",
+    "premium": "プレミアム",
+    "yes": "はい",
+    "no": "いいえ",
+    "ok": "OK"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "AIで強化されたキャリアの旅"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "インテリジェントなデザインでキャリアを築く",
+      "subhead": "AI搭載の履歴書ビルダー。永遠に無料。",
+      "getStarted": "無料で始める",
+      "haveResume": "すでに履歴書をお持ちの方",
+      "importing": "履歴書を読み込んでいます…",
+      "importFailed": "ファイルを読み込めませんでした。PDF、Word、または履歴書の写真をお試しください。",
+      "trusted": "世界中の10,000人以上の求職者に信頼されています"
+    }
+  },
+  "dashboard": {
+    "title": "マイ履歴書",
+    "subtitle": "履歴書 {{count}} 件",
+    "subtitle_plural": "履歴書 {{count}} 件",
+    "empty": "最初の履歴書を作成する",
+    "importHero": {
+      "badge": "AI POWERED",
+      "title": "すでに履歴書をお持ちですか？",
+      "subtitle": "PDF、Word、または写真をアップロード — AIが10秒で再構築します。"
+    },
+    "createNew": "ゼロから作成",
+    "createNewSub": "AIの支援で新しい履歴書を作成",
+    "creating": "作成中…",
+    "lastEdited": "最終編集 {{date}}"
+  },
+  "editor": {
+    "stepOf": "STEP {{current}} / {{total}}",
+    "sections": {
+      "header": "個人情報",
+      "summary": "職務要約",
+      "experience": "職務経験",
+      "education": "学歴",
+      "skills": "スキル",
+      "projects": "プロジェクト",
+      "certifications": "資格",
+      "languages": "言語",
+      "awards": "受賞歴"
+    },
+    "fields": {
+      "fullName": "氏名",
+      "jobTitle": "職種",
+      "email": "メールアドレス",
+      "phone": "電話番号",
+      "location": "所在地",
+      "linkedin": "LinkedIn（任意）",
+      "website": "ウェブサイト（任意）",
+      "company": "会社名",
+      "title": "役職",
+      "startDate": "開始日",
+      "endDate": "終了日",
+      "currentRole": "現在も勤務中",
+      "description": "説明",
+      "institution": "学校名",
+      "degree": "学位",
+      "field": "専攻",
+      "gpa": "GPA"
+    },
+    "addExperience": "職務経験を追加",
+    "addEducation": "学歴を追加",
+    "addSkill": "スキルを追加",
+    "addProject": "プロジェクトを追加",
+    "aiAssistant": {
+      "title": "AIライティングアシスタント",
+      "subtitle": "魅力的な内容作成をサポート",
+      "suggestionsTitle": "AI提案",
+      "applyAll": "すべて適用",
+      "applySuggestion": "提案を適用",
+      "tapToImprove": "タップしてAIで改善"
+    }
+  },
+  "templates": {
+    "title": "テンプレートを選択",
+    "premiumBadge": "PREMIUM TEMPLATES",
+    "subtitle": "ATS最適化デザイン {{total}} 種 · 無料 {{free}}、プレミアム {{premium}}",
+    "categories": {
+      "all": "すべて",
+      "atsOptimized": "ATS最適化",
+      "professional": "プロフェッショナル",
+      "modern": "モダン",
+      "creative": "クリエイティブ",
+      "minimal": "ミニマル"
+    },
+    "selected": "{{name}} を選択中",
+    "tapToApply": "タップしてテンプレートを適用"
+  },
+  "preview": {
+    "title": "プレビュー",
+    "aiScore": {
+      "button": "AIスコアを取得",
+      "subtitle": "AIで履歴書を分析",
+      "analyzing": "履歴書を分析中…"
+    },
+    "jobDescription": {
+      "title": "志望職種（任意）",
+      "placeholder": "ここに求人情報を貼り付けて分析をカスタマイズ…"
+    }
+  },
+  "score": {
+    "label": "履歴書スコア",
+    "headlineGreat": "素晴らしい仕上がり",
+    "headlineGood": "良好 — 改善の余地あり",
+    "headlineOk": "順調です",
+    "headlineLow": "詳細を追加しましょう",
+    "tapForAnalysis": "タップでAI分析とTipsを表示",
+    "modalTitle": "AI履歴書分析",
+    "atsScore": "ATSスコア: {{value}}%",
+    "categories": {
+      "title": "スコア内訳",
+      "content": "内容の質",
+      "formatting": "フォーマット",
+      "keywords": "キーワード",
+      "impact": "インパクト",
+      "completeness": "完成度"
+    },
+    "strengths": "強み",
+    "improvements": "改善点",
+    "tips": "プロのTips",
+    "reanalyze": "再分析する",
+    "verdictExcellent": "優秀な履歴書！",
+    "verdictGood": "良い履歴書",
+    "verdictNeedsWork": "改善が必要です"
+  },
+  "export": {
+    "title": "履歴書をエクスポート",
+    "verifiedBadge": "AI VERIFIED · ATS READY",
+    "currentTemplate": "現在のテンプレート",
+    "paperSize": "用紙サイズ",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "PDFプレビュー",
+    "previewSub": "履歴書の表示を確認",
+    "downloadPdf": "PDFをダウンロード",
+    "downloadSub": "デバイスに保存",
+    "sharePdf": "履歴書を共有",
+    "shareSub": "メール、メッセージ、その他のアプリで送信",
+    "success": "履歴書をデバイスに保存しました！",
+    "tips": {
+      "title": "エクスポートのTips",
+      "body": "• PDF形式が求人応募に最適です\n• US Letterは北米で一般的\n• A4はヨーロッパやその他の国で標準\n• 送信前に必ず校正してください"
+    }
+  },
+  "profile": {
+    "title": "プロフィール",
+    "language": "言語",
+    "languageSub": "希望の言語を選択",
+    "darkMode": "ダークモード",
+    "haptics": "触覚フィードバック",
+    "signOut": "サインアウト",
+    "signIn": "サインイン",
+    "deleteAccount": "アカウントを削除"
+  },
+  "auth": {
+    "signIn": "サインイン",
+    "signUp": "新規登録",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "createAccount": "アカウントを作成",
+    "alreadyHave": "すでにアカウントをお持ちですか？",
+    "dontHave": "アカウントをお持ちでないですか？"
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "Voltar",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saveAndContinue": "Salvar e Continuar",
+    "done": "Concluído",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "continue": "Continuar",
+    "skip": "Pular",
+    "loading": "Carregando…",
+    "error": "Algo deu errado",
+    "retry": "Tentar Novamente",
+    "dismiss": "Dispensar",
+    "apply": "Aplicar",
+    "preview": "Pré-visualizar",
+    "share": "Compartilhar",
+    "download": "Baixar",
+    "free": "Grátis",
+    "premium": "Premium",
+    "yes": "Sim",
+    "no": "Não",
+    "ok": "OK"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "Sua jornada profissional, aprimorada por IA"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "Construa sua carreira com design inteligente",
+      "subhead": "Criador de currículos com IA. Grátis para sempre.",
+      "getStarted": "Começar Grátis",
+      "haveResume": "Já tenho um currículo",
+      "importing": "Lendo seu currículo…",
+      "importFailed": "Não foi possível ler este arquivo. Tente um PDF, documento Word ou foto do seu currículo.",
+      "trusted": "Confiado por mais de 10.000 profissionais em todo o mundo"
+    }
+  },
+  "dashboard": {
+    "title": "Meus Currículos",
+    "subtitle": "{{count}} currículo",
+    "subtitle_plural": "{{count}} currículos",
+    "empty": "Crie seu primeiro currículo",
+    "importHero": {
+      "badge": "COM IA",
+      "title": "Já tem um currículo?",
+      "subtitle": "Envie PDF, Word ou foto — a IA reconstrói em 10 segundos."
+    },
+    "createNew": "Começar do Zero",
+    "createNewSub": "Crie um novo currículo com ajuda da IA",
+    "creating": "Criando…",
+    "lastEdited": "Editado em {{date}}"
+  },
+  "editor": {
+    "stepOf": "ETAPA {{current}} DE {{total}}",
+    "sections": {
+      "header": "Informações Pessoais",
+      "summary": "Resumo Profissional",
+      "experience": "Experiência Profissional",
+      "education": "Formação Acadêmica",
+      "skills": "Habilidades",
+      "projects": "Projetos",
+      "certifications": "Certificações",
+      "languages": "Idiomas",
+      "awards": "Prêmios"
+    },
+    "fields": {
+      "fullName": "Nome Completo",
+      "jobTitle": "Cargo",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "location": "Localização",
+      "linkedin": "LinkedIn (opcional)",
+      "website": "Site (opcional)",
+      "company": "Empresa",
+      "title": "Cargo",
+      "startDate": "Data de Início",
+      "endDate": "Data de Término",
+      "currentRole": "Atualmente trabalho aqui",
+      "description": "Descrição",
+      "institution": "Instituição",
+      "degree": "Diploma",
+      "field": "Área de Estudo",
+      "gpa": "Média"
+    },
+    "addExperience": "Adicionar Experiência",
+    "addEducation": "Adicionar Formação",
+    "addSkill": "Adicionar Habilidade",
+    "addProject": "Adicionar Projeto",
+    "aiAssistant": {
+      "title": "Assistente de Escrita com IA",
+      "subtitle": "Obtenha ajuda para escrever conteúdo impactante",
+      "suggestionsTitle": "SUGESTÕES DA IA",
+      "applyAll": "Aplicar Tudo",
+      "applySuggestion": "Aplicar Sugestão",
+      "tapToImprove": "Toque para melhorar com IA"
+    }
+  },
+  "templates": {
+    "title": "Escolha seu Modelo",
+    "premiumBadge": "MODELOS PREMIUM",
+    "subtitle": "{{total}} designs otimizados para ATS · {{free}} grátis, {{premium}} premium",
+    "categories": {
+      "all": "Todos",
+      "atsOptimized": "Otimizados para ATS",
+      "professional": "Profissional",
+      "modern": "Moderno",
+      "creative": "Criativo",
+      "minimal": "Minimalista"
+    },
+    "selected": "{{name}} selecionado",
+    "tapToApply": "Toque em um modelo para aplicá-lo"
+  },
+  "preview": {
+    "title": "Pré-visualizar",
+    "aiScore": {
+      "button": "Obter Pontuação IA",
+      "subtitle": "Analise seu currículo com IA",
+      "analyzing": "Analisando seu currículo…"
+    },
+    "jobDescription": {
+      "title": "Vaga Alvo (Opcional)",
+      "placeholder": "Cole a descrição da vaga aqui para análise personalizada…"
+    }
+  },
+  "score": {
+    "label": "PONTUAÇÃO DO CURRÍCULO",
+    "headlineGreat": "Excelente",
+    "headlineGood": "Bom — dá para melhorar",
+    "headlineOk": "No caminho certo",
+    "headlineLow": "Adicione mais detalhes",
+    "tapForAnalysis": "Toque para análise e dicas da IA",
+    "modalTitle": "Análise de Currículo com IA",
+    "atsScore": "Pontuação ATS: {{value}}%",
+    "categories": {
+      "title": "Detalhamento da Pontuação",
+      "content": "Qualidade do Conteúdo",
+      "formatting": "Formatação",
+      "keywords": "Palavras-chave",
+      "impact": "Impacto",
+      "completeness": "Completude"
+    },
+    "strengths": "Pontos Fortes",
+    "improvements": "Áreas para Melhorar",
+    "tips": "Dicas de Especialistas",
+    "reanalyze": "Reanalisar Currículo",
+    "verdictExcellent": "Currículo Excelente!",
+    "verdictGood": "Bom Currículo",
+    "verdictNeedsWork": "Currículo Precisa de Melhorias"
+  },
+  "export": {
+    "title": "Exportar Currículo",
+    "verifiedBadge": "VERIFICADO POR IA · PRONTO PARA ATS",
+    "currentTemplate": "MODELO ATUAL",
+    "paperSize": "TAMANHO DO PAPEL",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "Pré-visualizar PDF",
+    "previewSub": "Veja como seu currículo ficará",
+    "downloadPdf": "Baixar PDF",
+    "downloadSub": "Salvar no seu dispositivo",
+    "sharePdf": "Compartilhar Currículo",
+    "shareSub": "Enviar por e-mail, mensagens ou outros apps",
+    "success": "Currículo salvo no seu dispositivo!",
+    "tips": {
+      "title": "Dicas de Exportação",
+      "body": "• O formato PDF é o melhor para candidaturas\n• US Letter é comum na América do Norte\n• A4 é padrão na Europa e na maioria dos outros países\n• Sempre revise antes de enviar"
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "language": "Idioma",
+    "languageSub": "Escolha seu idioma preferido",
+    "darkMode": "Modo Escuro",
+    "haptics": "Feedback Tátil",
+    "signOut": "Sair",
+    "signIn": "Entrar",
+    "deleteAccount": "Excluir Conta"
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signUp": "Cadastrar",
+    "email": "E-mail",
+    "password": "Senha",
+    "forgotPassword": "Esqueceu a senha?",
+    "createAccount": "Criar Conta",
+    "alreadyHave": "Já tem uma conta?",
+    "dontHave": "Não tem uma conta?"
+  }
+}

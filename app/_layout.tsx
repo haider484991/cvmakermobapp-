@@ -1,5 +1,5 @@
 import '../global.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
@@ -11,6 +11,7 @@ import { useAppOpenAd } from '@/hooks/useAppOpenAd';
 import { useUIStore } from '@/stores/uiStore';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { adPreloader, interstitialAd, adsInit } from '@/services/ads';
+import { initI18n } from '@/i18n';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -127,6 +128,21 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  // i18next must be initialized BEFORE any screen renders, otherwise the
+  // first paint shows raw key paths until translations load. We block the
+  // first frame on init (takes <20ms in practice, all bundled JSON), then
+  // render the full app.
+  const [i18nReady, setI18nReady] = useState(false);
+  useEffect(() => {
+    initI18n().finally(() => setI18nReady(true));
+  }, []);
+
+  if (!i18nReady) {
+    // Brief loading flash — intentionally minimal so users don't notice
+    // a multi-stage startup. Splash screen still owns the visual.
+    return <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />;
+  }
+
   return (
     <ErrorBoundary>
       <GestureHandlerRootView style={{ flex: 1 }}>

@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "Geri",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "saveAndContinue": "Kaydet ve Devam Et",
+    "done": "Tamam",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "create": "Oluştur",
+    "next": "Sonraki",
+    "previous": "Önceki",
+    "continue": "Devam Et",
+    "skip": "Atla",
+    "loading": "Yükleniyor…",
+    "error": "Bir şeyler yanlış gitti",
+    "retry": "Tekrar Dene",
+    "dismiss": "Kapat",
+    "apply": "Uygula",
+    "preview": "Önizle",
+    "share": "Paylaş",
+    "download": "İndir",
+    "free": "Ücretsiz",
+    "premium": "Premium",
+    "yes": "Evet",
+    "no": "Hayır",
+    "ok": "Tamam"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "Kariyer yolculuğunuz, AI ile güçlendirilmiş"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "Kariyerinizi akıllı tasarımla oluşturun",
+      "subhead": "AI destekli özgeçmiş oluşturucu. Sonsuza kadar ücretsiz.",
+      "getStarted": "Ücretsiz Başla",
+      "haveResume": "Zaten bir özgeçmişim var",
+      "importing": "Özgeçmişiniz okunuyor…",
+      "importFailed": "Bu dosyayı okuyamadık. PDF, Word belgesi veya özgeçmişinizin fotoğrafını deneyin.",
+      "trusted": "Dünya çapında 10.000'den fazla iş arayan tarafından güveniliyor"
+    }
+  },
+  "dashboard": {
+    "title": "Özgeçmişlerim",
+    "subtitle": "{{count}} özgeçmiş",
+    "subtitle_plural": "{{count}} özgeçmiş",
+    "empty": "İlk özgeçmişinizi oluşturun",
+    "importHero": {
+      "badge": "AI POWERED",
+      "title": "Zaten bir özgeçmişiniz var mı?",
+      "subtitle": "PDF, Word veya fotoğraf yükleyin — AI 10 saniyede yeniden oluşturur."
+    },
+    "createNew": "Sıfırdan Başla",
+    "createNewSub": "AI yardımıyla yeni bir özgeçmiş oluşturun",
+    "creating": "Oluşturuluyor…",
+    "lastEdited": "Son düzenleme {{date}}"
+  },
+  "editor": {
+    "stepOf": "ADIM {{current}} / {{total}}",
+    "sections": {
+      "header": "Kişisel Bilgiler",
+      "summary": "Profesyonel Özet",
+      "experience": "İş Deneyimi",
+      "education": "Eğitim",
+      "skills": "Yetenekler",
+      "projects": "Projeler",
+      "certifications": "Sertifikalar",
+      "languages": "Diller",
+      "awards": "Ödüller"
+    },
+    "fields": {
+      "fullName": "Ad Soyad",
+      "jobTitle": "İş Unvanı",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "location": "Konum",
+      "linkedin": "LinkedIn (isteğe bağlı)",
+      "website": "Web Sitesi (isteğe bağlı)",
+      "company": "Şirket",
+      "title": "Unvan",
+      "startDate": "Başlangıç Tarihi",
+      "endDate": "Bitiş Tarihi",
+      "currentRole": "Hâlâ burada çalışıyorum",
+      "description": "Açıklama",
+      "institution": "Kurum",
+      "degree": "Derece",
+      "field": "Bölüm",
+      "gpa": "Not Ortalaması"
+    },
+    "addExperience": "Deneyim Ekle",
+    "addEducation": "Eğitim Ekle",
+    "addSkill": "Yetenek Ekle",
+    "addProject": "Proje Ekle",
+    "aiAssistant": {
+      "title": "AI Yazma Asistanı",
+      "subtitle": "Etkileyici içerik yazmak için yardım alın",
+      "suggestionsTitle": "AI ÖNERİLERİ",
+      "applyAll": "Tümünü Uygula",
+      "applySuggestion": "Öneriyi Uygula",
+      "tapToImprove": "AI ile iyileştirmek için dokunun"
+    }
+  },
+  "templates": {
+    "title": "Şablon Seçin",
+    "premiumBadge": "PREMIUM ŞABLONLAR",
+    "subtitle": "{{total}} ATS optimize tasarım · {{free}} ücretsiz, {{premium}} premium",
+    "categories": {
+      "all": "Tümü",
+      "atsOptimized": "ATS Optimize",
+      "professional": "Profesyonel",
+      "modern": "Modern",
+      "creative": "Yaratıcı",
+      "minimal": "Minimal"
+    },
+    "selected": "{{name}} seçildi",
+    "tapToApply": "Uygulamak için bir şablona dokunun"
+  },
+  "preview": {
+    "title": "Önizleme",
+    "aiScore": {
+      "button": "AI Puanı Al",
+      "subtitle": "Özgeçmişinizi AI ile analiz edin",
+      "analyzing": "Özgeçmişiniz analiz ediliyor…"
+    },
+    "jobDescription": {
+      "title": "Hedef İş (İsteğe Bağlı)",
+      "placeholder": "Özelleştirilmiş analiz için iş tanımını buraya yapıştırın…"
+    }
+  },
+  "score": {
+    "label": "ÖZGEÇMİŞ PUANI",
+    "headlineGreat": "Harika görünüyor",
+    "headlineGood": "Sağlam — geliştirme alanı var",
+    "headlineOk": "İyiye gidiyor",
+    "headlineLow": "Daha fazla detay ekleyin",
+    "tapForAnalysis": "AI analizi ve ipuçları için dokunun",
+    "modalTitle": "AI Özgeçmiş Analizi",
+    "atsScore": "ATS Puanı: {{value}}%",
+    "categories": {
+      "title": "Puan Dağılımı",
+      "content": "İçerik Kalitesi",
+      "formatting": "Biçimlendirme",
+      "keywords": "Anahtar Kelimeler",
+      "impact": "Etki",
+      "completeness": "Tamamlanma"
+    },
+    "strengths": "Güçlü Yönler",
+    "improvements": "Geliştirilecek Alanlar",
+    "tips": "Profesyonel İpuçları",
+    "reanalyze": "Özgeçmişi Yeniden Analiz Et",
+    "verdictExcellent": "Mükemmel Özgeçmiş!",
+    "verdictGood": "İyi Özgeçmiş",
+    "verdictNeedsWork": "Özgeçmiş İyileştirilmeli"
+  },
+  "export": {
+    "title": "Özgeçmişi Dışa Aktar",
+    "verifiedBadge": "AI DOĞRULANDI · ATS HAZIR",
+    "currentTemplate": "MEVCUT ŞABLON",
+    "paperSize": "KAĞIT BOYUTU",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "PDF Önizle",
+    "previewSub": "Özgeçmişinizin nasıl görüneceğini görün",
+    "downloadPdf": "PDF İndir",
+    "downloadSub": "Cihazınıza kaydedin",
+    "sharePdf": "Özgeçmişi Paylaş",
+    "shareSub": "E-posta, mesaj veya diğer uygulamalarla gönderin",
+    "success": "Özgeçmiş cihazınıza kaydedildi!",
+    "tips": {
+      "title": "Dışa Aktarma İpuçları",
+      "body": "• PDF formatı iş başvuruları için en iyisidir\n• US Letter Kuzey Amerika'da yaygındır\n• A4 Avrupa ve çoğu ülkede standarttır\n• Göndermeden önce mutlaka kontrol edin"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "language": "Dil",
+    "languageSub": "Tercih ettiğiniz dili seçin",
+    "darkMode": "Koyu Mod",
+    "haptics": "Dokunsal Geri Bildirim",
+    "signOut": "Çıkış Yap",
+    "signIn": "Giriş Yap",
+    "deleteAccount": "Hesabı Sil"
+  },
+  "auth": {
+    "signIn": "Giriş Yap",
+    "signUp": "Kayıt Ol",
+    "email": "E-posta",
+    "password": "Şifre",
+    "forgotPassword": "Şifrenizi mi unuttunuz?",
+    "createAccount": "Hesap Oluştur",
+    "alreadyHave": "Zaten bir hesabınız var mı?",
+    "dontHave": "Hesabınız yok mu?"
+  }
+}

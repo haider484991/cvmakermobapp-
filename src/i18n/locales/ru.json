@@ -1,0 +1,195 @@
+{
+  "common": {
+    "back": "Назад",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "saveAndContinue": "Сохранить и продолжить",
+    "done": "Готово",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "create": "Создать",
+    "next": "Далее",
+    "previous": "Назад",
+    "continue": "Продолжить",
+    "skip": "Пропустить",
+    "loading": "Загрузка…",
+    "error": "Что-то пошло не так",
+    "retry": "Попробовать снова",
+    "dismiss": "Закрыть",
+    "apply": "Применить",
+    "preview": "Предпросмотр",
+    "share": "Поделиться",
+    "download": "Скачать",
+    "free": "Бесплатно",
+    "premium": "Премиум",
+    "yes": "Да",
+    "no": "Нет",
+    "ok": "ОК"
+  },
+  "brand": {
+    "name": "FreeResume AI",
+    "tagline": "Ваша карьера, усиленная ИИ"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "Создайте карьеру с умным дизайном",
+      "subhead": "Резюме на базе ИИ. Бесплатно навсегда.",
+      "getStarted": "Начать бесплатно",
+      "haveResume": "У меня уже есть резюме",
+      "importing": "Читаем ваше резюме…",
+      "importFailed": "Не удалось прочитать файл. Попробуйте PDF, Word или фото резюме.",
+      "trusted": "Доверяют более 10 000 соискателей по всему миру"
+    }
+  },
+  "dashboard": {
+    "title": "Мои резюме",
+    "subtitle": "{{count}} резюме",
+    "subtitle_plural": "{{count}} резюме",
+    "empty": "Создайте первое резюме",
+    "importHero": {
+      "badge": "НА БАЗЕ AI",
+      "title": "Уже есть резюме?",
+      "subtitle": "Загрузите PDF, Word или фото — ИИ перестроит его за 10 секунд."
+    },
+    "createNew": "Начать с нуля",
+    "createNewSub": "Создайте новое резюме с помощью ИИ",
+    "creating": "Создаём…",
+    "lastEdited": "Последнее изменение {{date}}"
+  },
+  "editor": {
+    "stepOf": "ШАГ {{current}} ИЗ {{total}}",
+    "sections": {
+      "header": "Личная информация",
+      "summary": "Профессиональное резюме",
+      "experience": "Опыт работы",
+      "education": "Образование",
+      "skills": "Навыки",
+      "projects": "Проекты",
+      "certifications": "Сертификаты",
+      "languages": "Языки",
+      "awards": "Награды"
+    },
+    "fields": {
+      "fullName": "Полное имя",
+      "jobTitle": "Должность",
+      "email": "Email",
+      "phone": "Телефон",
+      "location": "Местоположение",
+      "linkedin": "LinkedIn (необязательно)",
+      "website": "Сайт (необязательно)",
+      "company": "Компания",
+      "title": "Должность",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "currentRole": "Работаю здесь сейчас",
+      "description": "Описание",
+      "institution": "Учебное заведение",
+      "degree": "Степень",
+      "field": "Специальность",
+      "gpa": "Средний балл"
+    },
+    "addExperience": "Добавить опыт",
+    "addEducation": "Добавить образование",
+    "addSkill": "Добавить навык",
+    "addProject": "Добавить проект",
+    "aiAssistant": {
+      "title": "Помощник ИИ",
+      "subtitle": "Получите помощь в написании текста",
+      "suggestionsTitle": "ПРЕДЛОЖЕНИЯ ИИ",
+      "applyAll": "Применить всё",
+      "applySuggestion": "Применить",
+      "tapToImprove": "Нажмите, чтобы улучшить с ИИ"
+    }
+  },
+  "templates": {
+    "title": "Выберите шаблон",
+    "premiumBadge": "ПРЕМИУМ-ШАБЛОНЫ",
+    "subtitle": "{{total}} дизайнов, оптимизированных для ATS · {{free}} бесплатно, {{premium}} премиум",
+    "categories": {
+      "all": "Все",
+      "atsOptimized": "Для ATS",
+      "professional": "Профессиональные",
+      "modern": "Современные",
+      "creative": "Креативные",
+      "minimal": "Минималистичные"
+    },
+    "selected": "{{name}} выбран",
+    "tapToApply": "Нажмите на шаблон, чтобы применить"
+  },
+  "preview": {
+    "title": "Предпросмотр",
+    "aiScore": {
+      "button": "Получить оценку ИИ",
+      "subtitle": "Анализ резюме с помощью ИИ",
+      "analyzing": "Анализируем резюме…"
+    },
+    "jobDescription": {
+      "title": "Целевая вакансия (необязательно)",
+      "placeholder": "Вставьте описание вакансии для персонализированного анализа…"
+    }
+  },
+  "score": {
+    "label": "ОЦЕНКА РЕЗЮМЕ",
+    "headlineGreat": "Выглядит отлично",
+    "headlineGood": "Хорошо — есть куда расти",
+    "headlineOk": "На верном пути",
+    "headlineLow": "Добавьте больше деталей",
+    "tapForAnalysis": "Нажмите для анализа и советов ИИ",
+    "modalTitle": "Анализ резюме ИИ",
+    "atsScore": "Оценка ATS: {{value}}%",
+    "categories": {
+      "title": "Разбор оценки",
+      "content": "Качество контента",
+      "formatting": "Оформление",
+      "keywords": "Ключевые слова",
+      "impact": "Влияние",
+      "completeness": "Полнота"
+    },
+    "strengths": "Сильные стороны",
+    "improvements": "Что улучшить",
+    "tips": "Советы профи",
+    "reanalyze": "Повторить анализ",
+    "verdictExcellent": "Отличное резюме!",
+    "verdictGood": "Хорошее резюме",
+    "verdictNeedsWork": "Резюме требует доработки"
+  },
+  "export": {
+    "title": "Экспорт резюме",
+    "verifiedBadge": "ПРОВЕРЕНО ИИ · ГОТОВО ДЛЯ ATS",
+    "currentTemplate": "ТЕКУЩИЙ ШАБЛОН",
+    "paperSize": "РАЗМЕР БУМАГИ",
+    "letter": "US Letter",
+    "a4": "A4",
+    "previewPdf": "Предпросмотр PDF",
+    "previewSub": "Посмотрите, как будет выглядеть резюме",
+    "downloadPdf": "Скачать PDF",
+    "downloadSub": "Сохранить на устройство",
+    "sharePdf": "Поделиться резюме",
+    "shareSub": "Отправить по email, в сообщениях или других приложениях",
+    "success": "Резюме сохранено на устройстве!",
+    "tips": {
+      "title": "Советы по экспорту",
+      "body": "• PDF — лучший формат для откликов\n• US Letter распространён в Северной Америке\n• A4 — стандарт в Европе и большинстве стран\n• Всегда проверяйте текст перед отправкой"
+    }
+  },
+  "profile": {
+    "title": "Профиль",
+    "language": "Язык",
+    "languageSub": "Выберите предпочитаемый язык",
+    "darkMode": "Тёмная тема",
+    "haptics": "Вибрация",
+    "signOut": "Выйти",
+    "signIn": "Войти",
+    "deleteAccount": "Удалить аккаунт"
+  },
+  "auth": {
+    "signIn": "Войти",
+    "signUp": "Регистрация",
+    "email": "Email",
+    "password": "Пароль",
+    "forgotPassword": "Забыли пароль?",
+    "createAccount": "Создать аккаунт",
+    "alreadyHave": "Уже есть аккаунт?",
+    "dontHave": "Нет аккаунта?"
+  }
+}

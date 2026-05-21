@@ -20,6 +20,7 @@ import {
   AchievementUnlockModal,
 } from '@/components/gamification';
 import { Plus, FileText, MoreVertical, Trash2, Copy, Edit3, Sparkles } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { gradientColors } from '@/constants/theme';
 import * as Haptics from 'expo-haptics';
 import { useState, useCallback, useMemo, useEffect } from 'react';
@@ -28,6 +29,7 @@ import type { Resume } from '@/types/resume';
 export default function Dashboard() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const { hapticEnabled } = useUIStore();
   const {
     getAllResumes,
@@ -193,12 +195,12 @@ export default function Dashboard() {
               />
               <View>
                 <Text className="text-2xl font-bold text-white">
-                  My Resumes
+                  {t('dashboard.title')}
                 </Text>
                 <Text className="text-white/70 text-sm">
                   {resumes.length === 0
-                    ? 'Create your first resume'
-                    : `${resumes.length} resume${resumes.length !== 1 ? 's' : ''}`}
+                    ? t('dashboard.empty')
+                    : t('dashboard.subtitle', { count: resumes.length })}
                 </Text>
               </View>
             </View>
