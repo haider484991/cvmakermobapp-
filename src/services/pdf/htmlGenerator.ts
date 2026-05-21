@@ -1,6 +1,12 @@
 /**
  * HTML Generator for PDF Resume Templates
- * Generates unique HTML for each template design
+ *
+ * As of v1.3 this is a thin wrapper around `premiumHtmlEngine`. The engine
+ * unifies all templates (existing + new) behind a single token-driven
+ * renderer with real layout primitives. The legacy per-template generators
+ * below are no longer reachable through the public entry point, but are
+ * kept for reference / quick rollback. Delete after a release confirms no
+ * regressions.
  */
 
 import {
@@ -14,35 +20,33 @@ import {
   Award,
 } from '@/types/resume';
 import { ResumeTemplate, TemplateStyles } from '@/types/template';
+import { generatePremiumHTML, type EnginePaperSize } from './premiumHtmlEngine';
+
+export interface ResumeHTMLOptions {
+  /** Paper size — MUST match the size used by Print.printToFileAsync so the
+   *  CSS @page declaration aligns and content doesn't get clipped. */
+  paperSize?: EnginePaperSize;
+}
 
 /**
- * Generate complete HTML document for PDF export
+ * Generate complete HTML document for PDF export.
+ *
+ * Always uses the premium engine. Wrapped in try/catch so a bug in the new
+ * engine cannot brick the export flow — we fall back to the legacy classic
+ * generator if anything throws.
  */
-export function generateResumeHTML(resume: Resume, template: ResumeTemplate): string {
-  // Route to template-specific generator
-  switch (template.id) {
-    case 'ats-classic':
-      return generateClassicHTML(resume, template);
-    case 'ats-professional':
-      return generateBannerHTML(resume, template);
-    case 'executive':
-      return generateExecutiveHTML(resume, template);
-    case 'corporate-blue':
-      return generateSidebarHTML(resume, template);
-    case 'modern-tech':
-      return generateModernHTML(resume, template);
-    case 'sleek-gradient':
-      return generateTwoColumnHTML(resume, template);
-    case 'creative-bold':
-      return generateCreativeHTML(resume, template);
-    case 'designer-pink':
-      return generateTimelineHTML(resume, template);
-    case 'minimal-clean':
-      return generateMinimalHTML(resume, template);
-    case 'swiss-style':
-      return generateCompactHTML(resume, template);
-    default:
-      return generateClassicHTML(resume, template);
+export function generateResumeHTML(
+  resume: Resume,
+  template: ResumeTemplate,
+  options: ResumeHTMLOptions = {},
+): string {
+  try {
+    return generatePremiumHTML(resume, template, { paperSize: options.paperSize });
+  } catch (err) {
+    if (__DEV__) {
+      console.warn('[htmlGenerator] Premium engine failed, falling back to classic:', err);
+    }
+    return generateClassicHTML(resume, template);
   }
 }
 

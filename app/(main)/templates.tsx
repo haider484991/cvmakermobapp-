@@ -10,6 +10,7 @@ import { TEMPLATE_CATEGORIES, TemplateCategory, ResumeTemplate } from '@/types/t
 import { useCallback, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { NativeAdCard } from '@/components/ads';
+import { LayoutThumb } from '@/components/features/templates';
 
 const CATEGORY_FILTERS: Array<{ key: TemplateCategory | 'all'; label: string }> = [
   { key: 'all', label: 'All' },
@@ -27,318 +28,9 @@ interface TemplateCardProps {
   index: number;
 }
 
-// Different layout renderers for unique template previews
-const renderClassicLayout = (styles: ResumeTemplate['styles']) => (
-  <View style={{ flex: 1 }}>
-    {/* Classic Header */}
-    <View className="px-2 pt-2 pb-1 items-center" style={{ borderBottomWidth: 0.5, borderBottomColor: styles.colors.border }}>
-      <Text className="font-bold" style={{ fontSize: 7, color: styles.colors.text }}>John Doe</Text>
-      <Text style={{ fontSize: 5, color: styles.colors.primary }}>Software Engineer</Text>
-      <Text style={{ fontSize: 3.5, color: styles.colors.textLight }}>john@email.com • (555) 123-4567</Text>
-    </View>
-    {/* Content */}
-    <View className="px-2 py-1 flex-1">
-      <View className="mb-1">
-        <Text className="font-bold uppercase" style={{ fontSize: 4, color: styles.colors.primary, borderBottomWidth: 0.5, borderBottomColor: styles.colors.primary }}>Experience</Text>
-        <Text className="font-semibold" style={{ fontSize: 4, color: styles.colors.text }}>Senior Developer</Text>
-        <Text style={{ fontSize: 3.5, color: styles.colors.textLight }}>Tech Corp • 2020-Present</Text>
-      </View>
-      <View>
-        <Text className="font-bold uppercase" style={{ fontSize: 4, color: styles.colors.primary, borderBottomWidth: 0.5, borderBottomColor: styles.colors.primary }}>Skills</Text>
-        <View className="flex-row flex-wrap gap-0.5 mt-0.5">
-          {['React', 'Node', 'TypeScript'].map((s, i) => (
-            <View key={i} className="rounded-sm px-1" style={{ backgroundColor: styles.colors.primary + '15' }}>
-              <Text style={{ fontSize: 3.5, color: styles.colors.primary }}>{s}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-    </View>
-  </View>
-);
 
-const renderSidebarLayout = (styles: ResumeTemplate['styles'], sidebarColor: string) => (
-  <View className="flex-row flex-1">
-    {/* Sidebar */}
-    <View className="w-10" style={{ backgroundColor: sidebarColor }}>
-      <View className="items-center pt-2 pb-1">
-        <View className="w-6 h-6 rounded-full bg-white/30 items-center justify-center mb-1">
-          <Text style={{ fontSize: 5, color: 'white', fontWeight: 'bold' }}>JD</Text>
-        </View>
-        <Text className="font-bold text-center" style={{ fontSize: 4, color: 'white' }}>John</Text>
-        <Text className="text-center" style={{ fontSize: 4, color: 'white' }}>Doe</Text>
-      </View>
-      <View className="px-1 mt-1">
-        <Text className="font-bold uppercase" style={{ fontSize: 3, color: 'rgba(255,255,255,0.8)' }}>Skills</Text>
-        {['React', 'Node', 'Python'].map((s, i) => (
-          <Text key={i} style={{ fontSize: 3, color: 'white', marginTop: 1 }}>• {s}</Text>
-        ))}
-      </View>
-    </View>
-    {/* Main Content */}
-    <View className="flex-1 px-1.5 py-1.5">
-      <Text className="font-bold" style={{ fontSize: 5, color: styles.colors.primary }}>Software Engineer</Text>
-      <Text style={{ fontSize: 3, color: styles.colors.textLight, marginBottom: 2 }}>john@email.com</Text>
-      <Text className="font-bold uppercase" style={{ fontSize: 3.5, color: styles.colors.primary }}>Experience</Text>
-      <Text className="font-semibold" style={{ fontSize: 3.5, color: styles.colors.text }}>Senior Developer</Text>
-      <Text style={{ fontSize: 3, color: styles.colors.textLight }}>Tech Corp • 2020-Now</Text>
-      <Text className="font-bold uppercase mt-1" style={{ fontSize: 3.5, color: styles.colors.primary }}>Education</Text>
-      <Text style={{ fontSize: 3, color: styles.colors.text }}>BS Computer Science</Text>
-    </View>
-  </View>
-);
-
-const renderBannerLayout = (styles: ResumeTemplate['styles']) => (
-  <View style={{ flex: 1 }}>
-    {/* Banner Header */}
-    <View className="px-2 py-2" style={{ backgroundColor: styles.colors.primary }}>
-      <Text className="font-bold" style={{ fontSize: 7, color: 'white' }}>John Doe</Text>
-      <Text style={{ fontSize: 5, color: 'rgba(255,255,255,0.9)' }}>Software Engineer</Text>
-    </View>
-    {/* Content */}
-    <View className="px-2 py-1 flex-1">
-      <View className="flex-row gap-1 mb-1">
-        <Text style={{ fontSize: 3, color: styles.colors.textLight }}>📧 john@email.com</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.textLight }}>📱 555-1234</Text>
-      </View>
-      <Text className="font-bold" style={{ fontSize: 4, color: styles.colors.primary }}>EXPERIENCE</Text>
-      <Text className="font-semibold" style={{ fontSize: 3.5, color: styles.colors.text }}>Senior Developer at Tech Corp</Text>
-      <Text style={{ fontSize: 3, color: styles.colors.textLight }}>Building scalable web applications</Text>
-      <View className="flex-row flex-wrap gap-0.5 mt-1">
-        {['React', 'AWS', 'Node'].map((s, i) => (
-          <View key={i} className="rounded px-1" style={{ backgroundColor: styles.colors.primary + '20' }}>
-            <Text style={{ fontSize: 3, color: styles.colors.primary }}>{s}</Text>
-          </View>
-        ))}
-      </View>
-    </View>
-  </View>
-);
-
-const renderModernLayout = (styles: ResumeTemplate['styles']) => (
-  <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
-    {/* Modern Header with accent line */}
-    <View className="px-2 pt-2 pb-1">
-      <View className="flex-row items-center">
-        <View className="w-1 h-8 rounded-full mr-1.5" style={{ backgroundColor: styles.colors.primary }} />
-        <View>
-          <Text className="font-bold" style={{ fontSize: 7, color: styles.colors.text }}>John Doe</Text>
-          <Text style={{ fontSize: 5, color: styles.colors.primary }}>Software Engineer</Text>
-        </View>
-      </View>
-    </View>
-    {/* Two Column Content */}
-    <View className="flex-row px-2 py-1 flex-1">
-      <View className="flex-1 pr-1">
-        <Text className="font-bold uppercase" style={{ fontSize: 3.5, color: styles.colors.primary, marginBottom: 1 }}>Experience</Text>
-        <Text className="font-semibold" style={{ fontSize: 3.5, color: styles.colors.text }}>Senior Dev</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.textLight }}>Tech Corp</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.textLight }}>2020 - Present</Text>
-      </View>
-      <View className="flex-1 pl-1" style={{ borderLeftWidth: 0.5, borderLeftColor: styles.colors.border }}>
-        <Text className="font-bold uppercase" style={{ fontSize: 3.5, color: styles.colors.primary, marginBottom: 1 }}>Skills</Text>
-        {['React', 'TypeScript', 'Node.js', 'AWS'].map((s, i) => (
-          <View key={i} className="flex-row items-center mb-0.5">
-            <View className="w-1 h-1 rounded-full mr-1" style={{ backgroundColor: styles.colors.primary }} />
-            <Text style={{ fontSize: 3, color: styles.colors.text }}>{s}</Text>
-          </View>
-        ))}
-      </View>
-    </View>
-  </View>
-);
-
-const renderMinimalLayout = (styles: ResumeTemplate['styles']) => (
-  <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
-    {/* Ultra Minimal Header */}
-    <View className="px-3 pt-3 pb-1">
-      <Text className="font-bold" style={{ fontSize: 8, color: styles.colors.text, letterSpacing: 1 }}>JOHN DOE</Text>
-      <Text style={{ fontSize: 4, color: styles.colors.textLight, letterSpacing: 0.5 }}>Software Engineer</Text>
-    </View>
-    {/* Minimal Content */}
-    <View className="px-3 py-1 flex-1">
-      <View className="mb-2">
-        <Text style={{ fontSize: 3.5, color: styles.colors.primary, fontWeight: '600' }}>EXPERIENCE</Text>
-        <View className="h-px my-0.5" style={{ backgroundColor: styles.colors.border }} />
-        <Text style={{ fontSize: 3.5, color: styles.colors.text }}>Senior Developer</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.textLight }}>Tech Corp, 2020—</Text>
-      </View>
-      <View>
-        <Text style={{ fontSize: 3.5, color: styles.colors.primary, fontWeight: '600' }}>SKILLS</Text>
-        <View className="h-px my-0.5" style={{ backgroundColor: styles.colors.border }} />
-        <Text style={{ fontSize: 3, color: styles.colors.text }}>React • Node • Python • AWS</Text>
-      </View>
-    </View>
-  </View>
-);
-
-const renderCreativeLayout = (styles: ResumeTemplate['styles']) => (
-  <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
-    {/* Creative diagonal header */}
-    <View style={{ backgroundColor: styles.colors.primary, height: 28, position: 'relative' }}>
-      <View className="absolute bottom-0 left-0 right-0 h-2" style={{ backgroundColor: styles.colors.background, borderTopLeftRadius: 100 }} />
-      <View className="px-2 pt-1">
-        <Text className="font-bold" style={{ fontSize: 6, color: 'white' }}>John Doe</Text>
-        <Text style={{ fontSize: 4, color: 'rgba(255,255,255,0.8)' }}>Creative Developer</Text>
-      </View>
-    </View>
-    {/* Creative Content */}
-    <View className="px-2 py-1 flex-1">
-      <View className="flex-row flex-wrap gap-1 mb-1.5">
-        {['UI/UX', 'React', 'Figma'].map((s, i) => (
-          <View key={i} className="rounded-full px-1.5 py-0.5" style={{ backgroundColor: styles.colors.primary }}>
-            <Text style={{ fontSize: 3, color: 'white' }}>{s}</Text>
-          </View>
-        ))}
-      </View>
-      <View className="rounded-lg p-1" style={{ backgroundColor: styles.colors.primary + '10' }}>
-        <Text className="font-bold" style={{ fontSize: 3.5, color: styles.colors.primary }}>Latest Work</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.text }}>Lead Designer @ Studio</Text>
-        <Text style={{ fontSize: 2.5, color: styles.colors.textLight }}>Creating beautiful experiences</Text>
-      </View>
-    </View>
-  </View>
-);
-
-const renderExecutiveLayout = (styles: ResumeTemplate['styles']) => (
-  <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
-    {/* Executive Header with border */}
-    <View className="px-2 pt-2 pb-1 mx-2 mt-1" style={{ borderBottomWidth: 1, borderBottomColor: styles.colors.primary }}>
-      <Text className="font-bold text-center" style={{ fontSize: 7, color: styles.colors.text, letterSpacing: 0.5 }}>JOHN DOE</Text>
-      <Text className="text-center" style={{ fontSize: 4, color: styles.colors.primary }}>Chief Technology Officer</Text>
-      <Text className="text-center" style={{ fontSize: 3, color: styles.colors.textLight }}>New York, NY • john@executive.com</Text>
-    </View>
-    {/* Executive Content */}
-    <View className="px-2 py-1 flex-1">
-      <Text className="font-bold" style={{ fontSize: 3.5, color: styles.colors.primary, letterSpacing: 0.5 }}>EXECUTIVE SUMMARY</Text>
-      <Text style={{ fontSize: 3, color: styles.colors.text, marginTop: 1 }}>15+ years leading technology teams...</Text>
-      <Text className="font-bold mt-1.5" style={{ fontSize: 3.5, color: styles.colors.primary, letterSpacing: 0.5 }}>LEADERSHIP</Text>
-      <Text style={{ fontSize: 3, color: styles.colors.text, marginTop: 1 }}>VP Engineering • Tech Giants Inc</Text>
-    </View>
-  </View>
-);
-
-const renderTwoColumnLayout = (styles: ResumeTemplate['styles']) => (
-  <View className="flex-row flex-1">
-    {/* Left Column */}
-    <View className="w-12 px-1 py-1.5" style={{ backgroundColor: styles.colors.primary + '08' }}>
-      <View className="w-8 h-8 rounded-full self-center mb-1 items-center justify-center" style={{ backgroundColor: styles.colors.primary }}>
-        <Text style={{ fontSize: 6, color: 'white', fontWeight: 'bold' }}>JD</Text>
-      </View>
-      <Text className="font-bold uppercase text-center" style={{ fontSize: 3, color: styles.colors.primary }}>Contact</Text>
-      <Text className="text-center" style={{ fontSize: 2.5, color: styles.colors.textLight }}>john@email.com</Text>
-      <Text className="text-center" style={{ fontSize: 2.5, color: styles.colors.textLight }}>NYC, USA</Text>
-      <Text className="font-bold uppercase text-center mt-1" style={{ fontSize: 3, color: styles.colors.primary }}>Skills</Text>
-      {['React', 'Node', 'AWS'].map((s, i) => (
-        <Text key={i} className="text-center" style={{ fontSize: 2.5, color: styles.colors.text }}>{s}</Text>
-      ))}
-    </View>
-    {/* Right Column */}
-    <View className="flex-1 px-1.5 py-1.5">
-      <Text className="font-bold" style={{ fontSize: 6, color: styles.colors.text }}>John Doe</Text>
-      <Text style={{ fontSize: 4, color: styles.colors.primary }}>Full Stack Developer</Text>
-      <View className="h-px my-1" style={{ backgroundColor: styles.colors.border }} />
-      <Text className="font-bold uppercase" style={{ fontSize: 3, color: styles.colors.primary }}>Experience</Text>
-      <Text className="font-semibold" style={{ fontSize: 3.5, color: styles.colors.text }}>Senior Developer</Text>
-      <Text style={{ fontSize: 3, color: styles.colors.textLight }}>Tech Corp • 2020-Now</Text>
-    </View>
-  </View>
-);
-
-const renderTimelineLayout = (styles: ResumeTemplate['styles']) => (
-  <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
-    {/* Header */}
-    <View className="px-2 pt-2 pb-1 flex-row items-center">
-      <View className="w-7 h-7 rounded-lg mr-1.5 items-center justify-center" style={{ backgroundColor: styles.colors.primary }}>
-        <Text style={{ fontSize: 5, color: 'white', fontWeight: 'bold' }}>JD</Text>
-      </View>
-      <View>
-        <Text className="font-bold" style={{ fontSize: 6, color: styles.colors.text }}>John Doe</Text>
-        <Text style={{ fontSize: 4, color: styles.colors.primary }}>Developer</Text>
-      </View>
-    </View>
-    {/* Timeline Content */}
-    <View className="px-2 py-1 flex-1">
-      <View className="flex-row">
-        <View className="w-0.5 mr-1.5" style={{ backgroundColor: styles.colors.primary }} />
-        <View className="flex-1">
-          <View className="flex-row items-center mb-1">
-            <View className="w-1.5 h-1.5 rounded-full mr-1 -ml-2" style={{ backgroundColor: styles.colors.primary }} />
-            <Text className="font-bold" style={{ fontSize: 3.5, color: styles.colors.text }}>Senior Dev</Text>
-          </View>
-          <Text style={{ fontSize: 3, color: styles.colors.textLight, marginLeft: 0 }}>Tech Corp • 2020</Text>
-          <View className="flex-row items-center mb-1 mt-1.5">
-            <View className="w-1.5 h-1.5 rounded-full mr-1 -ml-2" style={{ backgroundColor: styles.colors.primary + '60' }} />
-            <Text className="font-bold" style={{ fontSize: 3.5, color: styles.colors.text }}>Developer</Text>
-          </View>
-          <Text style={{ fontSize: 3, color: styles.colors.textLight }}>StartUp • 2018</Text>
-        </View>
-      </View>
-    </View>
-  </View>
-);
-
-const renderCompactLayout = (styles: ResumeTemplate['styles']) => (
-  <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
-    {/* Compact Header */}
-    <View className="flex-row px-2 pt-2 pb-1 items-center justify-between" style={{ borderBottomWidth: 0.5, borderBottomColor: styles.colors.border }}>
-      <View>
-        <Text className="font-bold" style={{ fontSize: 6, color: styles.colors.text }}>John Doe</Text>
-        <Text style={{ fontSize: 4, color: styles.colors.primary }}>Full Stack Dev</Text>
-      </View>
-      <View className="items-end">
-        <Text style={{ fontSize: 3, color: styles.colors.textLight }}>john@email.com</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.textLight }}>NYC, USA</Text>
-      </View>
-    </View>
-    {/* Compact Two Column */}
-    <View className="flex-row px-2 py-1 flex-1">
-      <View className="flex-1 pr-1">
-        <Text className="font-bold" style={{ fontSize: 3.5, color: styles.colors.primary }}>WORK</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.text }}>Senior Dev</Text>
-        <Text style={{ fontSize: 2.5, color: styles.colors.textLight }}>Tech Corp</Text>
-        <Text className="font-bold mt-1" style={{ fontSize: 3.5, color: styles.colors.primary }}>EDUCATION</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.text }}>BS in CS</Text>
-      </View>
-      <View className="flex-1 pl-1">
-        <Text className="font-bold" style={{ fontSize: 3.5, color: styles.colors.primary }}>SKILLS</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.text }}>React, Node</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.text }}>Python, AWS</Text>
-        <Text style={{ fontSize: 3, color: styles.colors.text }}>TypeScript</Text>
-      </View>
-    </View>
-  </View>
-);
-
-// Map template IDs to their unique layouts
-const getTemplateLayout = (template: ResumeTemplate) => {
-  const { styles } = template;
-
-  switch (template.id) {
-    case 'ats-classic':
-      return renderClassicLayout(styles);
-    case 'ats-professional':
-      return renderBannerLayout(styles);
-    case 'executive':
-      return renderExecutiveLayout(styles);
-    case 'corporate-blue':
-      return renderSidebarLayout(styles, styles.colors.primary);
-    case 'modern-tech':
-      return renderModernLayout(styles);
-    case 'sleek-gradient':
-      return renderTwoColumnLayout(styles);
-    case 'creative-bold':
-      return renderCreativeLayout(styles);
-    case 'designer-pink':
-      return renderTimelineLayout(styles);
-    case 'minimal-clean':
-      return renderMinimalLayout(styles);
-    case 'swiss-style':
-      return renderCompactLayout(styles);
-    default:
-      return renderClassicLayout(styles);
-  }
-};
+// Thumbnail renderer lives in @/components/features/templates/LayoutThumb
+// (imported above). No template-specific render code in this file anymore.
 
 function TemplateCard({ template, isSelected, onSelect, index }: TemplateCardProps) {
   const { colors } = useTheme();
@@ -372,26 +64,28 @@ function TemplateCard({ template, isSelected, onSelect, index }: TemplateCardPro
           borderColor: isSelected ? colors.primary : colors.border,
         }}
       >
-        {/* Template Preview - Unique Layout for Each */}
+        {/* Template Preview — larger card with a subtle gradient backdrop
+            so each template feels deliberately art-directed instead of
+            sitting flat on the page. */}
         <View
-          className="h-56 items-center justify-center relative"
-          style={{ backgroundColor: template.previewColor + '08' }}
+          className="h-64 items-center justify-center relative"
+          style={{ backgroundColor: template.previewColor + '0F' }}
         >
           {/* Resume Preview */}
           <View
-            className="w-32 h-44 rounded-lg overflow-hidden"
+            className="w-36 h-52 rounded-lg overflow-hidden"
             style={{
               backgroundColor: template.styles.colors.background,
               borderWidth: 1,
               borderColor: colors.border,
               shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.15,
-              shadowRadius: 4,
-              elevation: 3,
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.18,
+              shadowRadius: 10,
+              elevation: 6,
             }}
           >
-            {getTemplateLayout(template)}
+            <LayoutThumb template={template} />
           </View>
 
           {/* Premium Badge */}
@@ -544,36 +238,63 @@ export default function Templates() {
 
   return (
     <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
-      {/* Header */}
-      <View className="px-6 pt-4 pb-4">
+      {/* Header — premium polish: larger display title, "AI POWERED" trust
+          pill, descriptive subhead. Matches the editorial feel of the Stitch
+          Template Selector design. */}
+      <View className="px-6 pt-4 pb-5">
         {isFromExternalFlow ? (
           <View className="flex-row items-center mb-2">
-            <Pressable onPress={handleBack} className="mr-3 p-1 -ml-1">
+            <Pressable onPress={handleBack} className="mr-3 p-1 -ml-1" hitSlop={8}>
               <ArrowLeft size={24} color={colors.text} />
             </Pressable>
-            <View>
-              <Text className="text-2xl font-bold" style={{ color: colors.text }}>
+            <View className="flex-1">
+              <Text className="text-2xl font-bold" style={{ color: colors.text, letterSpacing: -0.4 }}>
                 Choose Template
               </Text>
-              <Text style={{ color: colors.textSecondary }} className="text-sm">
-                Select a template and go back
+              <Text style={{ color: colors.textSecondary, fontSize: 13 }} className="mt-0.5">
+                Tap a template to apply it
               </Text>
             </View>
           </View>
         ) : (
           <>
-            <Text className="text-3xl font-bold" style={{ color: colors.text }}>
-              Templates
+            <View className="flex-row items-center mb-2">
+              <View
+                className="flex-row items-center px-2.5 py-1 rounded-full"
+                style={{
+                  backgroundColor: colors.primary + '15',
+                  borderWidth: 1,
+                  borderColor: colors.primary + '25',
+                }}
+              >
+                <Star size={11} color={colors.primary} fill={colors.primary} />
+                <Text
+                  className="ml-1 font-bold"
+                  style={{ color: colors.primary, fontSize: 10, letterSpacing: 1.2 }}
+                >
+                  PREMIUM TEMPLATES
+                </Text>
+              </View>
+            </View>
+            <Text
+              className="font-bold"
+              style={{ color: colors.text, fontSize: 32, letterSpacing: -0.6 }}
+            >
+              Choose Your{'\n'}Template
             </Text>
-            <Text style={{ color: colors.textSecondary }} className="mt-1">
-              {freeCount} free, {premiumCount} premium templates
+            <Text
+              style={{ color: colors.textSecondary, fontSize: 14 }}
+              className="mt-2"
+            >
+              {templates.length} ATS-optimized designs · {freeCount} free, {premiumCount} premium
             </Text>
           </>
         )}
       </View>
 
-      {/* Category Filter */}
-      <View className="mb-4">
+      {/* Category Filter — premium pill row with subtle active shadow.
+          Visual upgrade only; behavior unchanged. */}
+      <View className="mb-3">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -585,17 +306,24 @@ export default function Templates() {
               <Pressable
                 key={category.key}
                 onPress={() => handleSelectCategory(category.key)}
-                className="px-4 py-2 rounded-full"
+                className="px-4 py-2.5 rounded-full"
                 style={{
-                  backgroundColor: isActive ? colors.primary : colors.surface,
-                  borderWidth: 1,
+                  backgroundColor: isActive ? colors.primary : 'transparent',
+                  borderWidth: 1.5,
                   borderColor: isActive ? colors.primary : colors.border,
+                  shadowColor: isActive ? colors.primary : 'transparent',
+                  shadowOffset: { width: 0, height: 3 },
+                  shadowOpacity: isActive ? 0.25 : 0,
+                  shadowRadius: 6,
+                  elevation: isActive ? 3 : 0,
                 }}
               >
                 <Text
                   style={{
                     color: isActive ? 'white' : colors.text,
-                    fontWeight: isActive ? '600' : '400',
+                    fontWeight: isActive ? '700' : '500',
+                    fontSize: 13,
+                    letterSpacing: 0.2,
                   }}
                 >
                   {category.label}

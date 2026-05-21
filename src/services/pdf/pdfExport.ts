@@ -8,9 +8,6 @@ import * as Sharing from 'expo-sharing';
 import * as IntentLauncher from 'expo-intent-launcher';
 import { Paths, File, Directory } from 'expo-file-system';
 import { Platform, ToastAndroid } from 'react-native';
-
-// Import legacy FileSystem for file operations
-const LegacyFileSystem = require('expo-file-system');
 import { Resume } from '@/types/resume';
 import { ResumeTemplate } from '@/types/template';
 import { generateResumeHTML } from './htmlGenerator';
@@ -109,8 +106,10 @@ export async function generatePDF(
     // Use provided template or get default
     const selectedTemplate = template || getDefaultTemplate();
 
-    // Generate HTML
-    let html = generateResumeHTML(resume, selectedTemplate);
+    // Generate HTML — pass paperSize so the engine's @page declaration and
+    // .rb-page container width match the PDF print size. Without this, A4
+    // selections clip content because the HTML still sized itself for Letter.
+    let html = generateResumeHTML(resume, selectedTemplate, { paperSize });
 
     // Add watermark if needed (free tier)
     if (addWatermark) {
@@ -168,36 +167,44 @@ export async function downloadPDFToDevice(
 
     if (Platform.OS === 'android') {
       try {
-        // Copy to document directory with proper name
-        const destinationPath = `${LegacyFileSystem.documentDirectory}${fileName}`;
+        // Use new expo-file-system API
+        const sourceFile = new File(result.uri);
+        const destinationDir = new Directory(Paths.document);
+        const destinationFile = new File(destinationDir, fileName);
 
-        await LegacyFileSystem.copyAsync({
-          from: result.uri,
-          to: destinationPath,
-        });
+        // Copy the file using the new API
+        await sourceFile.copy(destinationFile);
 
-        console.log('[PDFExport] PDF copied to:', destinationPath);
+        console.log('[PDFExport] PDF copied to:', destinationFile.uri);
 
-        // Get content URI for sharing with other apps
-        const contentUri = await LegacyFileSystem.getContentUriAsync(destinationPath);
+        // Check if sharing is available
+        const isAvailable = await Sharing.isAvailableAsync();
 
-        // Open the PDF with system viewer - user can save from there
-        await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-          data: contentUri,
-          flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
-          type: 'application/pdf',
-        });
+        if (isAvailable) {
+          // Use sharing to open PDF - handles content URI conversion internally
+          await Sharing.shareAsync(destinationFile.uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Save Resume',
+          });
+        } else {
+          // Fallback to intent launcher with file URI
+          await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+            data: destinationFile.uri,
+            flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
+            type: 'application/pdf',
+          });
+        }
 
-        ToastAndroid.show('PDF opened - use menu to save or share', ToastAndroid.LONG);
+        ToastAndroid.show('PDF ready - save or share from the menu', ToastAndroid.SHORT);
 
         return {
           success: true,
-          uri: destinationPath,
+          uri: destinationFile.uri,
         };
 
       } catch (androidError) {
         console.error('[PDFExport] Android save error:', androidError);
-        // Fallback: share sheet
+        // Fallback: share sheet directly from temp file
         return generateAndSharePDF(resume, template, options);
       }
     } else {
@@ -275,8 +282,9 @@ export async function previewPDF(
     // Use provided template or get default
     const selectedTemplate = template || getDefaultTemplate();
 
-    // Generate HTML
-    let html = generateResumeHTML(resume, selectedTemplate);
+    // Generate HTML — see comment in generatePDF() for why paperSize must be
+    // propagated to the engine.
+    let html = generateResumeHTML(resume, selectedTemplate, { paperSize });
 
     // Add watermark if needed
     if (addWatermark) {
@@ -309,10 +317,11 @@ export async function previewPDF(
 export function getHTMLPreview(
   resume: Resume,
   template?: ResumeTemplate,
-  addWatermark = false
+  addWatermark = false,
+  paperSize: PaperSize = 'letter',
 ): string {
   const selectedTemplate = template || getDefaultTemplate();
-  let html = generateResumeHTML(resume, selectedTemplate);
+  let html = generateResumeHTML(resume, selectedTemplate, { paperSize });
 
   if (addWatermark) {
     html = addWatermarkToHTML(html, 'Created with FreeResume AI');
