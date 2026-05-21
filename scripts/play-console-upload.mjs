@@ -34,9 +34,9 @@ const LANG = 'en-US';
 const TRACK = 'production';
 
 // Play Console enforces 500 chars per locale. Keep this tight.
-const RELEASE_NOTES = `Major update — AI is now working correctly.
+const RELEASE_NOTES = `Critical update — AI features now actually work.
 
-Fixed: AI scoring, summary, bullet enhancement, and skill suggestions all functional.
+Fixed: All AI features (resume scoring, summary, bullets, skill suggestions) are functional again.
 New: 22 premium templates with real distinct layouts.
 New: Step indicator in editor — never feel lost.
 New: Live AI Resume Score with personalized tips.
@@ -140,7 +140,7 @@ async function main() {
       ...target,
       // Override the display name so it reflects the actual app version
       // (EAS submitted with old version metadata; codes are correct).
-      name: '1.5.1',
+      name: '1.5.2',
       // "completed" = 100% rollout after Google review approves.
       // For a staged rollout instead: { status: 'inProgress', userFraction: 0.5 }
       status: 'completed',
