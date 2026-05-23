@@ -34,14 +34,12 @@ const LANG = 'en-US';
 const TRACK = 'production';
 
 // Play Console enforces 500 chars per locale. Keep this tight.
-const RELEASE_NOTES = `Critical update — AI features now actually work.
+const RELEASE_NOTES = `Now in 12 languages + smarter feedback.
 
-Fixed: All AI features (resume scoring, summary, bullets, skill suggestions) are functional again.
-New: 22 premium templates with real distinct layouts.
-New: Step indicator in editor — never feel lost.
-New: Live AI Resume Score with personalized tips.
-New: Upload an old resume — AI rebuilds it in 10 seconds.
-Improved: Faster preview, smoother startup, tablet-ready.`;
+New: Translated to Spanish, Portuguese, Hindi, Arabic, French, German, Russian, Turkish, Japanese, Chinese, Indonesian.
+New: Quick rating prompt after a great export — tell us how it went.
+Fixed: Edge cases in PDF export and AI scoring.
+Improved: Faster startup, smoother preview, better tablet layouts.`;
 
 function log(...args) {
   console.log('[play-upload]', ...args);
@@ -140,7 +138,7 @@ async function main() {
       ...target,
       // Override the display name so it reflects the actual app version
       // (EAS submitted with old version metadata; codes are correct).
-      name: '1.5.2',
+      name: '1.6.0',
       // "completed" = 100% rollout after Google review approves.
       // For a staged rollout instead: { status: 'inProgress', userFraction: 0.5 }
       status: 'completed',
