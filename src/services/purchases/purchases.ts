@@ -1,15 +1,18 @@
 /**
- * react-native-iap wrapper — talks directly to Google Play Billing.
+ * expo-iap wrapper — direct Google Play Billing via the Expo-native
+ * library. Replaces react-native-iap v15 (Nitro modules) which had
+ * Metro/Expo SDK 54 compatibility issues.
  *
  * Design notes:
- *   - The actual `react-native-iap` import is lazy + try/catched so the
- *     module can be loaded in Expo Go (which lacks the native binding)
- *     without crashing.
+ *   - The `expo-iap` import is lazy + try/catched so the module can be
+ *     loaded in Expo Go (no native binding) without crashing. The UI
+ *     just shows the paywall in a "preview" state with mock prices.
  *   - Every public function is a safe no-op when the native module is
- *     unavailable. The UI just shows the paywall in a "preview" state.
- *   - All state changes go through `usePurchasesStore`, never local state.
+ *     unavailable.
+ *   - All state changes go through `usePurchasesStore`.
  *   - We listen to the global purchase listener so the entitlement
- *     refreshes even if the user buys through Play Store directly.
+ *     refreshes whether the user bought through the paywall, restored,
+ *     or auto-renewed.
  */
 
 import Constants, { ExecutionEnvironment } from 'expo-constants';
@@ -27,8 +30,8 @@ export const isExpoGo =
 
 let iap: any = null;
 let connected = false;
-let purchaseUpdateSub: any = null;
-let purchaseErrorSub: any = null;
+let purchaseUpdateSub: { remove: () => void } | null = null;
+let purchaseErrorSub: { remove: () => void } | null = null;
 
 function devLog(...args: unknown[]) {
   if (__DEV__) console.log('[purchases]', ...args);
@@ -41,7 +44,7 @@ function loadIap(): any | null {
     return null;
   }
   try {
-    iap = require('react-native-iap');
+    iap = require('expo-iap');
     return iap;
   } catch (err) {
     devLog('Native module unavailable', err);
@@ -50,9 +53,9 @@ function loadIap(): any | null {
 }
 
 /**
- * Idempotent — call once at app startup. Connects to Google Play and
- * starts the global purchase listener. After this returns, the store's
- * `activeTier` reflects what the user actually owns.
+ * Idempotent. Connects to Google Play and starts the global purchase
+ * listener. After this returns, the store's `activeTier` reflects what
+ * the user actually owns.
  */
 export async function initPurchases(): Promise<void> {
   const m = loadIap();
@@ -67,10 +70,10 @@ export async function initPurchases(): Promise<void> {
       connected = true;
     }
 
-    // Listen for purchases the user makes any way — through our paywall,
-    // through Play Store directly, or auto-renewals from a subscription.
+    // Global purchase listener — fires for paywall purchases, restores,
+    // and subscription auto-renewals.
     purchaseUpdateSub = m.purchaseUpdatedListener(async (purchase: any) => {
-      devLog('purchaseUpdated', purchase?.productId);
+      devLog('purchaseUpdated', purchase?.productId || purchase?.id);
       try {
         await handleSuccessfulPurchase(purchase);
       } catch (err) {
@@ -81,7 +84,8 @@ export async function initPurchases(): Promise<void> {
     purchaseErrorSub = m.purchaseErrorListener((err: any) => {
       devLog('purchaseError', err?.code, err?.message);
       const code = err?.code;
-      if (code === 'E_USER_CANCELLED') {
+      // expo-iap uses 'E_USER_CANCELLED' or 'user-cancelled' depending on version
+      if (code === 'E_USER_CANCELLED' || code === 'user-cancelled') {
         usePurchasesStore.getState().setPurchasing(false);
         return;
       }
@@ -93,7 +97,6 @@ export async function initPurchases(): Promise<void> {
       });
     });
 
-    // Pull current entitlement on launch.
     await refreshEntitlement();
   } catch (err) {
     devLog('init failed', err);
@@ -102,8 +105,8 @@ export async function initPurchases(): Promise<void> {
 }
 
 /**
- * Refresh entitlement from Google Play. Called on init and after every
- * purchase event. Safe to call frequently — Play caches the result.
+ * Pull current entitlement from Google Play. Called on init and after
+ * every purchase event. Safe to call frequently — Play caches the result.
  */
 export async function refreshEntitlement(): Promise<void> {
   const m = loadIap();
@@ -111,50 +114,44 @@ export async function refreshEntitlement(): Promise<void> {
 
   try {
     const purchases: any[] = (await m.getAvailablePurchases()) || [];
-    const owned = purchases.filter((p) => ALL_SKUS.includes(p.productId));
+    const owned = purchases.filter((p) => {
+      const sku = p.productId || p.id || (p.productIds && p.productIds[0]);
+      return ALL_SKUS.includes(sku);
+    });
 
     if (owned.length === 0) {
       usePurchasesStore.getState().setEntitlement(null, null);
     } else {
-      // Prefer lifetime > annual > monthly when the user has multiple.
+      // Prefer lifetime > annual > monthly.
+      const skuOf = (p: any) => p.productId || p.id || (p.productIds && p.productIds[0]);
       const priority = (sku: string) =>
         sku === 'freeresume_premium_lifetime' ? 3 :
         sku === 'freeresume_premium_annual' ? 2 : 1;
-      const best = owned.sort((a, b) => priority(b.productId) - priority(a.productId))[0];
-      const tier = tierOfSku(best.productId);
-      usePurchasesStore.getState().setEntitlement(tier, best.productId);
+      const best = owned.sort((a, b) => priority(skuOf(b)) - priority(skuOf(a)))[0];
+      const bestSku = skuOf(best);
+      const tier = tierOfSku(bestSku);
+      usePurchasesStore.getState().setEntitlement(tier, bestSku);
     }
 
     usePurchasesStore.getState().markSynced();
     usePurchasesStore.getState().setInitialized(true);
   } catch (err) {
     devLog('refreshEntitlement failed', err);
-    // Don't clear cached entitlement — keep the user as premium if they
-    // were before. Play enforces expiry server-side.
     usePurchasesStore.getState().setInitialized(true);
   }
 }
 
-/**
- * Acknowledge + persist a fresh purchase. Required by Google within 3
- * days or the purchase auto-refunds.
- */
 async function handleSuccessfulPurchase(purchase: any): Promise<void> {
   const m = loadIap();
   if (!m) return;
 
-  const sku = purchase?.productId;
+  const sku = purchase?.productId || purchase?.id || (purchase?.productIds && purchase.productIds[0]);
   const tier = tierOfSku(sku);
 
-  // The acknowledge / consume API differs per type:
-  //   - Subscription: acknowledgePurchaseAndroid (non-consumable)
-  //   - One-time managed product (lifetime): same
-  //   - One-time consumable: consumePurchaseAndroid (we don't use these)
+  // Acknowledge / consume. expo-iap's finishTransaction handles both
+  // subscription ack and one-time product completion based on isConsumable.
   try {
-    if (purchase.purchaseToken && !purchase.isAcknowledgedAndroid) {
-      // finishTransaction handles both cases — preferred over manual ack
-      await m.finishTransaction({ purchase, isConsumable: false });
-    }
+    await m.finishTransaction({ purchase, isConsumable: false });
   } catch (err) {
     devLog('finishTransaction failed (still recording entitlement)', err);
   }
@@ -168,55 +165,62 @@ async function handleSuccessfulPurchase(purchase: any): Promise<void> {
   track(ANALYTICS_EVENTS.PURCHASE_COMPLETED, {
     sku,
     tier,
-    purchase_token_prefix: (purchase.purchaseToken || '').slice(0, 8),
+    purchase_token_prefix: (purchase.purchaseToken || purchase.transactionReceipt || '').slice(0, 8),
   });
 }
 
-/**
- * Fetch product details from Play for paywall display.
- * Returns price strings ("$2.99/month") localized to the user's currency.
- */
+/** Fetch product details for the paywall UI. */
 export async function getOfferings(): Promise<Offering[]> {
   const m = loadIap();
   if (!m) return MOCK_OFFERINGS;
 
   try {
     const [subs, oneTimes] = await Promise.all([
-      m.getSubscriptions({ skus: SUBSCRIPTION_SKUS }).catch(() => []),
-      m.getProducts({ skus: ONE_TIME_SKUS }).catch(() => []),
+      m.fetchProducts({ skus: SUBSCRIPTION_SKUS, type: 'subs' }).catch(() => []),
+      m.fetchProducts({ skus: ONE_TIME_SKUS, type: 'in-app' }).catch(() => []),
     ]);
 
     const offerings: Offering[] = [];
 
-    for (const s of subs) {
-      const tier = tierOfSku(s.productId);
+    for (const s of subs || []) {
+      const skuId = s.productId || s.id;
+      const tier = tierOfSku(skuId);
       if (!tier) continue;
-      const offer = s.subscriptionOfferDetails?.[0];
-      const phase = offer?.pricingPhases?.pricingPhaseList?.[0];
+      // expo-iap surfaces Android subscription offer details slightly
+      // differently per version; handle both shapes.
+      const androidOffer =
+        s.subscriptionOfferDetailsAndroid?.[0] ||
+        s.subscriptionOfferDetails?.[0];
+      const pricingPhases =
+        androidOffer?.pricingPhases?.pricingPhaseList ||
+        androidOffer?.pricingPhases;
+      const paidPhase = pricingPhases?.find((p: any) => p.priceAmountMicros !== '0') ||
+        pricingPhases?.[pricingPhases.length - 1];
       offerings.push({
-        sku: s.productId,
+        sku: skuId,
         tier,
-        priceText: phase?.formattedPrice || s.localizedPrice || '',
+        priceText: paidPhase?.formattedPrice || s.displayPrice || s.localizedPrice || '',
         period: tier === 'annual' ? 'year' : 'month',
-        trialDays: parseTrialDays(offer?.pricingPhases?.pricingPhaseList),
-        title: s.title || '',
+        trialDays: parseTrialDays(pricingPhases),
+        title: s.title || s.displayName || '',
       });
     }
 
-    for (const p of oneTimes) {
-      const tier = tierOfSku(p.productId);
+    for (const p of oneTimes || []) {
+      const skuId = p.productId || p.id;
+      const tier = tierOfSku(skuId);
       if (!tier) continue;
       offerings.push({
-        sku: p.productId,
+        sku: skuId,
         tier,
-        priceText: p.localizedPrice || '',
+        priceText: p.displayPrice || p.localizedPrice || '',
         period: 'lifetime',
         trialDays: 0,
-        title: p.title || '',
+        title: p.title || p.displayName || '',
       });
     }
 
-    return offerings;
+    return offerings.length > 0 ? offerings : MOCK_OFFERINGS;
   } catch (err) {
     devLog('getOfferings failed', err);
     return MOCK_OFFERINGS;
@@ -224,8 +228,8 @@ export async function getOfferings(): Promise<Offering[]> {
 }
 
 /**
- * Trigger the native purchase flow. Returns immediately — actual
- * fulfillment happens via the purchaseUpdatedListener.
+ * Open the native purchase flow. Returns immediately — actual fulfillment
+ * happens via the purchaseUpdatedListener registered in initPurchases().
  */
 export async function buyProduct(sku: string): Promise<void> {
   const m = loadIap();
@@ -246,22 +250,40 @@ export async function buyProduct(sku: string): Promise<void> {
 
   try {
     if (SUBSCRIPTION_SKUS.includes(sku as any)) {
-      // Subscription requires offerToken on Android Billing v6+.
-      const subs = await m.getSubscriptions({ skus: [sku] });
-      const offer = subs?.[0]?.subscriptionOfferDetails?.[0];
+      // For subscriptions we need the offerToken from the product details.
+      // expo-iap requires an offerToken when offer details exist; we pull
+      // it lazily here so the caller doesn't have to thread it through.
+      const subs = await m.fetchProducts({ skus: [sku], type: 'subs' });
+      const product = subs?.[0];
+      const offer =
+        product?.subscriptionOfferDetailsAndroid?.[0] ||
+        product?.subscriptionOfferDetails?.[0];
       const offerToken = offer?.offerToken;
-      await m.requestSubscription({
-        sku,
-        ...(offerToken
-          ? { subscriptionOffers: [{ sku, offerToken }] }
-          : {}),
+
+      await m.requestPurchase({
+        type: 'subs',
+        request: {
+          google: {
+            skus: [sku],
+            ...(offerToken
+              ? { subscriptionOffers: [{ sku, offerToken }] }
+              : {}),
+          },
+        },
       });
     } else {
-      await m.requestPurchase({ sku });
+      // One-time product (lifetime)
+      await m.requestPurchase({
+        type: 'in-app',
+        request: {
+          google: { skus: [sku] },
+        },
+      });
     }
   } catch (err: any) {
     devLog('buyProduct threw', err);
-    if (err?.code !== 'E_USER_CANCELLED') {
+    const code = err?.code;
+    if (code !== 'E_USER_CANCELLED' && code !== 'user-cancelled') {
       usePurchasesStore.getState().setError(err?.message || 'Purchase failed');
     }
     usePurchasesStore.getState().setPurchasing(false);
@@ -278,6 +300,11 @@ export async function restorePurchases(): Promise<{ found: number }> {
 
   usePurchasesStore.getState().setPurchasing(true);
   try {
+    // expo-iap exposes a dedicated restorePurchases mutation that calls
+    // the OS-native flow; fall back to refreshEntitlement if missing.
+    if (typeof m.restorePurchases === 'function') {
+      try { await m.restorePurchases(); } catch { /* ignore */ }
+    }
     await refreshEntitlement();
     const tier = usePurchasesStore.getState().activeTier;
     track(ANALYTICS_EVENTS.PURCHASE_RESTORED, {
@@ -311,17 +338,12 @@ export function teardownPurchases(): void {
 export interface Offering {
   sku: string;
   tier: 'monthly' | 'annual' | 'lifetime';
-  priceText: string; // e.g. "$2.99"
+  priceText: string;
   period: 'month' | 'year' | 'lifetime';
   trialDays: number;
   title: string;
 }
 
-/**
- * Mock offerings used when running in Expo Go or when the products
- * haven't been activated in Play Console yet. Lets the paywall UI
- * render and be tested without real billing.
- */
 const MOCK_OFFERINGS: Offering[] = [
   {
     sku: 'freeresume_premium_annual',
@@ -350,18 +372,19 @@ const MOCK_OFFERINGS: Offering[] = [
 ];
 
 function parseTrialDays(phases: any[] | undefined): number {
-  // Subscription pricing phases: first phase with price=0 is the trial.
-  // billingPeriod looks like "P7D" or "P1M". Extract the digit.
   if (!phases || phases.length < 2) return 0;
-  const trialPhase = phases[0];
-  if (trialPhase?.priceAmountMicros !== '0' && trialPhase?.priceAmountMicros !== 0) {
-    return 0;
-  }
-  const period = trialPhase?.billingPeriod || '';
-  const m = period.match(/^P(\d+)([DWM])$/i);
-  if (!m) return 0;
-  const n = parseInt(m[1], 10);
-  const unit = m[2].toUpperCase();
+  const trial = phases[0];
+  const isFree =
+    trial?.priceAmountMicros === '0' ||
+    trial?.priceAmountMicros === 0 ||
+    trial?.price === '0' ||
+    trial?.price === 0;
+  if (!isFree) return 0;
+  const period = trial?.billingPeriod || '';
+  const match = period.match(/^P(\d+)([DWM])$/i);
+  if (!match) return 0;
+  const n = parseInt(match[1], 10);
+  const unit = match[2].toUpperCase();
   if (unit === 'D') return n;
   if (unit === 'W') return n * 7;
   if (unit === 'M') return n * 30;

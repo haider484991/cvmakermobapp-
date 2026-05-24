@@ -57,7 +57,7 @@
       ],
       "expo-system-ui",
       "expo-localization",
-      "react-native-iap"
+      "expo-iap"
     ],
     "experiments": {
       "typedRoutes": true
