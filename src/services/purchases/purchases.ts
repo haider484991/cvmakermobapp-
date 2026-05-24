@@ -84,16 +84,25 @@ export async function initPurchases(): Promise<void> {
     purchaseErrorSub = m.purchaseErrorListener((err: any) => {
       devLog('purchaseError', err?.code, err?.message);
       const code = err?.code;
-      // expo-iap uses 'E_USER_CANCELLED' or 'user-cancelled' depending on version
       if (code === 'E_USER_CANCELLED' || code === 'user-cancelled') {
         usePurchasesStore.getState().setPurchasing(false);
         return;
       }
-      usePurchasesStore.getState().setError(err?.message || 'Purchase failed');
+      // Friendly UI message that hints at the real cause without scaring users
+      const friendlyMsg =
+        code === 'query-product'
+          ? 'This product is not available on your account right now. New products can take up to 24h to fully activate, or your Google account country may not be configured.'
+          : err?.message || 'Purchase failed';
+      usePurchasesStore.getState().setError(friendlyMsg);
       usePurchasesStore.getState().setPurchasing(false);
       track(ANALYTICS_EVENTS.PURCHASE_FAILED, {
         code: code || 'UNKNOWN',
         message: (err?.message || '').slice(0, 200),
+        // Pull every field we can to diagnose remotely
+        debugMessage: err?.debugMessage?.slice?.(0, 200),
+        responseCode: err?.responseCode,
+        productId: err?.productId,
+        userInfo: JSON.stringify(err?.userInfo || {}).slice(0, 200),
       });
     });
 
@@ -220,9 +229,27 @@ export async function getOfferings(): Promise<Offering[]> {
       });
     }
 
+    // Telemetry so we can see whether Play returned real prices or we
+    // fell back to mocks — and what each product looked like raw.
+    track('paywall_offerings_loaded' as any, {
+      count: offerings.length,
+      using_mocks: offerings.length === 0,
+      raw_sub_count: (subs || []).length,
+      raw_onetime_count: (oneTimes || []).length,
+      raw_sub_skus: (subs || []).map((s: any) => s.productId || s.id).join(','),
+      raw_onetime_skus: (oneTimes || []).map((p: any) => p.productId || p.id).join(','),
+      first_sub_status: (subs || [])[0]?.productStatusAndroid,
+    });
+
     return offerings.length > 0 ? offerings : MOCK_OFFERINGS;
-  } catch (err) {
+  } catch (err: any) {
     devLog('getOfferings failed', err);
+    // Surface the actual native error so we can diagnose remotely.
+    track('paywall_offerings_failed' as any, {
+      code: err?.code || 'UNKNOWN',
+      message: (err?.message || String(err)).slice(0, 300),
+      name: err?.name,
+    });
     return MOCK_OFFERINGS;
   }
 }
