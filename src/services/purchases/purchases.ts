@@ -107,8 +107,21 @@ export async function initPurchases(): Promise<void> {
     });
 
     await refreshEntitlement();
-  } catch (err) {
+    // Successful init — log so we can confirm in analytics
+    track('purchases_init_success' as any, {
+      iap_available: true,
+    });
+  } catch (err: any) {
     devLog('init failed', err);
+    // CRITICAL: surface init failures to analytics so we can diagnose
+    // "instant failed to query product" errors that are actually init
+    // failures masquerading as query failures.
+    track('purchases_init_failed' as any, {
+      code: err?.code || 'UNKNOWN',
+      message: (err?.message || String(err)).slice(0, 300),
+      name: err?.name,
+      stage: connected ? 'after_connect' : 'before_connect',
+    });
     usePurchasesStore.getState().setInitialized(true);
   }
 }
