@@ -1,29 +1,79 @@
 /**
  * Sentry init wrapper.
  *
- * Currently a no-op stub. The @sentry/react-native config plugin requires
- * a Sentry organization + project to be configured at build time and an
- * auth token in EAS env — without those, the Gradle build fails. Adding
- * Sentry will be re-enabled in v1.7.2 after the Sentry account is
- * provisioned. See: https://docs.sentry.io/platforms/react-native/
+ * Loaded once at app startup. Skips initialization in dev (don't pollute
+ * the project's Sentry dashboard with hot-reload churn) and when the DSN
+ * env var is not set (so the app still boots cleanly before Sentry is
+ * provisioned).
  *
- * The exported functions stay in the same shape so call sites elsewhere
- * in the codebase don't need to change when we re-enable it.
+ * DSN: EXPO_PUBLIC_SENTRY_DSN — set as plaintext-visibility env var in EAS
+ * Organization: auh-partners
+ * Project: android
  */
 
+import * as Sentry from '@sentry/react-native';
+import Constants from 'expo-constants';
+
+const DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
+const RELEASE = (Constants.expoConfig?.version ?? '0.0.0').toString();
+
+let initialized = false;
+
 export function initSentry(): void {
-  // No-op. Will be re-enabled in v1.7.2 once Sentry account is set up:
-  //   1. Sign up at https://sentry.io
-  //   2. Create a React Native project
-  //   3. Get DSN + auth token
-  //   4. Add @sentry/react-native plugin back to app.json with org/project
-  //   5. Set EXPO_PUBLIC_SENTRY_DSN as plaintext EAS env var
+  if (initialized) return;
+  if (__DEV__) {
+    if (__DEV__) console.log('[sentry] skipped in dev mode');
+    return;
+  }
+  if (!DSN) {
+    if (__DEV__) console.log('[sentry] DSN not configured, skipping init');
+    return;
+  }
+  try {
+    Sentry.init({
+      dsn: DSN,
+      release: `freeresume-ai@${RELEASE}`,
+      // Capture every crash. Sample non-crash perf at 10 % to stay
+      // comfortably inside the free tier (5K events/month).
+      tracesSampleRate: 0.1,
+      attachStacktrace: true,
+      // Redact api_key/token/bearer query params from breadcrumbs so we
+      // don't accidentally upload secrets to Sentry's servers.
+      beforeBreadcrumb(breadcrumb) {
+        if (breadcrumb.category === 'xhr' || breadcrumb.category === 'fetch') {
+          if (breadcrumb.data?.url) {
+            breadcrumb.data.url = String(breadcrumb.data.url).replace(
+              /(api[_-]?key|token|bearer)=[^&]+/gi,
+              '$1=REDACTED',
+            );
+          }
+        }
+        return breadcrumb;
+      },
+    });
+    initialized = true;
+  } catch (err) {
+    // Never let Sentry init crash the app
+    if (__DEV__) console.log('[sentry] init failed', err);
+  }
 }
 
-export function captureError(_err: unknown, _context?: Record<string, unknown>): void {
-  // No-op until Sentry is wired back up.
+/** Wrap an error so it shows up in Sentry without throwing. */
+export function captureError(err: unknown, context?: Record<string, unknown>): void {
+  if (!initialized) return;
+  try {
+    Sentry.captureException(err, context ? { extra: context } : undefined);
+  } catch {
+    // never let Sentry itself break the app
+  }
 }
 
-export function setSentryUser(_userId: string | null): void {
-  // No-op until Sentry is wired back up.
+/** Tag the current Sentry session with a user id so crashes are searchable. */
+export function setSentryUser(userId: string | null): void {
+  if (!initialized) return;
+  try {
+    Sentry.setUser(userId ? { id: userId } : null);
+  } catch {
+    // ignore
+  }
 }
