@@ -34,12 +34,12 @@ const LANG = 'en-US';
 const TRACK = 'production';
 
 // Play Console enforces 500 chars per locale. Keep this tight.
-const RELEASE_NOTES = `Stability + measurement update.
+const RELEASE_NOTES = `Introducing FreeResume Pro.
 
-Improved: Faster, smoother experience throughout the app.
-Improved: Better error handling on PDF export and AI scoring.
-Behind the scenes: anonymous usage analytics to help us prioritize what to build next. No personal data collected.
-Thanks for using FreeResume AI — keep the feedback coming!`;
+New: Unlock all 22 premium templates, remove the watermark, and hide ads with FreeResume Pro. Start with a free trial.
+New: Full AI Resume Score with personalized coaching.
+Improved: Stability, performance, and error handling across the app.
+The free tier is still fully functional — Pro just removes friction.`;
 
 function log(...args) {
   console.log('[play-upload]', ...args);
@@ -138,7 +138,7 @@ async function main() {
       ...target,
       // Override the display name so it reflects the actual app version
       // (EAS submitted with old version metadata; codes are correct).
-      name: '1.7.0',
+      name: '1.8.0',
       // "completed" = 100% rollout after Google review approves.
       // For a staged rollout instead: { status: 'inProgress', userFraction: 0.5 }
       status: 'completed',
