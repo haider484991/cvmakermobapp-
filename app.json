@@ -56,8 +56,7 @@
         }
       ],
       "expo-system-ui",
-      "expo-localization",
-      "@sentry/react-native"
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
