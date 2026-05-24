@@ -14,6 +14,7 @@ import { interstitialAd } from '@/services/ads';
 import { reviewSignals } from '@/services/review/reviewManager';
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
 import { ReviewPromptModal } from '@/components/features/review/ReviewPromptModal';
+import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import { Button } from '@/components/ui';
 import {
   ArrowLeft,
@@ -118,6 +119,13 @@ export default function ExportResume() {
         // prompt. tryPrompt() bails silently if the user isn't eligible.
         reviewSignals.pdfExported().catch(() => {});
         setTimeout(() => { tryPrompt(); }, 3500);
+        // Analytics: track the export with template + paper size so we can
+        // see which combinations users actually ship.
+        track(ANALYTICS_EVENTS.RESUME_EXPORT_SUCCEEDED, {
+          template_id: selectedTemplate?.id,
+          template_name: selectedTemplate?.name,
+          paper_size: paperSize,
+        });
       } else {
         // Show error to user
         if (hapticEnabled) {
@@ -128,6 +136,10 @@ export default function ExportResume() {
           result.error || 'Failed to download your resume. Please try again.',
           [{ text: 'OK' }]
         );
+        track(ANALYTICS_EVENTS.RESUME_EXPORT_FAILED, {
+          template_id: selectedTemplate?.id,
+          error: result.error?.slice(0, 200),
+        });
       }
     } catch (err) {
       // Handle unexpected errors

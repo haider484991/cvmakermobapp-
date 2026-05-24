@@ -12,6 +12,7 @@ import { useResumeImport } from '@/hooks/useResumeImport';
 import { useGamification } from '@/hooks/useGamification';
 import { SyncStatusIndicator } from '@/components/ui/SyncStatusIndicator';
 import { PremiumImportHero, ImportReviewModal } from '@/components/features/import';
+import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import {
   XPProgressBar,
   StreakCounter,
@@ -79,6 +80,8 @@ export default function Dashboard() {
       setActiveResume(id);
       // Track for gamification
       trackResumeCreated();
+      // Track for product analytics
+      track(ANALYTICS_EVENTS.RESUME_CREATED, { source: 'dashboard_button' });
       router.push(`/resume/${id}`);
     } finally {
       // Reset after a short delay to allow navigation

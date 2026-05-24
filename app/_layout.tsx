@@ -13,6 +13,12 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { adPreloader, interstitialAd, adsInit } from '@/services/ads';
 import { initI18n } from '@/i18n';
 import { recordSession } from '@/services/review/reviewManager';
+import { initSentry } from '@/services/analytics/sentry';
+import { track, ANALYTICS_EVENTS, flushAnalytics } from '@/services/analytics/analytics';
+
+// Initialize Sentry as early as possible so it can catch crashes during
+// the very first render. Safe no-op if DSN env var isn't configured.
+initSentry();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -138,6 +144,9 @@ export default function RootLayout() {
     initI18n().finally(() => setI18nReady(true));
     // Count this launch toward review-eligibility (idempotent per day).
     recordSession().catch(() => {});
+    // Analytics: log app open + flush any queued events from prior session.
+    track(ANALYTICS_EVENTS.APP_OPENED);
+    flushAnalytics().catch(() => {});
   }, []);
 
   if (!i18nReady) {

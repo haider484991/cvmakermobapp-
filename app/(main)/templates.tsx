@@ -11,6 +11,7 @@ import { TEMPLATE_CATEGORIES, TemplateCategory, ResumeTemplate } from '@/types/t
 import { useCallback, useMemo } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { NativeAdCard } from '@/components/ads';
+import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import { LayoutThumb } from '@/components/features/templates';
 
 const CATEGORY_FILTERS: Array<{ key: TemplateCategory | 'all'; label: string }> = [
@@ -214,6 +215,15 @@ export default function Templates() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     setSelectedTemplate(template.id);
+    // Analytics: which templates win? Critical for v1.8 paywall decisions
+    // (which ones should we mark premium).
+    track(ANALYTICS_EVENTS.TEMPLATE_SELECTED, {
+      template_id: template.id,
+      template_name: template.name,
+      category: template.category,
+      is_premium: template.isPremium,
+      ats_score: template.atsScore,
+    });
 
     // If we came from another flow (e.g., export page), navigate back
     if (returnTo) {

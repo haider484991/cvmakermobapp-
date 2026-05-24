@@ -16,6 +16,7 @@ import {
 import { parseResumeWithAI } from '@/services/ai/resumeParser';
 import { mapParsedDataToResume, getImportStats } from '@/services/fileImport/resumeMapper';
 import { reviewSignals } from '@/services/review/reviewManager';
+import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import type { SelectedFile, ParsedResumeData, ImportStats } from '@/types/resumeImport';
 import type { Resume } from '@/types/resume';
 
@@ -163,6 +164,16 @@ export function useResumeImport() {
 
         // Record positive signal for the review prompt manager.
         reviewSignals.resumeImported().catch(() => {});
+
+        // Analytics: this is the killer feature — track confidence + sizes.
+        track(ANALYTICS_EVENTS.RESUME_IMPORT_SUCCEEDED, {
+          confidence: store.confidence,
+          file_type: store.selectedFile?.type,
+          file_size_kb: store.selectedFile?.size ? Math.round(store.selectedFile.size / 1024) : undefined,
+          experience_count: data.experience?.length ?? 0,
+          education_count: data.education?.length ?? 0,
+          skills_count: data.skills?.length ?? 0,
+        });
 
         // Reset after a short delay
         setTimeout(() => store.reset(), 1500);

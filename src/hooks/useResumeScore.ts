@@ -7,6 +7,7 @@ import { useState, useCallback } from 'react';
 import { scoreResume, getQuickScore, type ResumeScore } from '@/services/ai/resumeScorer';
 import { useGamification } from '@/hooks/useGamification';
 import { reviewSignals } from '@/services/review/reviewManager';
+import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import type { Resume } from '@/types/resume';
 
 interface UseResumeScoreReturn {
@@ -34,6 +35,8 @@ export function useResumeScore(resume: Resume | null): UseResumeScoreReturn {
 
     setIsLoading(true);
     setError(null);
+    const t0 = Date.now();
+    track(ANALYTICS_EVENTS.AI_SCORE_REQUESTED);
 
     try {
       const result = await scoreResume(resume);
@@ -45,11 +48,25 @@ export function useResumeScore(resume: Resume | null): UseResumeScoreReturn {
         // Record the score for review-eligibility — high scores
         // (>= 80) count as a "moment of value" toward the prompt.
         reviewSignals.scoreAchieved(result.score.overall).catch(() => {});
+        track(ANALYTICS_EVENTS.AI_SCORE_COMPLETED, {
+          overall_score: result.score.overall,
+          ats_compatibility: result.score.atsCompatibility,
+          duration_ms: Date.now() - t0,
+        });
       } else {
         setError(result.error || 'Failed to analyze resume');
+        track(ANALYTICS_EVENTS.AI_SCORE_FAILED, {
+          error: result.error?.slice(0, 200),
+          duration_ms: Date.now() - t0,
+        });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to analyze resume');
+      const msg = err instanceof Error ? err.message : 'Failed to analyze resume';
+      setError(msg);
+      track(ANALYTICS_EVENTS.AI_SCORE_FAILED, {
+        error: msg.slice(0, 200),
+        duration_ms: Date.now() - t0,
+      });
     } finally {
       setIsLoading(false);
     }

@@ -14,7 +14,7 @@
  * instead, protecting the public rating.
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, Text, View, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -27,6 +27,7 @@ import {
   recordDecline,
   requestNativeReview,
 } from '@/services/review/reviewManager';
+import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 
 const SUPPORT_EMAIL = 'haider484991@gmail.com';
 
@@ -42,6 +43,12 @@ export function ReviewPromptModal({ visible, onClose }: Props) {
   const { hapticEnabled } = useUIStore();
   const [step, setStep] = useState<Step>('filter');
 
+  // Fire analytics once each time the modal becomes visible so we can
+  // compute the love-it / not-really / dismiss funnel later.
+  useEffect(() => {
+    if (visible) track(ANALYTICS_EVENTS.REVIEW_PROMPT_SHOWN);
+  }, [visible]);
+
   // Reset internal state when the modal is closed externally so the
   // next open starts fresh on the filter.
   const close = () => {
@@ -53,6 +60,7 @@ export function ReviewPromptModal({ visible, onClose }: Props) {
     if (hapticEnabled) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
+    track(ANALYTICS_EVENTS.REVIEW_PROMPT_ACCEPTED, { branch: 'love' });
     setStep('love-it');
     await markPrompted();
   };
@@ -61,6 +69,7 @@ export function ReviewPromptModal({ visible, onClose }: Props) {
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
+    track(ANALYTICS_EVENTS.REVIEW_PROMPT_DECLINED, { branch: 'feedback' });
     setStep('feedback');
     await markPrompted();
     await recordDecline();
@@ -70,6 +79,7 @@ export function ReviewPromptModal({ visible, onClose }: Props) {
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
+    track(ANALYTICS_EVENTS.REVIEW_PROMPT_ACCEPTED, { action: 'rate_native' });
     await requestNativeReview();
     setStep('thanks');
   };
