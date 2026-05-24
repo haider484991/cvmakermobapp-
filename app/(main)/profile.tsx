@@ -36,6 +36,9 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useGamification } from '@/hooks/useGamification';
+import { usePremium } from '@/hooks/usePremium';
+import { PaywallModal } from '@/components/features/paywall/PaywallModal';
+import { restorePurchases } from '@/services/purchases/purchases';
 import {
   XPProgressBar,
   StreakCounter,
@@ -186,12 +189,32 @@ export default function Profile() {
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    // TODO: Navigate to premium/subscription screen
+    setPaywallVisible(true);
+  };
+
+  const handleRestorePurchases = async () => {
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    const { found } = await restorePurchases();
     Alert.alert(
-      'Upgrade to Premium',
-      'Premium features coming soon! Get unlimited resumes, AI assistance, and premium templates.',
-      [{ text: 'OK' }]
+      found > 0 ? 'Purchases restored' : 'No purchase found',
+      found > 0
+        ? 'Your FreeResume Pro access has been restored on this device.'
+        : 'We didn\'t find an active subscription on this Google account. If you believe this is a mistake, make sure you\'re signed into the same Google account you used to purchase.',
+      [{ text: 'OK' }],
     );
+  };
+
+  const handleManageSubscription = () => {
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    // Deep-link into Play Store's subscription management for our app.
+    // Compliance requirement under Play's billing policy.
+    Linking.openURL(
+      `https://play.google.com/store/account/subscriptions?package=com.freeresumeai.app`,
+    ).catch(() => {});
   };
 
   const handleOpenPrivacyPolicy = async () => {
@@ -308,7 +331,10 @@ export default function Profile() {
     </Pressable>
   );
 
-  const isPremium = subscriptionTier === 'premium' || subscriptionTier === 'pro';
+  // Premium is authoritative from the IAP store (Google Play Billing).
+  // Supabase subscriptionTier is a legacy field we no longer trust.
+  const { isPremium, activeTier } = usePremium();
+  const [paywallVisible, setPaywallVisible] = useState(false);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -633,6 +659,13 @@ export default function Profile() {
       <LanguagePicker
         visible={languagePickerOpen}
         onClose={() => setLanguagePickerOpen(false)}
+      />
+
+      {/* Paywall — opens from Upgrade banner. Auto-closes if user becomes premium. */}
+      <PaywallModal
+        visible={paywallVisible}
+        onClose={() => setPaywallVisible(false)}
+        trigger="profile"
       />
     </View>
   );

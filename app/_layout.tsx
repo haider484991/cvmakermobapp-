@@ -11,10 +11,12 @@ import { useAppOpenAd } from '@/hooks/useAppOpenAd';
 import { useUIStore } from '@/stores/uiStore';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { adPreloader, interstitialAd, adsInit } from '@/services/ads';
+import { usePremium } from '@/hooks/usePremium';
 import { initI18n } from '@/i18n';
 import { recordSession } from '@/services/review/reviewManager';
 import { initSentry } from '@/services/analytics/sentry';
 import { track, ANALYTICS_EVENTS, flushAnalytics } from '@/services/analytics/analytics';
+import { initPurchases } from '@/services/purchases/purchases';
 
 // Initialize Sentry as early as possible so it can catch crashes during
 // the very first render. Safe no-op if DSN env var isn't configured.
@@ -96,20 +98,27 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 function RootLayoutNav() {
   const { isDark, colors } = useTheme();
 
+  // Premium users see zero ads. We still init the ad SDK + UMP for free
+  // users via the hooks below.
+  const { isPremium } = usePremium();
+
   // Kick off the ad pipeline: gather UMP consent, initialize MobileAds,
-  // then warm the rewarded + interstitial pools. Each step is independently
-  // safe to fail (Expo Go, missing module, no network).
+  // then warm the rewarded + interstitial pools. Skipped entirely for
+  // premium users. Safe to fail at any step (Expo Go, missing module,
+  // no network).
   useEffect(() => {
+    if (isPremium) return;
     (async () => {
       const ready = await adsInit.ready();
       if (!ready) return;
       adPreloader.preload();
       interstitialAd.preload();
     })();
-  }, []);
+  }, [isPremium]);
 
   // App Open Ad on cold launch (frequency-capped to 1 per 4h, skipped on
-  // very first launch so users actually reach the dashboard).
+  // very first launch so users actually reach the dashboard). The hook
+  // itself short-circuits for premium users — see useAppOpenAd.ts.
   useAppOpenAd();
 
   return (
@@ -147,6 +156,11 @@ export default function RootLayout() {
     // Analytics: log app open + flush any queued events from prior session.
     track(ANALYTICS_EVENTS.APP_OPENED);
     flushAnalytics().catch(() => {});
+    // Connect to Google Play Billing + refresh entitlement. Safe no-op
+    // in Expo Go (native module unavailable). Doesn't block render —
+    // the persisted snapshot from last session is authoritative until
+    // this finishes.
+    initPurchases().catch(() => {});
   }, []);
 
   if (!i18nReady) {

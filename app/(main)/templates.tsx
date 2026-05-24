@@ -8,10 +8,12 @@ import * as Haptics from 'expo-haptics';
 import { useTemplateStore } from '@/stores/templateStore';
 import { useUIStore } from '@/stores/uiStore';
 import { TEMPLATE_CATEGORIES, TemplateCategory, ResumeTemplate } from '@/types/template';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { NativeAdCard } from '@/components/ads';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { usePremium } from '@/hooks/usePremium';
+import { PaywallModal } from '@/components/features/paywall/PaywallModal';
 import { LayoutThumb } from '@/components/features/templates';
 
 const CATEGORY_FILTERS: Array<{ key: TemplateCategory | 'all'; label: string }> = [
@@ -166,6 +168,9 @@ export default function Templates() {
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const { hapticEnabled } = useUIStore();
 
+  const { isPremium } = usePremium();
+  const [paywallVisible, setPaywallVisible] = useState(false);
+
   const {
     templates,
     selectedTemplateId,
@@ -214,9 +219,18 @@ export default function Templates() {
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
+    // Premium gate: free users can preview the lock badge but selecting
+    // opens the paywall instead of applying the template.
+    if (template.isPremium && !isPremium) {
+      track(ANALYTICS_EVENTS.PAYWALL_SHOWN, {
+        trigger: 'template',
+        template_id: template.id,
+      });
+      setPaywallVisible(true);
+      return;
+    }
     setSelectedTemplate(template.id);
-    // Analytics: which templates win? Critical for v1.8 paywall decisions
-    // (which ones should we mark premium).
+    // Analytics: which templates win?
     track(ANALYTICS_EVENTS.TEMPLATE_SELECTED, {
       template_id: template.id,
       template_name: template.name,
@@ -232,7 +246,7 @@ export default function Templates() {
         router.replace(returnTo as any);
       }, 200);
     }
-  }, [hapticEnabled, setSelectedTemplate, returnTo, router]);
+  }, [hapticEnabled, setSelectedTemplate, returnTo, router, isPremium]);
 
   const handleBack = useCallback(() => {
     if (hapticEnabled) {
@@ -411,6 +425,13 @@ export default function Templates() {
         {/* Bottom Spacing */}
         <View className="h-8" />
       </ScrollView>
+
+      {/* Paywall — opens when free user taps a premium template */}
+      <PaywallModal
+        visible={paywallVisible}
+        onClose={() => setPaywallVisible(false)}
+        trigger="template"
+      />
     </SafeAreaView>
   );
 }

@@ -15,6 +15,8 @@ import { reviewSignals } from '@/services/review/reviewManager';
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
 import { ReviewPromptModal } from '@/components/features/review/ReviewPromptModal';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { usePremium } from '@/hooks/usePremium';
+import { PaywallModal } from '@/components/features/paywall/PaywallModal';
 import { Button } from '@/components/ui';
 import {
   ArrowLeft,
@@ -39,6 +41,9 @@ export default function ExportResume() {
   const { getResume } = useResumeStore();
   const { getTemplate, selectedTemplateId, templates } = useTemplateStore();
   const { hapticEnabled } = useUIStore();
+  const { isPremium } = usePremium();
+  const [paywallVisible, setPaywallVisible] = useState(false);
+  const [paywallTrigger, setPaywallTrigger] = useState<'watermark' | 'ads'>('watermark');
 
   // PDF Export hook
   const {
@@ -50,7 +55,7 @@ export default function ExportResume() {
     downloadPDF,
     preview,
     clearError,
-  } = usePDFExport({ isPremium: false });
+  } = usePDFExport({ isPremium });
 
   // Rewarded Ad hook for download/share actions
   const { loaded: adLoaded, loading: adLoading, showAd } = useDownloadAd();
@@ -114,7 +119,7 @@ export default function ExportResume() {
         setTimeout(() => setExportSuccess(false), 3000);
         // Fire an interstitial after the success alert. Frequency-capped
         // and silently no-ops if not loaded — never blocks the success path.
-        setTimeout(() => { interstitialAd.tryShow(); }, 1500);
+        if (!isPremium) setTimeout(() => { interstitialAd.tryShow(); }, 1500);
         // Record a positive review signal and attempt to surface the
         // prompt. tryPrompt() bails silently if the user isn't eligible.
         reviewSignals.pdfExported().catch(() => {});
@@ -212,7 +217,7 @@ export default function ExportResume() {
         }
         setTimeout(() => setExportSuccess(false), 3000);
         // Fire an interstitial after the share completes (capped).
-        setTimeout(() => { interstitialAd.tryShow(); }, 1500);
+        if (!isPremium) setTimeout(() => { interstitialAd.tryShow(); }, 1500);
         // Share is also a strong positive signal — record + try prompt.
         reviewSignals.pdfExported().catch(() => {});
         setTimeout(() => { tryPrompt(); }, 3500);
@@ -571,25 +576,33 @@ export default function ExportResume() {
             </Pressable>
           </Animated.View>
 
-          {/* Watermark Notice */}
-          <Animated.View
-            entering={FadeInUp.delay(400)}
-            className="mt-4 p-4 rounded-xl"
-            style={{ backgroundColor: colors.warning + '10' }}
-          >
-            <View className="flex-row items-start">
-              <AlertCircle size={18} color={colors.warning} style={{ marginTop: 2 }} />
-              <View className="ml-2 flex-1">
-                <Text className="font-medium" style={{ color: colors.warning }}>
-                  Free Plan
-                </Text>
-                <Text className="text-sm mt-1" style={{ color: colors.textSecondary }}>
-                  Your resume will include a small watermark. Upgrade to Premium to remove it and
-                  unlock all templates.
-                </Text>
-              </View>
-            </View>
-          </Animated.View>
+          {/* Watermark Notice — tappable: opens paywall for free users.
+              Hidden entirely for premium since there's nothing to advertise. */}
+          {!isPremium && (
+            <Animated.View entering={FadeInUp.delay(400)}>
+              <Pressable
+                onPress={() => {
+                  setPaywallTrigger('watermark');
+                  setPaywallVisible(true);
+                }}
+                className="mt-4 p-4 rounded-xl"
+                style={{ backgroundColor: colors.warning + '10', borderWidth: 1, borderColor: colors.warning + '30' }}
+              >
+                <View className="flex-row items-start">
+                  <AlertCircle size={18} color={colors.warning} style={{ marginTop: 2 }} />
+                  <View className="ml-2 flex-1">
+                    <Text className="font-bold" style={{ color: colors.warning }}>
+                      Tap to remove the watermark
+                    </Text>
+                    <Text className="text-sm mt-1" style={{ color: colors.textSecondary }}>
+                      Free PDFs include a small "Made with FreeResume AI" footer.
+                      Upgrade to FreeResume Pro to remove it and unlock all 22 templates.
+                    </Text>
+                  </View>
+                </View>
+              </Pressable>
+            </Animated.View>
+          )}
 
           {/* Tips */}
           <Animated.View
@@ -614,6 +627,13 @@ export default function ExportResume() {
           useReviewPrompt. Filter modal funnels happy users to Play Store
           and unhappy users to email feedback (protects 5★ rating). */}
       <ReviewPromptModal {...reviewModalProps} />
+
+      {/* Paywall — triggered from the watermark notice tap. */}
+      <PaywallModal
+        visible={paywallVisible}
+        onClose={() => setPaywallVisible(false)}
+        trigger={paywallTrigger}
+      />
     </SafeAreaView>
   );
 }

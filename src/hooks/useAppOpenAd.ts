@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AD_REQUEST_OPTIONS, AD_UNIT_IDS, isExpoGo } from '@/services/ads/adConfig';
 import { adFrequencyCap } from '@/services/ads/adFrequencyCap';
 import { adsInit } from '@/services/ads/adsInit';
+import { usePurchasesStore, selectIsPremium } from '@/stores/purchasesStore';
 
 function devLog(...args: unknown[]) {
   if (__DEV__) console.log('[AppOpenAd]', ...args);
@@ -29,9 +30,11 @@ export function useAppOpenAd(): UseAppOpenAdReturn {
   const [isLoading, setIsLoading] = useState(!isExpoGo);
   const [error, setError] = useState<Error | null>(null);
   const hasAttemptedRef = useRef(false);
+  // Premium users never see App Open ads.
+  const isPremium = usePurchasesStore(selectIsPremium);
 
   useEffect(() => {
-    if (isExpoGo || hasAttemptedRef.current) {
+    if (isExpoGo || hasAttemptedRef.current || isPremium) {
       setIsLoading(false);
       return;
     }
@@ -110,7 +113,7 @@ export function useAppOpenAd(): UseAppOpenAdReturn {
       cancelled = true;
       unsubscribers.forEach((u) => u());
     };
-  }, []);
+  }, [isPremium]);
 
   return { hasShown, isLoading, error };
 }
