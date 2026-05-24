@@ -175,9 +175,11 @@ async function createLifetime() {
         requestBody: {
           requests: [
             {
-              productId: p.sku,
-              purchaseOptionId: 'buy',
-              activatePurchaseOptionRequest: {},
+              activatePurchaseOptionRequest: {
+                packageName: PACKAGE,
+                productId: p.sku,
+                purchaseOptionId: 'buy',
+              },
             },
           ],
         },
