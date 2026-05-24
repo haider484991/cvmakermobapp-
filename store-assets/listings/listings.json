@@ -1,0 +1,47 @@
+{
+  "_meta": {
+    "package": "com.freeresumeai.app",
+    "rules": {
+      "title": "max 30 chars",
+      "shortDescription": "max 80 chars",
+      "fullDescription": "max 4000 chars"
+    },
+    "translation_notes": "Translations are written for the target market's resume-builder vernacular, not literal translations. Keywords are placed in the first 167 chars (the indexed portion of full description) and reinforced in short description for ranking."
+  },
+
+  "en-US": {
+    "title": "FreeResume AI: CV Maker & PDF",
+    "shortDescription": "Build an ATS-ready resume in minutes — AI writing, 22 templates, free PDF.",
+    "fullDescription": "FreeResume AI — the smart way to build a job-winning resume on your phone.\n\nUpload your old resume and our AI rebuilds it in 10 seconds. Or start from scratch with one of 22 ATS-optimized templates. Get an instant AI score with personalized tips to improve your resume — then export a clean PDF, share it anywhere, and land that interview.\n\n• 22 PREMIUM TEMPLATES — modern, professional, creative, minimal\n• AI RESUME SCORE — instant feedback with category breakdown\n• AI WRITING — generate summaries and rewrite bullet points\n• RESUME IMPORT — upload PDF, Word, or photo, AI rebuilds it\n• ATS-OPTIMIZED — every template passes applicant tracking systems\n• FREE PDF EXPORT — US Letter and A4, yours to keep\n• 12 LANGUAGES — Spanish, French, German, Hindi, Arabic, more\n• 100% FREE — no subscription, no paywall, no signup required\n\nWhy job seekers love FreeResume AI:\n• It's faster than desktop resume builders\n• It actually understands your resume thanks to advanced AI\n• Templates that look like a designer made them, not a Word doc\n• Works offline once you've built your resume\n• Your data stays on your device by default\n\nGet hired. Get FreeResume AI."
+  },
+
+  "es-ES": {
+    "title": "FreeResume AI: CV con IA",
+    "shortDescription": "Crea un CV optimizado para ATS en minutos: IA, 22 plantillas, PDF gratis.",
+    "fullDescription": "FreeResume AI — la forma inteligente de crear un CV ganador desde tu teléfono.\n\nSube tu currículum antiguo y nuestra IA lo reconstruye en 10 segundos. O empieza desde cero con una de 22 plantillas optimizadas para ATS. Obtén una puntuación instantánea con consejos personalizados, exporta un PDF limpio, compártelo donde quieras y consigue esa entrevista.\n\n• 22 PLANTILLAS PREMIUM — modernas, profesionales, creativas, minimalistas\n• PUNTUACIÓN DE CV CON IA — feedback instantáneo con desglose por categoría\n• ESCRITURA CON IA — genera resúmenes y reescribe viñetas\n• IMPORTACIÓN DE CV — sube PDF, Word o foto, la IA lo reconstruye\n• OPTIMIZADO PARA ATS — todas las plantillas pasan los filtros automáticos\n• EXPORTACIÓN PDF GRATIS — formato carta o A4, tuyo para siempre\n• 12 IDIOMAS — Español, Francés, Alemán, Hindi, Árabe y más\n• 100% GRATIS — sin suscripción, sin pago, sin registro obligatorio\n\nPor qué los buscadores de empleo aman FreeResume AI:\n• Más rápido que los creadores de CV de escritorio\n• Entiende tu CV gracias a la IA avanzada\n• Plantillas con aspecto de diseñador profesional\n• Funciona sin conexión una vez creado el CV\n• Tus datos se quedan en tu dispositivo por defecto\n\nConsigue trabajo. Descarga FreeResume AI."
+  },
+
+  "pt-BR": {
+    "title": "FreeResume AI: Currículo IA",
+    "shortDescription": "Crie um currículo ATS em minutos: IA, 22 modelos, PDF grátis.",
+    "fullDescription": "FreeResume AI — a forma inteligente de criar um currículo vencedor pelo celular.\n\nEnvie seu currículo antigo e nossa IA o reconstrói em 10 segundos. Ou comece do zero com um dos 22 modelos otimizados para ATS. Receba uma pontuação instantânea com dicas personalizadas, exporte um PDF limpo, compartilhe onde quiser e conquiste aquela entrevista.\n\n• 22 MODELOS PREMIUM — modernos, profissionais, criativos, minimalistas\n• PONTUAÇÃO DE CURRÍCULO POR IA — feedback instantâneo por categoria\n• ESCRITA COM IA — gere resumos e reescreva pontos de experiência\n• IMPORTAÇÃO DE CURRÍCULO — envie PDF, Word ou foto, a IA reconstrói\n• OTIMIZADO PARA ATS — todos os modelos passam pelos filtros automáticos\n• EXPORTAÇÃO PDF GRÁTIS — Carta ou A4, seu para sempre\n• 12 IDIOMAS — Português, Espanhol, Francês, Hindi, Árabe e mais\n• 100% GRÁTIS — sem assinatura, sem pagamento, sem cadastro obrigatório\n\nPor que quem busca emprego ama o FreeResume AI:\n• Mais rápido que criadores de currículo no desktop\n• Entende seu currículo graças à IA avançada\n• Modelos com cara de design profissional, não documento Word\n• Funciona offline depois de criado\n• Seus dados ficam no seu dispositivo por padrão\n\nConquiste a vaga. Baixe o FreeResume AI."
+  },
+
+  "hi-IN": {
+    "title": "FreeResume AI: Resume Builder",
+    "shortDescription": "मिनटों में ATS-ready रिज्यूमे बनाएं — AI, 22 टेम्पलेट, मुफ्त PDF।",
+    "fullDescription": "FreeResume AI — आपके फ़ोन पर एक जीतने वाला रिज्यूमे बनाने का स्मार्ट तरीका।\n\nअपना पुराना रिज्यूमे अपलोड करें और हमारी AI इसे 10 सेकंड में फिर से बना देगी। या 22 ATS-optimized टेम्पलेट्स में से किसी एक के साथ शुरू से शुरू करें। तुरंत AI स्कोर पाएं, साफ़ PDF एक्सपोर्ट करें, कहीं भी शेयर करें और वो इंटरव्यू पाएं।\n\n• 22 PREMIUM टेम्पलेट्स — modern, professional, creative, minimal\n• AI रिज्यूमे स्कोर — श्रेणी-वार तत्काल फ़ीडबैक\n• AI लेखन — summaries और bullet points को बेहतर बनाएं\n• रिज्यूमे आयात — PDF, Word या फोटो अपलोड करें, AI फिर से बनाएगी\n• ATS-OPTIMIZED — हर टेम्पलेट applicant tracking systems को pass करता है\n• मुफ्त PDF एक्सपोर्ट — US Letter और A4, हमेशा आपका\n• 12 भाषाएँ — हिंदी, English, Spanish, Arabic और अधिक\n• 100% मुफ़्त — कोई subscription नहीं, कोई paywall नहीं, signup ज़रूरी नहीं\n\nनौकरी ढूंढने वाले FreeResume AI को क्यों पसंद करते हैं:\n• Desktop resume builders से तेज़\n• Advanced AI की वजह से आपके रिज्यूमे को समझता है\n• Designer जैसे दिखने वाले टेम्पलेट्स, Word doc जैसे नहीं\n• रिज्यूमे बनने के बाद offline काम करता है\n• आपका डेटा डिफ़ॉल्ट रूप से आपके device पर रहता है\n\nनौकरी पाएं। FreeResume AI डाउनलोड करें।"
+  },
+
+  "id": {
+    "title": "FreeResume AI: CV Maker AI",
+    "shortDescription": "Bikin CV ATS dalam menit — AI, 22 template, PDF gratis.",
+    "fullDescription": "FreeResume AI — cara cerdas membuat CV yang memenangkan pekerjaan dari ponsel kamu.\n\nUpload CV lama kamu dan AI kami akan membangunnya ulang dalam 10 detik. Atau mulai dari nol dengan salah satu dari 22 template ATS-optimized. Dapatkan skor CV instan dengan tips personal, export PDF bersih, share ke mana saja, dan dapatkan interview itu.\n\n• 22 TEMPLATE PREMIUM — modern, profesional, kreatif, minimalis\n• SKOR CV DENGAN AI — feedback instan dengan rincian kategori\n• PENULISAN AI — generate ringkasan dan tulis ulang poin pengalaman\n• IMPOR CV — upload PDF, Word, atau foto, AI bangun ulang\n• ATS-OPTIMIZED — setiap template lolos applicant tracking systems\n• EXPORT PDF GRATIS — US Letter dan A4, milik kamu selamanya\n• 12 BAHASA — Indonesia, English, Spanish, Hindi, Arabic, dan lainnya\n• 100% GRATIS — tanpa langganan, tanpa paywall, tanpa wajib daftar\n\nKenapa pencari kerja suka FreeResume AI:\n• Lebih cepat daripada resume builder desktop\n• Memahami CV kamu berkat AI canggih\n• Template terlihat seperti dibuat designer, bukan dokumen Word\n• Bekerja offline setelah CV dibuat\n• Data kamu tersimpan di perangkat secara default\n\nDapatkan pekerjaan. Download FreeResume AI."
+  },
+
+  "fr-FR": {
+    "title": "FreeResume AI: CV par IA",
+    "shortDescription": "Créez un CV optimisé ATS en minutes — IA, 22 modèles, PDF gratuit.",
+    "fullDescription": "FreeResume AI — la façon intelligente de créer un CV gagnant depuis votre téléphone.\n\nImportez votre ancien CV et notre IA le reconstruit en 10 secondes. Ou partez de zéro avec l'un des 22 modèles optimisés ATS. Obtenez un score CV instantané avec des conseils personnalisés, exportez un PDF propre, partagez-le partout et décrochez cet entretien.\n\n• 22 MODÈLES PREMIUM — modernes, professionnels, créatifs, minimalistes\n• SCORE CV PAR IA — feedback instantané avec détail par catégorie\n• RÉDACTION IA — générez des résumés et réécrivez vos puces\n• IMPORT DE CV — uploadez PDF, Word ou photo, l'IA reconstruit\n• OPTIMISÉ ATS — chaque modèle passe les filtres automatiques\n• EXPORT PDF GRATUIT — Lettre US et A4, à vous pour toujours\n• 12 LANGUES — Français, Anglais, Espagnol, Hindi, Arabe et plus\n• 100% GRATUIT — pas d'abonnement, pas de paywall, pas d'inscription obligatoire\n\nPourquoi les chercheurs d'emploi adorent FreeResume AI :\n• Plus rapide que les créateurs de CV sur ordinateur\n• Comprend réellement votre CV grâce à l'IA avancée\n• Modèles dignes d'un designer, pas d'un document Word\n• Fonctionne hors ligne une fois le CV créé\n• Vos données restent sur votre appareil par défaut\n\nDécrochez votre emploi. Téléchargez FreeResume AI."
+  }
+}
