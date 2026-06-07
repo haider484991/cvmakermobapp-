@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://freeresumeai.app/sitemap.xml
+Sitemap: https://haider484991.github.io/cvmakermobapp-/sitemap.xml

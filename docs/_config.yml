@@ -1,8 +1,10 @@
 # GitHub Pages configuration
 title: FreeResume AI
 description: Create professional resumes with AI
-url: "https://freeresumeai.app"
-baseurl: ""
+# Actual hosting: GitHub Pages project site (no custom domain configured).
+# If you later point freeresumeai.app here, update url back to it + clear baseurl.
+url: "https://haider484991.github.io"
+baseurl: "/cvmakermobapp-"
 
 # Build settings
 markdown: kramdown
