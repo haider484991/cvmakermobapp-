@@ -6,3 +6,8 @@ baseurl: ""
 
 # Build settings
 markdown: kramdown
+
+# Don't publish internal engineering notes that live alongside the site.
+exclude:
+  - paywall
+  - analytics
