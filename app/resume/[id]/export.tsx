@@ -115,7 +115,14 @@ export default function ExportResume() {
         if (hapticEnabled) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
-        Alert.alert('Success', 'Resume saved to your device!');
+        // Message reflects what actually happened: a real save to a folder
+        // vs. the share-sheet fallback (rare).
+        Alert.alert(
+          'Saved',
+          result.method === 'shared'
+            ? 'Your resume PDF is ready — pick where to send or save it.'
+            : 'Resume saved to your device. Find it in the folder you chose (e.g. Downloads).',
+        );
         setTimeout(() => setExportSuccess(false), 3000);
         // Fire an interstitial after the success alert. Frequency-capped
         // and silently no-ops if not loaded — never blocks the success path.
@@ -130,15 +137,19 @@ export default function ExportResume() {
           template_id: selectedTemplate?.id,
           template_name: selectedTemplate?.name,
           paper_size: paperSize,
+          method: result.method ?? 'saved',
         });
+      } else if (result.cancelled) {
+        // User backed out of the folder picker — quiet no-op, not an error.
+        track('resume_export_cancelled' as any, { template_id: selectedTemplate?.id });
       } else {
         // Show error to user
         if (hapticEnabled) {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         }
         Alert.alert(
-          'Download Failed',
-          result.error || 'Failed to download your resume. Please try again.',
+          'Save Failed',
+          result.error || 'Could not save your resume. Please try again.',
           [{ text: 'OK' }]
         );
         track(ANALYTICS_EVENTS.RESUME_EXPORT_FAILED, {
@@ -512,10 +523,10 @@ export default function ExportResume() {
               </View>
               <View className="flex-1">
                 <Text className="font-semibold" style={{ color: colors.text }}>
-                  {adLoaded ? 'Watch Ad to Download' : adLoading ? 'Loading Ad...' : 'Download PDF'}
+                  {adLoaded ? 'Watch Ad & Save PDF' : adLoading ? 'Loading Ad...' : 'Save PDF to Phone'}
                 </Text>
                 <Text className="text-sm" style={{ color: colors.textSecondary }}>
-                  {adLoaded ? 'Watch a short ad to download for free' : adLoading ? 'Please wait...' : 'Watch ad required'}
+                  {adLoaded ? 'Watch a short ad, then save free' : adLoading ? 'Please wait...' : 'Saves to a folder you choose'}
                 </Text>
               </View>
               {adLoaded && (

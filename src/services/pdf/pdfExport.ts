@@ -5,8 +5,17 @@
 
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import * as IntentLauncher from 'expo-intent-launcher';
 import { Paths, File, Directory } from 'expo-file-system';
+// Legacy FS gives us the Storage Access Framework, which is the only way to
+// write a file to a user-visible folder (Downloads, Documents) on modern
+// Android without the restricted MANAGE_EXTERNAL_STORAGE permission.
+import {
+  StorageAccessFramework,
+  readAsStringAsync,
+  writeAsStringAsync,
+  EncodingType,
+} from 'expo-file-system/legacy';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, ToastAndroid } from 'react-native';
 import { Resume } from '@/types/resume';
 import { ResumeTemplate } from '@/types/template';
@@ -41,6 +50,10 @@ export interface PDFExportResult {
   success: boolean;
   uri?: string;
   error?: string;
+  /** How the file left the app — 'saved' to a folder, or 'shared' via the sheet. */
+  method?: 'saved' | 'shared';
+  /** True when the user dismissed the save/share dialog. Not an error. */
+  cancelled?: boolean;
 }
 
 /**
@@ -144,10 +157,61 @@ export async function generatePDF(
   }
 }
 
+/** AsyncStorage key for the folder the user chose to save resumes into. */
+const SAF_DIR_KEY = '@pdf/saf-download-dir-v1';
+
 /**
- * Download PDF to device storage (Android Downloads folder)
- * On Android: Opens PDF in system viewer where user can save
- * On iOS: Uses share sheet with save option
+ * Write an already-generated PDF into a user-visible folder via the Storage
+ * Access Framework. The chosen folder is remembered, so only the FIRST save
+ * shows a folder picker — every later save is silent.
+ *
+ * Returns 'saved' with the new file URI, or 'cancelled' if the user dismissed
+ * the picker. Throws on a real write failure so the caller can fall back to
+ * the share sheet.
+ */
+async function saveViaStorageAccessFramework(
+  tempUri: string,
+  baseName: string,
+): Promise<{ status: 'saved'; uri: string } | { status: 'cancelled' }> {
+  const base64 = await readAsStringAsync(tempUri, { encoding: EncodingType.Base64 });
+
+  const writeInto = async (dirUri: string): Promise<string> => {
+    // createFileAsync appends the extension from the mime type, so pass the
+    // name WITHOUT ".pdf" to avoid producing "Name_Resume.pdf.pdf".
+    const fileUri = await StorageAccessFramework.createFileAsync(dirUri, baseName, 'application/pdf');
+    await writeAsStringAsync(fileUri, base64, { encoding: EncodingType.Base64 });
+    return fileUri;
+  };
+
+  // 1) Reuse the remembered folder for a silent save.
+  const cachedDir = await AsyncStorage.getItem(SAF_DIR_KEY).catch(() => null);
+  if (cachedDir) {
+    try {
+      return { status: 'saved', uri: await writeInto(cachedDir) };
+    } catch {
+      // Permission revoked or folder gone — forget it and ask again below.
+      await AsyncStorage.removeItem(SAF_DIR_KEY).catch(() => {});
+    }
+  }
+
+  // 2) Ask the user to choose a folder (one time).
+  const perm = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+  if (!perm.granted || !perm.directoryUri) {
+    return { status: 'cancelled' };
+  }
+  await AsyncStorage.setItem(SAF_DIR_KEY, perm.directoryUri).catch(() => {});
+  return { status: 'saved', uri: await writeInto(perm.directoryUri) };
+}
+
+/**
+ * Save the resume PDF to the device.
+ *
+ * On Android this now performs a REAL save to a user-chosen folder (Downloads,
+ * Documents, etc.) via the Storage Access Framework — previously it copied the
+ * file into the app's private directory and opened a share sheet, so "Download"
+ * confusingly looked like "Share" and the file was never findable.
+ *
+ * On iOS the share sheet IS the native "Save to Files" path, so we keep it.
  */
 export async function downloadPDFToDevice(
   resume: Resume,
@@ -155,62 +219,37 @@ export async function downloadPDFToDevice(
   options: PDFExportOptions = {}
 ): Promise<PDFExportResult> {
   try {
-    // First generate the PDF
+    // First generate the PDF.
     const result = await generatePDF(resume, template, options);
-
     if (!result.success || !result.uri) {
       return result;
     }
 
-    const sanitizedName = (resume.header.fullName?.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_') || 'Resume');
-    const fileName = `${sanitizedName}_${Date.now()}.pdf`;
+    const sanitizedName =
+      resume.header.fullName?.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_') || 'Resume';
+    const baseName = `${sanitizedName}_Resume`;
 
     if (Platform.OS === 'android') {
       try {
-        // Use new expo-file-system API
-        const sourceFile = new File(result.uri);
-        const destinationDir = new Directory(Paths.document);
-        const destinationFile = new File(destinationDir, fileName);
-
-        // Copy the file using the new API
-        await sourceFile.copy(destinationFile);
-
-        console.log('[PDFExport] PDF copied to:', destinationFile.uri);
-
-        // Check if sharing is available
-        const isAvailable = await Sharing.isAvailableAsync();
-
-        if (isAvailable) {
-          // Use sharing to open PDF - handles content URI conversion internally
-          await Sharing.shareAsync(destinationFile.uri, {
-            mimeType: 'application/pdf',
-            dialogTitle: 'Save Resume',
-          });
-        } else {
-          // Fallback to intent launcher with file URI
-          await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-            data: destinationFile.uri,
-            flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
-            type: 'application/pdf',
-          });
+        const saved = await saveViaStorageAccessFramework(result.uri, baseName);
+        if (saved.status === 'saved') {
+          ToastAndroid.show('Saved to your device ✓', ToastAndroid.LONG);
+          return { success: true, uri: saved.uri, method: 'saved' };
         }
-
-        ToastAndroid.show('PDF ready - save or share from the menu', ToastAndroid.SHORT);
-
-        return {
-          success: true,
-          uri: destinationFile.uri,
-        };
-
+        // User backed out of the folder picker — a quiet no-op, not an error.
+        return { success: false, cancelled: true };
       } catch (androidError) {
-        console.error('[PDFExport] Android save error:', androidError);
-        // Fallback: share sheet directly from temp file
-        return generateAndSharePDF(resume, template, options);
+        // Real SAF failure (rare) — fall back to the share sheet so the user
+        // can still get their file out via Drive/Gmail/etc.
+        console.error('[PDFExport] SAF save failed, falling back to share:', androidError);
+        const shared = await generateAndSharePDF(resume, template, options);
+        return { ...shared, method: shared.success ? 'shared' : undefined };
       }
-    } else {
-      // iOS - use share sheet to save
-      return generateAndSharePDF(resume, template, options);
     }
+
+    // iOS — share sheet doubles as "Save to Files".
+    const shared = await generateAndSharePDF(resume, template, options);
+    return { ...shared, method: shared.success ? 'shared' : undefined };
   } catch (error) {
     console.error('[PDFExport] Download PDF error:', error);
     return {
