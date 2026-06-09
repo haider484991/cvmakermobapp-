@@ -1,371 +1,246 @@
 /**
- * Complete Screen
- * Final onboarding screen with celebration animation
+ * Path Picker (onboarding step 3 — the "aha" hand-off)
+ *
+ * The old "complete" screen was a dead end: a confetti burst, three fake
+ * stats, and a button to an empty dashboard. This replaces it with the most
+ * important moment in the funnel — choosing HOW to build, then dropping the
+ * user straight into that flow with their onboarding answers already applied:
+ *
+ *   • Build with AI   → AI wizard, pre-seeded from their role/industry
+ *   • I have a resume → import a PDF/Word doc, we fill it in
+ *   • Start from a template → a new resume with their name + role pre-filled
+ *
+ * Onboarding is marked complete the moment a path is chosen (or an import is
+ * confirmed), so ONBOARDING_COMPLETED finally fires and the funnel is visible.
  */
 
-import { useState, useEffect } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, {
-  FadeInUp,
-  FadeIn,
-  ZoomIn,
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withRepeat,
-  withSequence,
-  withTiming,
-  withDelay,
-  Easing,
-  interpolate,
-} from 'react-native-reanimated';
-import { Rocket, FileText, Sparkles, Download } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInUp, FadeIn } from 'react-native-reanimated';
+import { Sparkles, Upload, FileText, ArrowRight } from 'lucide-react-native';
+import { ActivityIndicator } from 'react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useUIStore } from '@/stores/uiStore';
+import { useResumeStore } from '@/stores/resumeStore';
+import { useResumeImport } from '@/hooks/useResumeImport';
+import { ImportReviewModal } from '@/components/features/import';
 import { Confetti, PageIndicator } from '@/components/ui';
+import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { greetingName } from '@/services/onboarding/personalize';
 import * as Haptics from 'expo-haptics';
 
-// Animated stat card
-function StatCard({
-  icon: Icon,
-  value,
-  label,
-  delay,
-  colors,
-}: {
+type PathCardProps = {
   icon: any;
-  value: string;
-  label: string;
-  delay: number;
+  title: string;
+  subtitle: string;
+  onPress: () => void;
   colors: any;
-}) {
-  const scale = useSharedValue(0);
-  const rotate = useSharedValue(0);
+  recommended?: boolean;
+  loading?: boolean;
+  delay: number;
+  variant?: 'gradient' | 'surface';
+};
 
-  useEffect(() => {
-    scale.value = withDelay(
-      delay,
-      withSpring(1, { damping: 12, stiffness: 150 })
-    );
-    rotate.value = withDelay(
-      delay,
-      withSequence(
-        withTiming(-5, { duration: 100 }),
-        withSpring(0, { damping: 8 })
-      )
-    );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-      { rotate: `${rotate.value}deg` },
-    ],
-  }));
-
-  return (
-    <Animated.View
-      style={[
-        {
-          flex: 1,
-          alignItems: 'center',
-          padding: 16,
-        },
-        animatedStyle,
-      ]}
-    >
+function PathCard({ icon: Icon, title, subtitle, onPress, colors, recommended, loading, delay, variant = 'surface' }: PathCardProps) {
+  const isGradient = variant === 'gradient';
+  const body = (
+    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 18 }}>
       <View
         style={{
-          width: 48,
-          height: 48,
-          borderRadius: 14,
-          backgroundColor: colors.primary + '15',
+          width: 50,
+          height: 50,
+          borderRadius: 15,
+          backgroundColor: isGradient ? 'rgba(255,255,255,0.22)' : colors.primary + '15',
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: 8,
+          marginRight: 14,
         }}
       >
-        <Icon size={24} color={colors.primary} strokeWidth={2} />
+        {loading ? (
+          <ActivityIndicator color={isGradient ? 'white' : colors.primary} />
+        ) : (
+          <Icon size={24} color={isGradient ? 'white' : colors.primary} strokeWidth={2.4} />
+        )}
       </View>
-      <Text
-        style={{
-          fontSize: 22,
-          fontWeight: '700',
-          color: colors.primary,
-        }}
-      >
-        {value}
-      </Text>
-      <Text
-        style={{
-          fontSize: 13,
-          color: colors.textSecondary,
-          marginTop: 2,
-        }}
-      >
-        {label}
-      </Text>
+      <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: isGradient ? 'white' : colors.text }}>{title}</Text>
+          {recommended && (
+            <View style={{ marginLeft: 8, backgroundColor: isGradient ? 'rgba(255,255,255,0.25)' : colors.success + '20', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2 }}>
+              <Text style={{ fontSize: 10, fontWeight: '800', color: isGradient ? 'white' : colors.success, letterSpacing: 0.5 }}>RECOMMENDED</Text>
+            </View>
+          )}
+        </View>
+        <Text style={{ fontSize: 13, color: isGradient ? 'rgba(255,255,255,0.92)' : colors.textSecondary, marginTop: 3, lineHeight: 18 }}>
+          {subtitle}
+        </Text>
+      </View>
+      <ArrowRight size={20} color={isGradient ? 'white' : colors.textSecondary} />
+    </View>
+  );
+
+  return (
+    <Animated.View entering={FadeInUp.delay(delay).duration(500).springify()}>
+      <Pressable onPress={onPress} disabled={loading} style={{ borderRadius: 18, overflow: 'hidden', opacity: loading ? 0.8 : 1 }}>
+        {isGradient ? (
+          <LinearGradient colors={[colors.primary, '#06B6D4']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+            {body}
+          </LinearGradient>
+        ) : (
+          <View style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}>{body}</View>
+        )}
+      </Pressable>
     </Animated.View>
   );
 }
 
-// Animated success icon with ring effect
-function SuccessIcon({ colors }: { colors: any }) {
-  const scale = useSharedValue(0);
-  const ringScale = useSharedValue(0);
-  const ringOpacity = useSharedValue(0);
-
-  useEffect(() => {
-    // Main icon animation
-    scale.value = withDelay(
-      200,
-      withSpring(1, { damping: 8, stiffness: 100 })
-    );
-
-    // Ring pulse animation
-    const animateRing = () => {
-      ringScale.value = 0.8;
-      ringOpacity.value = 0.8;
-
-      ringScale.value = withTiming(1.5, { duration: 1500, easing: Easing.out(Easing.ease) });
-      ringOpacity.value = withTiming(0, { duration: 1500, easing: Easing.out(Easing.ease) });
-    };
-
-    animateRing();
-    const interval = setInterval(animateRing, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const iconStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const ringStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: ringScale.value }],
-    opacity: ringOpacity.value,
-  }));
-
-  return (
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-      {/* Pulsing ring */}
-      <Animated.View
-        style={[
-          {
-            position: 'absolute',
-            width: 140,
-            height: 140,
-            borderRadius: 70,
-            borderWidth: 3,
-            borderColor: colors.success,
-          },
-          ringStyle,
-        ]}
-      />
-
-      {/* Main icon container */}
-      <Animated.View
-        style={[
-          {
-            width: 120,
-            height: 120,
-            borderRadius: 60,
-            backgroundColor: colors.success + '20',
-            alignItems: 'center',
-            justifyContent: 'center',
-          },
-          iconStyle,
-        ]}
-      >
-        <View
-          style={{
-            width: 80,
-            height: 80,
-            borderRadius: 40,
-            backgroundColor: colors.success + '30',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Rocket size={40} color={colors.success} strokeWidth={1.5} />
-        </View>
-      </Animated.View>
-    </View>
-  );
-}
-
-export default function Complete() {
+export default function PathPicker() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { setOnboardingCompleted } = useUIStore();
+  const { setOnboardingCompleted, setOnboardingProfile, onboardingProfile } = useUIStore();
+  const { createResume, updateHeader, setActiveResume } = useResumeStore();
+  const { selectAndParse, isLoading: isImporting, isReviewing } = useResumeImport();
+
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
-  // Button animation
-  const buttonScale = useSharedValue(1);
-  const buttonAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScale.value }],
-  }));
+  const name = greetingName(onboardingProfile);
 
-  // Trigger confetti and haptic on mount
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowConfetti(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }, 500);
-
+    }, 350);
+    track(ANALYTICS_EVENTS.ONBOARDING_STEP_VIEWED, { step: 'path_picker' });
     return () => clearTimeout(timer);
   }, []);
 
-  const handlePressIn = () => {
-    buttonScale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
-  };
+  // Open the review modal once the parser finishes.
+  useEffect(() => {
+    if (isReviewing) setShowImportModal(true);
+  }, [isReviewing]);
 
-  const handlePressOut = () => {
-    buttonScale.value = withSpring(1, { damping: 15, stiffness: 300 });
-  };
-
-  const handleStart = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+  // Marks onboarding done + records the chosen path. Called when a path is
+  // committed (AI / template immediately; import on confirm).
+  const finishOnboarding = (path: 'ai' | 'import' | 'template') => {
     setOnboardingCompleted(true);
-    router.replace('/(main)/dashboard');
+    setOnboardingProfile({ completedAt: Date.now() });
+    track(ANALYTICS_EVENTS.ONBOARDING_PATH_CHOSEN, { path });
+    track(ANALYTICS_EVENTS.ONBOARDING_COMPLETED, {
+      path,
+      goal: onboardingProfile.goal ?? null,
+      industry: onboardingProfile.industry ?? null,
+      level: onboardingProfile.experienceLevel ?? null,
+      has_name: !!onboardingProfile.firstName,
+      has_role: !!onboardingProfile.targetRole,
+    });
+  };
+
+  const handleAI = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    finishOnboarding('ai');
+    router.replace('/resume/ai-wizard');
+  };
+
+  const handleImport = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    try {
+      await selectAndParse();
+    } catch {
+      Alert.alert('Import failed', "We couldn't read that file. Try a PDF, Word doc, or photo of your resume.", [{ text: 'OK' }]);
+    }
+  };
+
+  const handleImportConfirmed = (resumeId: string) => {
+    setShowImportModal(false);
+    finishOnboarding('import');
+    router.replace(`/resume/${resumeId}`);
+  };
+
+  const handleTemplate = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const role = onboardingProfile.targetRole?.trim();
+    const id = createResume(role ? `${role} Resume` : 'My Resume');
+    // Pre-fill the header from onboarding so the very first thing they see is
+    // their own name on the page — the difference between "a tool" and "my
+    // resume". The default template was already chosen on the previous screen.
+    updateHeader(id, {
+      fullName: onboardingProfile.firstName?.trim() || '',
+      jobTitle: role || '',
+    });
+    setActiveResume(id);
+    finishOnboarding('template');
+    router.replace(`/resume/${id}`);
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      {/* Confetti Effect */}
-      <Confetti
-        active={showConfetti}
-        count={60}
-        duration={4000}
-        onComplete={() => setShowConfetti(false)}
-      />
+      <Confetti active={showConfetti} count={50} duration={3500} onComplete={() => setShowConfetti(false)} />
 
-      <View style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 16 }}>
-        {/* Header with Page Indicator */}
-        <Animated.View
-          entering={FadeIn.delay(100).duration(400)}
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginBottom: 24,
-          }}
-        >
-          <PageIndicator totalPages={3} currentPage={2} />
+      <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, marginBottom: 8 }}>
+        <PageIndicator totalPages={3} currentPage={2} />
+      </View>
+
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 40, flexGrow: 1, justifyContent: 'center' }} showsVerticalScrollIndicator={false}>
+        {/* Greeting */}
+        <Animated.View entering={FadeInUp.delay(150).duration(600)} style={{ marginBottom: 8 }}>
+          <Text style={{ fontSize: 32, fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>
+            {name ? `You're all set, ${name}! ` : "You're all set! "}🎉
+          </Text>
+        </Animated.View>
+        <Animated.View entering={FadeInUp.delay(250).duration(600)} style={{ marginBottom: 28 }}>
+          <Text style={{ fontSize: 17, color: colors.textSecondary, lineHeight: 24 }}>
+            How do you want to start? You can change everything later.
+          </Text>
         </Animated.View>
 
-        {/* Main Content */}
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          {/* Success Icon */}
-          <SuccessIcon colors={colors} />
-
-          {/* Title */}
-          <Animated.Text
-            entering={FadeInUp.delay(400).duration(600).springify()}
-            style={{
-              fontSize: 34,
-              fontWeight: '700',
-              textAlign: 'center',
-              marginTop: 32,
-              color: colors.text,
-              letterSpacing: -0.5,
-            }}
-          >
-            You're All Set!
-          </Animated.Text>
-
-          {/* Subtitle */}
-          <Animated.Text
-            entering={FadeInUp.delay(500).duration(600)}
-            style={{
-              fontSize: 17,
-              textAlign: 'center',
-              lineHeight: 26,
-              marginTop: 12,
-              paddingHorizontal: 20,
-              color: colors.textSecondary,
-            }}
-          >
-            Your personalized resume builder is ready.{'\n'}Let's create something amazing.
-          </Animated.Text>
-
-          {/* Stats Card */}
-          <Animated.View
-            entering={FadeInUp.delay(600).duration(600)}
-            style={{
-              width: '100%',
-              borderRadius: 20,
-              backgroundColor: colors.surface,
-              marginTop: 40,
-              flexDirection: 'row',
-              overflow: 'hidden',
-            }}
-          >
-            <StatCard
-              icon={FileText}
-              value="40+"
-              label="Templates"
-              delay={700}
-              colors={colors}
-            />
-            <View style={{ width: 1, backgroundColor: colors.border, marginVertical: 16 }} />
-            <StatCard
-              icon={Sparkles}
-              value="AI"
-              label="Powered"
-              delay={800}
-              colors={colors}
-            />
-            <View style={{ width: 1, backgroundColor: colors.border, marginVertical: 16 }} />
-            <StatCard
-              icon={Download}
-              value="PDF"
-              label="Export"
-              delay={900}
-              colors={colors}
-            />
-          </Animated.View>
+        {/* Paths */}
+        <View style={{ gap: 14 }}>
+          <PathCard
+            icon={Sparkles}
+            title="Build with AI"
+            subtitle="Describe yourself in a sentence — AI writes your first draft."
+            onPress={handleAI}
+            colors={colors}
+            recommended
+            variant="gradient"
+            delay={350}
+          />
+          <PathCard
+            icon={Upload}
+            title="I already have a resume"
+            subtitle={isImporting ? 'Reading your resume…' : 'Import a PDF or Word doc and we’ll fill it in.'}
+            onPress={handleImport}
+            colors={colors}
+            loading={isImporting}
+            delay={430}
+          />
+          <PathCard
+            icon={FileText}
+            title="Start from a template"
+            subtitle="Pick a design and fill it in yourself."
+            onPress={handleTemplate}
+            colors={colors}
+            delay={510}
+          />
         </View>
 
-        {/* CTA Button */}
-        <Animated.View entering={FadeInUp.delay(1000).duration(600)}>
-          <Animated.View style={buttonAnimatedStyle}>
-            <Pressable
-              onPress={handleStart}
-              onPressIn={handlePressIn}
-              onPressOut={handlePressOut}
-              style={{
-                paddingVertical: 18,
-                borderRadius: 16,
-                alignItems: 'center',
-                backgroundColor: colors.primary,
-                shadowColor: colors.primary,
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 6,
-              }}
-            >
-              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '600' }}>
-                Create My Resume
-              </Text>
-            </Pressable>
-          </Animated.View>
+        <Animated.Text
+          entering={FadeIn.delay(650).duration(500)}
+          style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: colors.textMuted }}
+        >
+          Free to build • No credit card needed
+        </Animated.Text>
+      </ScrollView>
 
-          {/* Additional info */}
-          <Animated.Text
-            entering={FadeIn.delay(1100).duration(500)}
-            style={{
-              textAlign: 'center',
-              marginTop: 16,
-              fontSize: 13,
-              color: colors.textMuted,
-            }}
-          >
-            Takes just 5 minutes to complete
-          </Animated.Text>
-        </Animated.View>
-      </View>
+      <ImportReviewModal
+        visible={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onConfirm={handleImportConfirmed}
+      />
     </SafeAreaView>
   );
 }

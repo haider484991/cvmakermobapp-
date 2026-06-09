@@ -37,6 +37,7 @@ import { useResumeImport } from '@/hooks/useResumeImport';
 import { ImportReviewModal } from '@/components/features/import';
 import { GradientBackground } from '@/components/ui';
 import { gradientColors } from '@/constants/theme';
+import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import * as Haptics from 'expo-haptics';
 import { Upload } from 'lucide-react-native';
 import { ActivityIndicator } from 'react-native';
@@ -53,8 +54,8 @@ const FEATURES = [
   },
   {
     icon: Palette,
-    title: '40+ Pro Templates',
-    description: 'Beautiful, ATS-friendly designs for every industry',
+    title: '26 Pro Templates',
+    description: 'Skill bars, icon contacts & ATS-ready designs',
     color: '#8B5CF6',
   },
   {
@@ -71,11 +72,14 @@ const FEATURES = [
   },
 ];
 
-// Bullet points for value proposition
+// Bullet points for value proposition. Kept strictly TRUE — the app is
+// ad-supported with an optional upgrade, so we don't claim "no ads" or
+// "no watermarks" here (those used to be on this screen and contradicted
+// the actual export flow, which burned trust at the worst moment).
 const VALUE_POINTS = [
-  'No credit card required',
-  '100% Free forever',
-  'No watermarks',
+  'No credit card needed',
+  'Free to build & edit',
+  'Ready in minutes',
 ];
 
 // Animated feature card
@@ -203,6 +207,11 @@ export default function Welcome() {
     if (isReviewing) setShowImportModal(true);
   }, [isReviewing]);
 
+  // Funnel: record that the user reached the first onboarding screen.
+  React.useEffect(() => {
+    track(ANALYTICS_EVENTS.ONBOARDING_STEP_VIEWED, { step: 'welcome' });
+  }, []);
+
   // Button press animation
   const buttonScale = useSharedValue(1);
   const buttonAnimatedStyle = useAnimatedStyle(() => ({
@@ -217,10 +226,13 @@ export default function Welcome() {
     buttonScale.value = withSpring(1, { damping: 15, stiffness: 300 });
   };
 
+  // Primary CTA now leads INTO personalization (goals → path picker) instead
+  // of jumping straight to the dashboard. Onboarding is only marked complete
+  // once the user picks how they want to build (see the path picker), so the
+  // answers they give actually get a chance to be used.
   const handleGetStarted = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setOnboardingCompleted(true);
-    router.replace('/(main)/dashboard');
+    router.push('/(onboarding)/goals');
   };
 
   const handleImportResume = async () => {
@@ -236,12 +248,15 @@ export default function Welcome() {
     }
   };
 
-  // Once the user confirms the parsed data, finish onboarding and land
-  // them on the dashboard with their freshly-imported resume.
-  const handleImportConfirmed = (_resumeId: string) => {
+  // Once the user confirms the parsed data, finish onboarding and open the
+  // freshly-imported resume directly (seeing their filled-in resume is a far
+  // stronger first moment than a dashboard list).
+  const handleImportConfirmed = (resumeId: string) => {
     setShowImportModal(false);
     setOnboardingCompleted(true);
-    router.replace('/(main)/dashboard');
+    track(ANALYTICS_EVENTS.ONBOARDING_PATH_CHOSEN, { path: 'import', source: 'welcome' });
+    track(ANALYTICS_EVENTS.ONBOARDING_COMPLETED, { path: 'import', source: 'welcome' });
+    router.replace(`/resume/${resumeId}`);
   };
 
   return (
@@ -324,7 +339,7 @@ export default function Welcome() {
             >
               <Shield size={14} color="#10B981" style={{ marginRight: 6 }} />
               <Text style={{ color: '#10B981', fontSize: 13, fontWeight: '700' }}>
-                100% FREE • NO ADS • NO LIMITS
+                100% FREE • AI-POWERED • ATS-READY
               </Text>
             </View>
           </Animated.View>
@@ -499,7 +514,7 @@ export default function Welcome() {
                   textAlign: 'center',
                 }}
               >
-                Trusted by 10,000+ job seekers worldwide
+                ATS-friendly templates recruiters can actually read
               </Text>
             </Animated.View>
           </Animated.View>

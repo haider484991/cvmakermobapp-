@@ -16,11 +16,37 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
+import * as Localization from 'expo-localization';
 import { supabase } from '@/lib/supabase';
 
 const DEVICE_ID_KEY = '@analytics/device-id-v1';
 const QUEUE_KEY = '@analytics/queue-v1';
 const APP_VERSION = (Constants.expoConfig?.version ?? '0.0.0').toString();
+
+/**
+ * Device geo/locale context, attached to EVERY event's properties.
+ *
+ * Critical for the paywall debugging: products load for accounts whose
+ * Play Store country resolves a price and fail for accounts without an
+ * established country. Capturing the device region + currency lets us
+ * correlate "products loaded" with country, instead of guessing. Read
+ * once per session (doesn't change at runtime).
+ */
+let cachedDeviceContext: Record<string, unknown> | null = null;
+function deviceContext(): Record<string, unknown> {
+  if (cachedDeviceContext) return cachedDeviceContext;
+  try {
+    const loc = Localization.getLocales?.()?.[0];
+    cachedDeviceContext = {
+      _region: loc?.regionCode ?? null, // ISO country, e.g. "PK", "US"
+      _currency: loc?.currencyCode ?? null, // e.g. "PKR", "USD"
+      _locale: loc?.languageTag ?? null, // e.g. "en-PK"
+    };
+  } catch {
+    cachedDeviceContext = {};
+  }
+  return cachedDeviceContext;
+}
 
 interface PendingEvent {
   event_name: string;
@@ -130,7 +156,9 @@ export function track(event_name: string, properties: Record<string, unknown> = 
 
   const event: PendingEvent = {
     event_name,
-    properties,
+    // Merge device geo-context (region/currency/locale) into every event
+    // so we can correlate paywall success with country.
+    properties: { ...deviceContext(), ...properties },
     occurred_at: new Date().toISOString(),
   };
 
@@ -154,6 +182,14 @@ export const ANALYTICS_EVENTS = {
   // Lifecycle
   APP_OPENED: 'app_opened',
   APP_FOREGROUNDED: 'app_foregrounded',
+  // Onboarding funnel — these let us SEE where users drop during onboarding.
+  // Before v1.9.7 the only onboarding event was ONBOARDING_COMPLETED, and it
+  // never fired (the welcome CTA jumped straight to the dashboard), so the
+  // funnel was invisible. step_viewed fires per screen; path_chosen records
+  // which build path they picked (ai / import / template); completed fires
+  // exactly once when they leave onboarding.
+  ONBOARDING_STEP_VIEWED: 'onboarding_step_viewed',
+  ONBOARDING_PATH_CHOSEN: 'onboarding_path_chosen',
   ONBOARDING_COMPLETED: 'onboarding_completed',
 
   // Resume management
