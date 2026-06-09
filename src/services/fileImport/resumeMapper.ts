@@ -24,6 +24,47 @@ function generateId(): string {
 }
 
 /**
+ * Normalize parsed data so EVERY array + nested object is present.
+ *
+ * CRITICAL: the AI (Gemini for PDF import, Grok for the wizard) frequently
+ * OMITS keys for sections the resume doesn't have — e.g. a resume with no
+ * awards comes back without an `awards` key at all, not `awards: []`. Any
+ * downstream `data.awards.map(...)` or `data.awards.length` then throws
+ * "Cannot read property of undefined", which crashed the import review
+ * modal (blank screen after extraction) and the AI wizard apply step.
+ *
+ * Defaulting here once means every consumer is safe.
+ */
+export function normalizeParsedData(data: ParsedResumeData): ParsedResumeData {
+  const header = data?.header ?? ({} as ParsedResumeData['header']);
+  return {
+    ...data,
+    header: {
+      ...header,
+      fullName: header.fullName ?? '',
+      jobTitle: header.jobTitle ?? '',
+      contact: {
+        ...(header.contact ?? {}),
+        email: header.contact?.email ?? '',
+        phone: header.contact?.phone ?? '',
+        location: header.contact?.location ?? '',
+        linkedin: header.contact?.linkedin ?? '',
+        website: header.contact?.website ?? '',
+        github: header.contact?.github ?? '',
+      },
+    },
+    summary: data?.summary ?? '',
+    experience: data?.experience ?? [],
+    education: data?.education ?? [],
+    skills: data?.skills ?? [],
+    projects: data?.projects ?? [],
+    certifications: data?.certifications ?? [],
+    languages: data?.languages ?? [],
+    awards: data?.awards ?? [],
+  };
+}
+
+/**
  * Map parsed experience to WorkExperience
  */
 function mapExperience(
@@ -129,10 +170,15 @@ function mapAward(award: ParsedResumeData['awards'][0]): Award {
  * Create a new Resume from parsed data
  */
 export function mapParsedDataToResume(
-  data: ParsedResumeData,
+  rawData: ParsedResumeData,
   resumeName?: string
 ): Resume {
-  const name = resumeName || `${data.header.fullName}'s Resume` || 'Imported Resume';
+  // Normalize first so missing arrays/objects from the AI don't crash
+  // the .map() calls below (the v1.9.0 "blank after extraction" bug).
+  const data = normalizeParsedData(rawData);
+  const name =
+    resumeName ||
+    (data.header.fullName ? `${data.header.fullName}'s Resume` : 'Imported Resume');
   const baseResume = createEmptyResume(name);
 
   // Map all sections
@@ -305,7 +351,11 @@ export function mergeParsedDataWithResume(
 /**
  * Get import statistics for display in review modal
  */
-export function getImportStats(data: ParsedResumeData): ImportStats {
+export function getImportStats(rawData: ParsedResumeData): ImportStats {
+  // Normalize so a resume missing whole sections (no awards key, etc.)
+  // doesn't throw "Cannot read property 'length' of undefined" and blank
+  // out the import review modal.
+  const data = normalizeParsedData(rawData);
   const hasHeader = Boolean(data.header.fullName || data.header.contact.email);
   const hasSummary = Boolean(data.summary);
 

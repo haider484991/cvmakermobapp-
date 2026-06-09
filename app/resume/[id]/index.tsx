@@ -221,31 +221,74 @@ export default function ResumeEditor() {
     setShowMenuModal(true);
   }, []);
 
-  const getSectionProgress = (sectionType: SectionType): number => {
-    if (!resume) return 0;
+  /**
+   * Per-section progress as { filled, total, percent }. Replaces the old
+   * binary "100 if any items exist" with real completeness counts so the
+   * user sees "3 of 7 fields filled" — actionable feedback instead of an
+   * arbitrary 100%.
+   */
+  const getSectionProgress = (
+    sectionType: SectionType,
+  ): { filled: number; total: number; percent: number } => {
+    const empty = { filled: 0, total: 1, percent: 0 };
+    if (!resume) return empty;
+
+    const calc = (filled: number, total: number) => ({
+      filled,
+      total,
+      percent: total === 0 ? 0 : Math.round((filled / total) * 100),
+    });
 
     switch (sectionType) {
-      case 'header':
-        const header = resume.header;
-        const headerFields = [
-          header.fullName,
-          header.jobTitle,
-          header.contact.email,
-          header.contact.phone,
+      case 'header': {
+        const h = resume.header;
+        const fields = [
+          h.fullName,
+          h.jobTitle,
+          h.contact.email,
+          h.contact.phone,
+          h.contact.location,
+          h.contact.linkedin,
+          h.contact.website,
         ];
-        return (headerFields.filter(Boolean).length / headerFields.length) * 100;
+        return calc(fields.filter(Boolean).length, fields.length);
+      }
       case 'summary':
-        return resume.summary ? 100 : 0;
-      case 'experience':
-        return resume.experience.length > 0 ? 100 : 0;
-      case 'education':
-        return resume.education.length > 0 ? 100 : 0;
+        // Summary is one field but we weight it by length so a 1-word
+        // summary doesn't show 100%. 100+ chars = full credit.
+        return resume.summary
+          ? calc(Math.min(resume.summary.length, 100), 100)
+          : calc(0, 100);
+      case 'experience': {
+        // Each experience is "complete" when it has title, company, dates,
+        // and at least 2 bullets. Show count of complete experiences out
+        // of total entries (or "0 of 1" if no entries yet so the user
+        // knows there's something to do).
+        const total = Math.max(resume.experience.length, 1);
+        const complete = resume.experience.filter(
+          (e) =>
+            e.title &&
+            e.company &&
+            e.startDate &&
+            (e.endDate || e.isCurrentRole) &&
+            (e.bullets?.length ?? 0) >= 2,
+        ).length;
+        return calc(complete, total);
+      }
+      case 'education': {
+        const total = Math.max(resume.education.length, 1);
+        const complete = resume.education.filter(
+          (e) => e.degree && e.institution && e.startDate && e.endDate,
+        ).length;
+        return calc(complete, total);
+      }
       case 'skills':
-        return resume.skills.length > 0 ? 100 : 0;
+        // Recommended: 6+ skills (matches what Resume.io & Zety nudge).
+        return calc(Math.min(resume.skills.length, 6), 6);
       case 'projects':
-        return resume.projects.length > 0 ? 100 : 0;
+        return calc(resume.projects.length, Math.max(resume.projects.length, 1));
       default:
-        return 0;
+        return empty;
     }
   };
 
@@ -345,7 +388,9 @@ export default function ResumeEditor() {
           .sort((a, b) => a.order - b.order)
           .map((section, index) => {
             const Icon = SECTION_ICONS[section.type] || FileText;
-            const progress = getSectionProgress(section.type);
+            const { filled, total, percent } = getSectionProgress(section.type);
+            const isMultiCount = section.type === 'experience' || section.type === 'education' ||
+              section.type === 'skills' || section.type === 'projects' || section.type === 'header';
 
             return (
               <Animated.View
@@ -379,7 +424,9 @@ export default function ResumeEditor() {
                       {section.title}
                     </Text>
 
-                    {/* Progress indicator */}
+                    {/* Progress indicator — bar + "X of Y" label so
+                        users see exactly what's missing instead of a
+                        meaningless percent. "X of Y" is more actionable. */}
                     <View className="flex-row items-center mt-1">
                       <View
                         className="flex-1 h-1.5 rounded-full mr-2"
@@ -389,16 +436,16 @@ export default function ResumeEditor() {
                           className="h-1.5 rounded-full"
                           style={{
                             backgroundColor:
-                              progress === 100 ? colors.success : colors.primary,
-                            width: `${progress}%`,
+                              percent === 100 ? colors.success : colors.primary,
+                            width: `${percent}%`,
                           }}
                         />
                       </View>
                       <Text
                         className="text-xs"
-                        style={{ color: colors.textMuted }}
+                        style={{ color: colors.textMuted, fontVariant: ['tabular-nums'] }}
                       >
-                        {Math.round(progress)}%
+                        {isMultiCount ? `${filled} / ${total}` : `${percent}%`}
                       </Text>
                     </View>
                   </View>

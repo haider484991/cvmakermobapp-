@@ -1,8 +1,9 @@
 import { useState, useCallback, useMemo } from 'react';
-import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Modal, Alert } from 'react-native';
+import { View, Text, Pressable, ScrollView, TextInput, ActivityIndicator, Modal, Alert, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
+import WebView from 'react-native-webview';
 import { useTheme } from '@/hooks/useTheme';
 import { useResumeStore } from '@/stores/resumeStore';
 import { useTemplateStore } from '@/stores/templateStore';
@@ -12,10 +13,137 @@ import { usePDFExport } from '@/hooks/usePDFExport';
 import { useDownloadAd } from '@/hooks/useDownloadAd';
 import { AIScoreCard } from '@/components/features/ai-assistant';
 import { Button } from '@/components/ui';
-import { getTemplateComponent } from '@/components/templates';
-import { TemplateSwitcher } from '@/components/features/templates';
+import { TemplateSwitcher, ColorPicker } from '@/components/features/templates';
+import { generatePremiumHTML } from '@/services/pdf/premiumHtmlEngine';
 import { ArrowLeft, Download, Share2, Sparkles, X, FileText, Settings, Play } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+
+/**
+ * Resume preview rendered through the SAME engine as the PDF export.
+ *
+ * Why a WebView and not the in-app RN template component?
+ *   - Preview must match the PDF output EXACTLY. Two separate render
+ *     pipelines (RN templates + HTML engine) was the v1.8 architecture
+ *     and drift was inevitable — fonts, spacing, page breaks all wrong.
+ *   - The HTML engine already implements CSS page-break-inside:avoid,
+ *     orphan/widow control, @page sizing per paper. By rendering the
+ *     HTML in a WebView, the user SEES those rules apply.
+ *   - The engine's preview mode adds paper-sheet chrome (gray background,
+ *     white page card with shadow) and a JS paginator that splits long
+ *     resumes into multiple page cards.
+ *
+ * Height: the WebView sizes itself to its full content height (no inner
+ * scroll) — the outer ScrollView handles scrolling through multiple pages
+ * naturally.
+ */
+function ResumeWebViewPreview({
+  resumeId,
+  templateId,
+}: {
+  resumeId: string;
+  templateId: string;
+}) {
+  const { getResume } = useResumeStore();
+  const { getTemplate } = useTemplateStore();
+  const resume = getResume(resumeId);
+  const template = getTemplate(templateId);
+  const [contentHeight, setContentHeight] = useState(900); // sensible starting height before first measure
+
+  // The preview card spans the screen minus the parent ScrollView's
+  // horizontal padding (px-4 = 16px each side = 32px). We feed this width
+  // to the HTML engine so it computes a viewport scale that fits the full
+  // 816px-wide page onto the screen (instead of rendering 1:1 and showing
+  // only the left portion — the v1.9.0 zoom bug).
+  const { width: screenWidth } = useWindowDimensions();
+  const containerWidth = Math.max(280, screenWidth - 32);
+  // Letter paper is 8.5in × 96dpi = 816px. Scale to fit the container.
+  const PAPER_W = 816;
+  const fitScale = Math.min(1, containerWidth / PAPER_W);
+
+  const html = useMemo(() => {
+    if (!resume || !template) return '';
+    return generatePremiumHTML(resume, template, {
+      paperSize: 'letter',
+      mode: 'preview',
+      previewWidthPx: containerWidth,
+      accentColor: resume.accentColor,
+    });
+  }, [resume, template, containerWidth, resume?.accentColor]);
+
+  // Injected after document is ready: posts the rendered body height back
+  // to RN so we can size the WebView container. Re-fires on font load
+  // because Inter's metrics differ from the system fallback enough to
+  // change layout height.
+  const injected = `
+    (function () {
+      function postHeight() {
+        try {
+          var h = document.body.scrollHeight;
+          window.ReactNativeWebView.postMessage(String(h));
+        } catch (e) {}
+      }
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () { setTimeout(postHeight, 50); });
+      }
+      window.addEventListener('load', function () { setTimeout(postHeight, 100); });
+      // The paginator may add new page divs after layout — re-measure
+      // a moment later to capture them.
+      setTimeout(postHeight, 600);
+    })();
+    true;
+  `;
+
+  if (!resume || !template || !html) {
+    return (
+      <View style={{ minHeight: 600, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  return (
+    <View
+      style={{
+        borderRadius: 12,
+        overflow: 'hidden',
+        backgroundColor: '#E5E7EB', // matches preview-chrome bg in HTML engine
+        minHeight: 600,
+        height: contentHeight,
+      }}
+    >
+      <WebView
+        originWhitelist={['*']}
+        source={{ html }}
+        injectedJavaScript={injected}
+        onMessage={(event) => {
+          const rawH = parseInt(event.nativeEvent.data, 10);
+          if (!isNaN(rawH) && rawH > 100) {
+            // The WebView renders the 816px-wide layout scaled down by
+            // fitScale to fit the screen, so the VISUAL height is
+            // scrollHeight × fitScale. Size the RN container to that, plus
+            // a little breathing room. Clamp so a runaway height can't
+            // blow up the layout.
+            const visualH = rawH * fitScale + 24;
+            setContentHeight(Math.min(visualH, 12000));
+          }
+        }}
+        // Don't let the WebView capture scroll — we want the outer
+        // ScrollView to drive scrolling through multiple page cards.
+        scrollEnabled={false}
+        showsVerticalScrollIndicator={false}
+        // Performance hints for resume-sized docs
+        cacheEnabled={false}
+        startInLoadingState
+        renderLoading={() => (
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <ActivityIndicator />
+          </View>
+        )}
+        style={{ backgroundColor: '#E5E7EB' }}
+      />
+    </View>
+  );
+}
 
 export default function PreviewResume() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -325,6 +453,18 @@ export default function PreviewResume() {
         <TemplateSwitcher />
       </View>
 
+      {/* Color picker — re-color the active template. Persists on the
+          resume + flows into both preview and PDF export. */}
+      <View style={{ marginTop: 14 }}>
+        <ColorPicker
+          value={resume.accentColor}
+          onChange={(hex) => {
+            if (hapticEnabled) Haptics.selectionAsync();
+            useResumeStore.getState().setAccentColor(id, hex);
+          }}
+        />
+      </View>
+
       {/* Preview Content */}
       <ScrollView
         className="flex-1 px-4 py-4"
@@ -347,26 +487,22 @@ export default function PreviewResume() {
           </View>
         )}
 
-        {/* Resume Preview Card - Using Template Component */}
-        <View
-          className="rounded-xl overflow-hidden"
-          style={{
-            backgroundColor: templateStyles?.colors.background || 'white',
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
-            shadowRadius: 12,
-            elevation: 5,
-            minHeight: 600,
-          }}
-        >
-          {template && (
-            (() => {
-              const TemplateComponent = getTemplateComponent(template.id);
-              return <TemplateComponent resume={resume} template={template} />;
-            })()
-          )}
-        </View>
+        {/* Resume Preview — WebView rendering the EXACT HTML the PDF
+            export will produce. Preview = Export by construction:
+              - Same fonts (Inter embedded as base64 in the HTML head)
+              - Same layouts (the rb-page CSS engine drives both surfaces)
+              - Same page-break rules (page-break-inside: avoid on sections,
+                orphans/widows = 3) — visible here, applied in the PDF
+              - Multi-page resumes paginate into separate page cards via
+                the inline JS paginator built into the engine, so the user
+                sees real "Page 1 / Page 2 / ..." separation
+            Letter is the default — export screen lets the user switch. */}
+        {template && (
+          <ResumeWebViewPreview
+            resumeId={id}
+            templateId={template.id}
+          />
+        )}
 
         <View className="h-8" />
       </ScrollView>

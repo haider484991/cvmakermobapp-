@@ -9,9 +9,11 @@ import {
   suggestSkills,
   scoreResume,
   enhanceSingleBullet,
+  structureFromNarrative,
   buildContextFromResume,
   streamTextGeneration,
 } from '@/services/ai/resumeAI';
+import type { NarrativeStructureResult } from '@/services/ai/resumeAI';
 import { isAPIKeyConfigured, parseAPIError } from '@/lib/openrouter';
 import type {
   AIContext,
@@ -236,6 +238,42 @@ export function useScoreResume() {
   return {
     scoreResume: mutation.mutate,
     scoreResumeAsync: mutation.mutateAsync,
+    isLoading: mutation.isPending,
+    data: mutation.data,
+    error: mutation.error,
+    reset: mutation.reset,
+  };
+}
+
+/**
+ * Hook for the "Tell me about yourself" wizard — turn a free-text user
+ * narrative into a structured resume payload (header + summary + experience
+ * + skills + ...). Caller previews the result, then applies via the
+ * resume store.
+ *
+ * No caching: every narrative is treated as a fresh attempt. (Same user
+ * may try multiple wordings to get a result they like.)
+ */
+export function useStructureFromNarrative() {
+  const { setGenerating, setError, trackUsage } = useAIStore();
+
+  const mutation = useMutation<NarrativeStructureResult, AIError, string>({
+    mutationFn: async (narrative) => structureFromNarrative(narrative),
+    onMutate: () => {
+      setGenerating(true, 'Reading what you wrote and structuring your resume...');
+    },
+    onSuccess: (result) => {
+      setGenerating(false);
+      trackUsage('summary', result.model as any, result.tokensUsed);
+    },
+    onError: (error) => {
+      setError(error);
+    },
+  });
+
+  return {
+    structure: mutation.mutate,
+    structureAsync: mutation.mutateAsync,
     isLoading: mutation.isPending,
     data: mutation.data,
     error: mutation.error,

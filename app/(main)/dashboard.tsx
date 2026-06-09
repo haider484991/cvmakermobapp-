@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ScrollView, RefreshControl, Image } from 'react-native';
+import { View, Text, Pressable, ScrollView, RefreshControl, Image, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -41,7 +41,7 @@ export default function Dashboard() {
   } = useResumeStore();
   const { getTemplate, selectedTemplateId } = useTemplateStore();
   const { isSyncing, refresh } = useSync();
-  const { selectAndParse, isReviewing, isLoading: isImporting } = useResumeImport();
+  const { selectAndParse, isReviewing, isLoading: isImporting, error: importError, reset: resetImport } = useResumeImport();
   const {
     showAchievementModal,
     currentUnlock,
@@ -146,6 +146,18 @@ export default function Dashboard() {
     }
   }, [isReviewing]);
 
+  // Surface import/parse failures — previously these were silent, so a
+  // failed AI extraction looked like "nothing happened after upload".
+  useEffect(() => {
+    if (importError) {
+      Alert.alert(
+        "Couldn't read that file",
+        `${importError}\n\nTry a different file, or use "Build with AI" to type your details instead.`,
+        [{ text: 'OK', onPress: () => resetImport() }],
+      );
+    }
+  }, [importError, resetImport]);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -226,32 +238,81 @@ export default function Dashboard() {
           />
         }
       >
-        {/* Gamification Section */}
-        <Animated.View entering={FadeInUp.delay(50)} style={{ marginTop: 24 }}>
-          {/* XP Progress with Level and Streak */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-            <View style={{ flex: 1, marginRight: 12 }}>
-              <XPProgressBar compact />
+        {/* Gamification — only once the user has at least one resume. For a
+            brand-new user, an empty XP bar + streak + daily bonus is noise
+            that pushes the actual "create a resume" actions below the fold.
+            Show it after they've made something to celebrate. */}
+        {resumes.length > 0 && (
+          <Animated.View entering={FadeInUp.delay(50)} style={{ marginTop: 24 }}>
+            {/* XP Progress with Level and Streak */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+              <View style={{ flex: 1, marginRight: 12 }}>
+                <XPProgressBar compact />
+              </View>
+              <StreakCounter compact />
             </View>
-            <StreakCounter compact />
-          </View>
 
-          {/* Daily Bonus - only show if not claimed */}
-          {!dailyBonusClaimed && (
-            <View style={{ marginBottom: 12 }}>
-              <DailyBonusCard />
-            </View>
-          )}
-        </Animated.View>
+            {/* Daily Bonus - only show if not claimed */}
+            {!dailyBonusClaimed && (
+              <View style={{ marginBottom: 12 }}>
+                <DailyBonusCard />
+              </View>
+            )}
+          </Animated.View>
+        )}
 
         {/* Premium Import Hero — primary CTA. Importing an existing resume
             converts faster than starting from scratch, so it owns the most
             valuable real estate on this screen. */}
-        <Animated.View entering={FadeInUp.delay(100)} style={{ marginTop: 12 }}>
+        <Animated.View entering={FadeInUp.delay(100)} style={{ marginTop: resumes.length > 0 ? 12 : 24 }}>
           <PremiumImportHero
             onPress={handleImportPress}
             disabled={isImporting}
           />
+        </Animated.View>
+
+        {/* AI Wizard — the magic moment. User types/speaks one paragraph,
+            AI structures into a full resume. Sits between PDF import (best
+            if you have one) and Start-from-Scratch (worst case). */}
+        <Animated.View entering={FadeInUp.delay(125)} style={{ marginTop: 12 }}>
+          <Pressable
+            onPress={() => {
+              if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              track('ai_wizard_opened' as any, { source: 'dashboard' });
+              router.push('/resume/ai-wizard');
+            }}
+            className="rounded-2xl overflow-hidden"
+          >
+            <LinearGradient
+              colors={[colors.primary, '#06B6D4']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ padding: 18, flexDirection: 'row', alignItems: 'center' }}
+            >
+              <View
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 14,
+                  backgroundColor: 'rgba(255,255,255,0.22)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginRight: 14,
+                }}
+              >
+                <Sparkles size={24} color="white" strokeWidth={2.5} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: 'white', fontSize: 15, fontWeight: '700' }}>
+                  Build with AI
+                </Text>
+                <Text style={{ color: 'rgba(255,255,255,0.92)', fontSize: 12, marginTop: 2 }}>
+                  Describe yourself in a paragraph — AI builds the resume
+                </Text>
+              </View>
+              <Text style={{ color: 'white', fontSize: 20, fontWeight: '300' }}>›</Text>
+            </LinearGradient>
+          </Pressable>
         </Animated.View>
 
         {/* Create New Card — secondary path for users without a resume yet. */}

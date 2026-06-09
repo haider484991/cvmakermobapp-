@@ -331,6 +331,99 @@ Return only the skill name, nothing else.
 };
 
 /**
+ * System prompt for the "Tell me about yourself" wizard.
+ *
+ * Distinct from RESUME_PARSE_SYSTEM_PROMPT (which extracts from formal
+ * resume documents) — this one expects messy, conversational input like
+ * "I've been a designer for 5 years, worked at Stripe then Figma, did
+ * the new pricing page redesign, know Figma and Webflow". The AI's job is
+ * to TURN that into a resume, INVENTING reasonable structure where the
+ * user was vague (e.g. inferring job titles from context, splitting one
+ * paragraph into multiple bullet points).
+ *
+ * Critical principles:
+ *   - Honesty: don't fabricate companies, dates, or metrics the user
+ *     didn't mention. Confidence scores drop and warnings fire when the
+ *     model is filling gaps.
+ *   - Lift: rewrite "I helped with the redesign" into a quantified bullet
+ *     ("Led redesign of the pricing page used by 50K+ monthly visitors")
+ *     ONLY when the user implied scale; otherwise stay neutral.
+ *   - Default behavior: if the user only describes their current role,
+ *     produce ONE experience entry. Don't pad with imaginary jobs.
+ */
+export const NARRATIVE_TO_RESUME_SYSTEM_PROMPT = `You are an expert resume coach who specializes in turning conversational, unstructured descriptions into polished resume content.
+
+The user will describe themselves casually — sometimes in one sentence, sometimes in three paragraphs, sometimes with typos or fragments. Your job is to extract every meaningful piece of structured data and return it as a resume JSON object.
+
+Rules of engagement:
+- NEVER invent companies, dates, or metrics the user did not mention.
+- If the user implied scale ("worked on a launch that reached millions") rewrite as a quantified bullet; if vague, stay neutral and add a warning.
+- If the user only describes one role, return ONE experience entry — don't pad.
+- Infer the candidate's job title from the strongest signal in their text.
+- Split run-on sentences into bullet points when they describe distinct achievements; keep prose together when it's continuous.
+- Skills: extract every tool, language, framework, or competency mentioned. Don't suggest tangentially related ones the user didn't mention.
+- Education: only include if the user mentions a school, degree, or graduation.
+- Warnings: surface every assumption you had to make so the user can correct it.`;
+
+/**
+ * Prompt for structuring a free-text "tell me about yourself" narrative
+ * into a resume. Same output schema as RESUME_PARSE_PROMPT so the
+ * downstream parser/applier code is reused.
+ */
+export const NARRATIVE_TO_RESUME_PROMPT = (narrative: string): string => `
+The user typed (or spoke) the following description of themselves. Turn it into a resume.
+
+USER NARRATIVE:
+"""
+${narrative.trim()}
+"""
+
+Return a JSON object with this exact shape (matching the resume parser schema):
+
+{
+  "confidence": 0.85,
+  "warnings": ["Every assumption you had to make — be specific. Example: 'Job title inferred from your mention of leading the engineering team.'"],
+  "data": {
+    "header": {
+      "fullName": "",
+      "jobTitle": "Best inference from the narrative",
+      "contact": {
+        "email": "",
+        "phone": "",
+        "location": "If the user mentioned a city/country",
+        "linkedin": "",
+        "website": "",
+        "github": ""
+      }
+    },
+    "summary": "A 2-3 sentence professional summary in the user's voice, lifted from what they said about themselves.",
+    "experience": [
+      {
+        "company": "Company name as mentioned",
+        "title": "Job title as mentioned or strongly inferred",
+        "location": "",
+        "startDate": "YYYY-MM if user gave a date, otherwise empty string",
+        "endDate": "YYYY-MM, or empty if current",
+        "isCurrentRole": true,
+        "description": "",
+        "bullets": [
+          "Achievement-focused bullet derived from what the user said",
+          "Another bullet — start with a strong verb, keep to one line each"
+        ]
+      }
+    ],
+    "education": [],
+    "skills": [
+      { "name": "Skill mentioned by the user", "level": "intermediate", "category": "" }
+    ],
+    "projects": []
+  }
+}
+
+Be honest about confidence. If the user gave you 30 words, confidence should be 0.4-0.6, not 0.9. Warnings should list every field you guessed at.
+`;
+
+/**
  * System prompt for resume parsing AI
  */
 export const RESUME_PARSE_SYSTEM_PROMPT = `You are an expert resume parser with extensive experience in extracting structured data from resumes in various formats. Your task is to accurately extract all relevant information from the provided resume content and return it as a well-structured JSON object.

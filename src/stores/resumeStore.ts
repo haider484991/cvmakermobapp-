@@ -31,6 +31,7 @@ interface ResumeState {
   // Update actions
   updateResumeName: (id: string, name: string) => void;
   updateHeader: (id: string, header: Partial<Resume['header']>) => void;
+  setAccentColor: (id: string, accentColor: string | null) => void;
   updateSummary: (id: string, summary: string) => void;
   updateTemplate: (id: string, templateId: string) => void;
 
@@ -155,6 +156,20 @@ export const useResumeStore = create<ResumeState>()(
             [id]: {
               ...state.resumes[id],
               header: { ...state.resumes[id].header, ...header },
+              updatedAt: new Date().toISOString(),
+            },
+          },
+          isDirty: true,
+        }));
+      },
+
+      setAccentColor: (id, accentColor) => {
+        set((state) => ({
+          resumes: {
+            ...state.resumes,
+            [id]: {
+              ...state.resumes[id],
+              accentColor: accentColor ?? undefined,
               updatedAt: new Date().toISOString(),
             },
           },

@@ -12,7 +12,11 @@ import {
   BULLET_POINT_PROMPT,
   SKILL_SUGGESTION_PROMPT,
   RESUME_SCORE_PROMPT,
+  NARRATIVE_TO_RESUME_SYSTEM_PROMPT,
+  NARRATIVE_TO_RESUME_PROMPT,
 } from './prompts';
+import type { ParsedResumeData } from '@/types/resumeImport';
+import { normalizeParsedData } from '@/services/fileImport/resumeMapper';
 import type {
   AIContext,
   AIModel,
@@ -432,6 +436,80 @@ export async function streamTextGeneration(
 }
 
 /**
+ * Result of structuring a free-text "tell me about yourself" narrative.
+ * Mirrors the resume parser's output so downstream apply code is reused.
+ */
+export interface NarrativeStructureResult {
+  /** AI's confidence (0..1) — low for sparse input, high for detailed. */
+  confidence: number;
+  /** Every assumption the AI had to make. Surface to the user for review. */
+  warnings: string[];
+  /** Parsed resume data — same shape as resume PDF import. */
+  data: ParsedResumeData;
+  model: string;
+  tokensUsed: number;
+}
+
+/**
+ * Turn a user's casual, free-text self-description into a structured
+ * resume payload. The killer "magic moment" of the app: user types or
+ * speaks one paragraph and gets a populated resume back.
+ *
+ * Uses a lower temperature than creative generation (0.4 vs 0.7) because
+ * fidelity to what the user said matters more than creative phrasing.
+ * Caller is responsible for previewing the result + applying it via the
+ * resume store (don't auto-apply — user must confirm).
+ */
+export async function structureFromNarrative(
+  narrative: string,
+  options?: AIRequestOptions
+): Promise<NarrativeStructureResult> {
+  if (!narrative || narrative.trim().length < 20) {
+    throw createAIError(
+      'PARSE_ERROR',
+      'Please write at least a sentence or two about yourself so the AI has something to work with.'
+    );
+  }
+
+  const model = getModelForFeature('summary', options);
+  // Cap input at ~6000 chars (~1500 tokens) so the response has room.
+  const trimmed = narrative.trim().slice(0, 6000);
+
+  const response = await chatCompletion({
+    model,
+    messages: [
+      { role: 'system', content: NARRATIVE_TO_RESUME_SYSTEM_PROMPT },
+      { role: 'user', content: NARRATIVE_TO_RESUME_PROMPT(trimmed) },
+    ],
+    temperature: 0.4,
+    maxTokens: 3072,
+  });
+
+  const parsed = parseJSONResponse<{
+    confidence: number;
+    warnings: string[];
+    data: ParsedResumeData;
+  }>(response.content);
+
+  if (!parsed?.data?.header) {
+    throw createAIError(
+      'PARSE_ERROR',
+      'The AI returned an unexpected response. Try rephrasing your description.'
+    );
+  }
+
+  return {
+    confidence: parsed.confidence ?? 0.5,
+    warnings: parsed.warnings ?? [],
+    // Normalize so the wizard's review view + apply step never crash on a
+    // section the AI omitted (e.g. no education key for a self-taught dev).
+    data: normalizeParsedData(parsed.data),
+    model: response.model,
+    tokensUsed: response.tokensUsed,
+  };
+}
+
+/**
  * Export all AI service functions
  */
 export const resumeAIService = {
@@ -442,6 +520,7 @@ export const resumeAIService = {
   suggestSkills,
   scoreResume,
   enhanceSingleBullet,
+  structureFromNarrative,
   buildContextFromResume,
   streamTextGeneration,
 };

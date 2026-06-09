@@ -11,7 +11,7 @@ import { useUIStore } from '@/stores/uiStore';
 import { useGenerateSummary, useEnhanceBullets, useSuggestSkills } from '@/hooks/useAI';
 import { buildContextFromResume } from '@/services/ai/resumeAI';
 import { AISuggestionCard } from '@/components/features/ai-assistant';
-import { Button, Input, Card, SavePromptModal } from '@/components/ui';
+import { Button, Input, Card, SavePromptModal, MonthYearPicker, PhotoPicker } from '@/components/ui';
 import { ArrowLeft, Sparkles, Plus, Trash2, Check, Loader2, Eye } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { SectionType, WorkExperience, Education } from '@/types/resume';
@@ -24,7 +24,7 @@ export default function EditSection() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
-  const { shouldShowSavePrompt } = useUIStore();
+  const { shouldShowSavePrompt, hapticEnabled } = useUIStore();
   const {
     getResume,
     updateHeader,
@@ -193,12 +193,53 @@ export default function EditSection() {
     setEnhancingExperienceId(null);
   }, [resetBullets]);
 
+  // Industry options offered to the user. Order is by frequency of resume
+  // use (mining → least common). Each maps to AI skill suggestion context.
+  const INDUSTRIES = [
+    'Technology', 'Design', 'Product', 'Marketing', 'Sales', 'Finance',
+    'Healthcare', 'Education', 'Engineering', 'Operations', 'Legal',
+    'Consulting', 'Media', 'Hospitality', 'Other',
+  ];
+
+  /**
+   * Infer the user's industry from their job title so the default selection
+   * is right most of the time. User can override via the pill picker.
+   */
+  const inferIndustry = useCallback((jobTitle: string): string => {
+    const t = (jobTitle || '').toLowerCase();
+    if (/engineer|developer|programmer|swe|devops|architect|coder/.test(t)) return 'Technology';
+    if (/designer|ux|ui|graphic|art director|illustrator/.test(t)) return 'Design';
+    if (/product manager|\bpm\b|product owner|product lead/.test(t)) return 'Product';
+    if (/marketing|growth|brand|seo|content|copywriter/.test(t)) return 'Marketing';
+    if (/sales|bdr|sdr|\bae\b|account exec|business development/.test(t)) return 'Sales';
+    if (/finance|banker|analyst|accountant|cfo|controller|investment/.test(t)) return 'Finance';
+    if (/doctor|nurse|physician|clinical|medical|healthcare|therapist|surgeon/.test(t)) return 'Healthcare';
+    if (/teacher|professor|lecturer|instructor|tutor|principal|educator/.test(t)) return 'Education';
+    if (/mechanical|civil|electrical|aerospace|chemical/.test(t)) return 'Engineering';
+    if (/operations|supply chain|logistics|project manager/.test(t)) return 'Operations';
+    if (/lawyer|attorney|paralegal|legal/.test(t)) return 'Legal';
+    if (/consultant|strategy|advisor/.test(t)) return 'Consulting';
+    if (/journalist|editor|reporter|writer|producer/.test(t)) return 'Media';
+    if (/chef|server|hotel|restaurant|hospitality/.test(t)) return 'Hospitality';
+    return 'Technology';
+  }, []);
+
+  // User-overridable industry. Defaults to inferred from job title.
+  const [industry, setIndustry] = useState<string>('Technology');
+  // Keep the default in sync when the user changes job title (only if they
+  // haven't manually overridden).
+  const userOverrodeIndustryRef = useRef(false);
+  useEffect(() => {
+    if (resume?.header.jobTitle && !userOverrodeIndustryRef.current) {
+      setIndustry(inferIndustry(resume.header.jobTitle));
+    }
+  }, [resume?.header.jobTitle, inferIndustry]);
+
   const handleSuggestSkills = useCallback(async () => {
     if (!resume) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     const jobTitle = resume.header.jobTitle || 'Professional';
-    const industry = 'Technology'; // Default industry, could be extracted from resume
 
     try {
       await suggestSkillsAsync({
@@ -210,7 +251,7 @@ export default function EditSection() {
     } catch (error) {
       console.error('Failed to suggest skills:', error);
     }
-  }, [resume, suggestSkillsAsync]);
+  }, [resume, industry, suggestSkillsAsync]);
 
   const handleAddSuggestedSkill = useCallback(
     (skill: SkillSuggestion) => {
@@ -242,6 +283,12 @@ export default function EditSection() {
 
   const renderHeaderSection = () => (
     <Animated.View entering={FadeInUp.delay(100)}>
+      {/* Photo — optional. Shows in sidebar/photo templates; ignored by
+          others. Stored as a base64 data URI so it embeds in the PDF. */}
+      <PhotoPicker
+        value={resume.header.photo}
+        onChange={(uri) => wrappedUpdateHeader({ photo: uri ?? undefined })}
+      />
       <Input
         label="Full Name"
         value={resume.header.fullName}
@@ -452,47 +499,163 @@ export default function EditSection() {
                 containerStyle={{ marginBottom: 12 }}
               />
 
-              <View className="flex-row gap-3 mb-4">
+              <View className="flex-row gap-3 mb-3">
                 <View className="flex-1">
-                  <Input
+                  <MonthYearPicker
                     label="Start Date"
                     value={exp.startDate}
-                    onChangeText={(text) =>
-                      wrappedUpdateExperience(exp.id, { startDate: text })
-                    }
-                    placeholder="Jan 2020"
+                    onChange={(v) => wrappedUpdateExperience(exp.id, { startDate: v })}
+                    placeholder="Pick a date"
                   />
                 </View>
                 <View className="flex-1">
-                  <Input
+                  <MonthYearPicker
                     label="End Date"
-                    value={exp.endDate || ''}
-                    onChangeText={(text) => wrappedUpdateExperience(exp.id, { endDate: text })}
-                    placeholder="Present"
+                    value={exp.isCurrentRole ? '' : (exp.endDate || '')}
+                    onChange={(v) => wrappedUpdateExperience(exp.id, { endDate: v })}
+                    placeholder={exp.isCurrentRole ? 'Present' : 'Pick a date'}
+                    disabled={exp.isCurrentRole}
                   />
                 </View>
               </View>
 
-              <Text className="text-sm font-medium mb-2" style={{ color: colors.text }}>
-                Description
-              </Text>
-              <TextInput
-                value={exp.description}
-                onChangeText={(text) => wrappedUpdateExperience(exp.id, { description: text })}
-                placeholder="Describe your responsibilities and achievements..."
-                placeholderTextColor={colors.textMuted}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-                className="p-3 rounded-xl"
-                style={{
-                  backgroundColor: colors.background,
-                  color: colors.text,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  minHeight: 100,
+              {/* "I currently work here" toggle — clears + disables End Date.
+                  Tier-1 form UX win: 80% of resumes have a current job so
+                  this saves typing "Present" every time. */}
+              <Pressable
+                onPress={() => {
+                  if (hapticEnabled) Haptics.selectionAsync();
+                  const next = !exp.isCurrentRole;
+                  wrappedUpdateExperience(exp.id, {
+                    isCurrentRole: next,
+                    endDate: next ? null : exp.endDate,
+                  });
                 }}
-              />
+                className="flex-row items-center mb-4 py-2"
+              >
+                <View
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: 5,
+                    borderWidth: 2,
+                    borderColor: exp.isCurrentRole ? colors.primary : colors.border,
+                    backgroundColor: exp.isCurrentRole ? colors.primary : 'transparent',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: 10,
+                  }}
+                >
+                  {exp.isCurrentRole && <Check size={14} color="white" strokeWidth={3} />}
+                </View>
+                <Text style={{ color: colors.text, fontSize: 14 }}>I currently work here</Text>
+              </Pressable>
+
+              {/* Bullet-by-bullet input — replaces the old wall-of-text
+                  textarea. Each achievement gets its own row so:
+                    - users think in achievements, not paragraphs
+                    - AI enhancement targets the right unit (per-bullet)
+                    - templates can render real <ul><li> markup
+                  We keep description in sync (newline-joined bullets) so
+                  any template still reading exp.description sees the same
+                  content; the schema's `bullets: string[]` is now the
+                  source of truth and description is derived. */}
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-sm font-medium" style={{ color: colors.text }}>
+                  Achievements & responsibilities
+                </Text>
+                <Pressable
+                  onPress={() => {
+                    if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    const nextBullets = [...(exp.bullets || []), ''];
+                    wrappedUpdateExperience(exp.id, {
+                      bullets: nextBullets,
+                      description: nextBullets.filter(Boolean).join('\n'),
+                    });
+                  }}
+                  hitSlop={8}
+                  className="flex-row items-center"
+                >
+                  <Plus size={14} color={colors.primary} />
+                  <Text className="ml-1 text-xs font-medium" style={{ color: colors.primary }}>
+                    Add bullet
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* If user has legacy description but no bullets yet, seed
+                  bullets by splitting on newlines so the upgrade is
+                  invisible. Empty arrays show a single blank input so the
+                  user always has somewhere to type. */}
+              {(() => {
+                const bullets =
+                  exp.bullets && exp.bullets.length > 0
+                    ? exp.bullets
+                    : exp.description
+                      ? exp.description.split(/\n+/).filter(Boolean)
+                      : [''];
+                return bullets.map((bullet, bIdx) => (
+                  <View
+                    key={`b-${bIdx}`}
+                    className="flex-row items-start mb-2"
+                  >
+                    <Text
+                      style={{
+                        color: colors.primary,
+                        fontSize: 16,
+                        marginTop: 12,
+                        marginRight: 8,
+                        lineHeight: 18,
+                      }}
+                    >
+                      •
+                    </Text>
+                    <TextInput
+                      value={bullet}
+                      onChangeText={(text) => {
+                        const next = [...bullets];
+                        next[bIdx] = text;
+                        wrappedUpdateExperience(exp.id, {
+                          bullets: next,
+                          description: next.filter(Boolean).join('\n'),
+                        });
+                      }}
+                      placeholder={bIdx === 0
+                        ? 'Led migration of legacy API to GraphQL, reducing latency by 35%'
+                        : 'Another achievement...'}
+                      placeholderTextColor={colors.textMuted}
+                      multiline
+                      textAlignVertical="top"
+                      className="flex-1 p-3 rounded-xl"
+                      style={{
+                        backgroundColor: colors.background,
+                        color: colors.text,
+                        borderWidth: 1,
+                        borderColor: colors.border,
+                        minHeight: 44,
+                        fontSize: 14,
+                        lineHeight: 19,
+                      }}
+                    />
+                    {bullets.length > 1 && (
+                      <Pressable
+                        onPress={() => {
+                          if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          const next = bullets.filter((_, i) => i !== bIdx);
+                          wrappedUpdateExperience(exp.id, {
+                            bullets: next,
+                            description: next.filter(Boolean).join('\n'),
+                          });
+                        }}
+                        hitSlop={6}
+                        style={{ paddingLeft: 8, paddingTop: 12 }}
+                      >
+                        <Trash2 size={16} color={colors.textMuted} />
+                      </Pressable>
+                    )}
+                  </View>
+                ));
+              })()}
 
               {/* Enhanced Bullets Display */}
               {hasEnhancedData && bulletsData && (
@@ -655,19 +818,19 @@ export default function EditSection() {
 
             <View className="flex-row gap-3 mb-4">
               <View className="flex-1">
-                <Input
+                <MonthYearPicker
                   label="Start Date"
                   value={edu.startDate}
-                  onChangeText={(text) => wrappedUpdateEducation(edu.id, { startDate: text })}
-                  placeholder="Sep 2018"
+                  onChange={(v) => wrappedUpdateEducation(edu.id, { startDate: v })}
+                  placeholder="Pick a date"
                 />
               </View>
               <View className="flex-1">
-                <Input
+                <MonthYearPicker
                   label="End Date"
                   value={edu.endDate}
-                  onChangeText={(text) => wrappedUpdateEducation(edu.id, { endDate: text })}
-                  placeholder="May 2022"
+                  onChange={(v) => wrappedUpdateEducation(edu.id, { endDate: v })}
+                  placeholder="Pick a date"
                 />
               </View>
             </View>
@@ -733,6 +896,51 @@ export default function EditSection() {
 
     return (
       <Animated.View entering={FadeInUp.delay(100)}>
+        {/* Industry picker — drives AI skill suggestions. Auto-inferred
+            from the job title, user can override with a tap. */}
+        <View className="mb-3">
+          <Text className="text-xs font-medium mb-2" style={{ color: colors.textSecondary }}>
+            Your industry (for AI suggestions)
+          </Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingRight: 12, gap: 6 }}
+          >
+            {INDUSTRIES.map((opt) => {
+              const active = industry === opt;
+              return (
+                <Pressable
+                  key={opt}
+                  onPress={() => {
+                    if (hapticEnabled) Haptics.selectionAsync();
+                    userOverrodeIndustryRef.current = true;
+                    setIndustry(opt);
+                  }}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 7,
+                    borderRadius: 100,
+                    backgroundColor: active ? colors.primary : 'transparent',
+                    borderWidth: 1,
+                    borderColor: active ? colors.primary : colors.border,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: active ? 'white' : colors.text,
+                      fontSize: 12,
+                      fontWeight: active ? '700' : '500',
+                    }}
+                  >
+                    {opt}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+
         {/* AI Suggestion Button */}
         <Pressable
           onPress={handleSuggestSkills}
@@ -749,7 +957,7 @@ export default function EditSection() {
             <Sparkles size={18} color={colors.primary} />
           )}
           <Text className="ml-2 font-medium" style={{ color: colors.primary }}>
-            {skillsLoading ? 'Analyzing...' : 'Suggest Skills for Your Role'}
+            {skillsLoading ? 'Analyzing...' : `Suggest ${industry} Skills`}
           </Text>
         </Pressable>
 
@@ -1002,6 +1210,10 @@ export default function EditSection() {
           className="flex-1 px-4"
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          // Drag down on the form to dismiss the keyboard — the simplest
+          // "Done" affordance that works across iOS + Android without
+          // having to plumb refs through every TextInput.
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
           contentContainerStyle={{ paddingBottom: 110, paddingTop: 4 }}
         >
           <View

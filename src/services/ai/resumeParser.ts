@@ -14,12 +14,28 @@ import type { AIError } from '@/types/ai';
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 
 /**
- * Models for parsing resumes
- * Using Gemini for PDFs (supports document understanding)
- * Using GPT-4o-mini for images (good vision support)
+ * Models for parsing resumes — multimodal (vision + document understanding).
+ *
+ * IMPORTANT: model IDs get deprecated by OpenRouter without warning. We
+ * learned this twice:
+ *   - grok-4.1-fast → 404 (migrated to grok-4.3)
+ *   - gemini-2.0-flash-001 → "No endpoints found" (this fix)
+ *
+ * To survive the next one, we:
+ *   1. Read an optional override from env (EXPO_PUBLIC_PARSE_MODEL) so a
+ *      future break is a config change, not a code+rebuild cycle.
+ *   2. Fall through a chain of models — if the primary has no endpoints,
+ *      we retry the next one before surfacing an error to the user.
+ *
+ * All listed models support the OpenAI-style image_url payload we send
+ * (base64 PDF page or photo).
  */
-const DOCUMENT_MODEL = 'google/gemini-2.0-flash-001';
-const VISION_MODEL = 'google/gemini-2.0-flash-001';
+const PARSE_MODEL_CHAIN: string[] = [
+  process.env.EXPO_PUBLIC_PARSE_MODEL,
+  'google/gemini-2.5-flash',
+  'google/gemini-2.0-flash-001',
+  'openai/gpt-4o-mini',
+].filter(Boolean) as string[];
 
 /**
  * Temperature for consistent parsing
@@ -63,14 +79,9 @@ export async function parseResumeWithAI(
   const apiKey = getApiKey();
 
   try {
-    let userContent: any[];
-    let modelToUse: string;
-
-    // Use Gemini for all file types - it has good multimodal support
-    modelToUse = fileType === 'image' ? VISION_MODEL : DOCUMENT_MODEL;
-
-    // Gemini uses the OpenAI-compatible format with image_url for all file types
-    userContent = [
+    // OpenAI-compatible multimodal payload — same for every model in the
+    // chain (text prompt + base64 image_url).
+    const userContent: any[] = [
       {
         type: 'text',
         text: RESUME_PARSE_PROMPT(fileType),
@@ -83,55 +94,76 @@ export async function parseResumeWithAI(
       },
     ];
 
-    console.log('[ResumeParser] Using model:', modelToUse, 'for file type:', fileType);
+    // Try each model in the chain. If a model is deprecated / has no
+    // endpoints (the bug we're fixing), fall through to the next one
+    // instead of failing the whole import.
+    let response: Response | null = null;
+    let lastModelError = '';
+    for (const model of PARSE_MODEL_CHAIN) {
+      console.log('[ResumeParser] Trying model:', model, 'for file type:', fileType);
+      const r = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+          'HTTP-Referer': 'https://freeresumeai.app',
+          'X-Title': 'FreeResume AI',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: RESUME_PARSE_SYSTEM_PROMPT },
+            { role: 'user', content: userContent },
+          ],
+          temperature: PARSE_TEMPERATURE,
+          max_tokens: MAX_TOKENS,
+        }),
+      });
 
-    const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://freeresumeai.app',
-        'X-Title': 'FreeResume AI',
-      },
-      body: JSON.stringify({
-        model: modelToUse,
-        messages: [
-          {
-            role: 'system',
-            content: RESUME_PARSE_SYSTEM_PROMPT,
-          },
-          {
-            role: 'user',
-            content: userContent,
-          },
-        ],
-        temperature: PARSE_TEMPERATURE,
-        max_tokens: MAX_TOKENS,
-      }),
-    });
+      if (r.ok) {
+        response = r;
+        break;
+      }
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const errorMessage = errorData?.error?.message || `API error: ${response.status}`;
+      // Not OK — decide whether to try the next model or bail.
+      const errorData = await r.json().catch(() => ({}));
+      const errorMessage = errorData?.error?.message || `API error: ${r.status}`;
+      lastModelError = errorMessage;
+      const isModelGone =
+        r.status === 404 ||
+        /no endpoints|not found|no allowed providers|is not a valid model/i.test(errorMessage);
 
-      console.error('[ResumeParser] API Error:', response.status, errorMessage, errorData);
+      console.error('[ResumeParser] Model failed:', model, r.status, errorMessage);
 
-      if (response.status === 401) {
+      if (isModelGone) {
+        // Deprecated / unavailable model — try the next in the chain.
+        continue;
+      }
+
+      // Hard errors that won't be fixed by switching model — surface now.
+      if (r.status === 401) {
         throw createAIError('API_KEY_INVALID', 'Invalid API key. Please check your configuration.');
-      } else if (response.status === 429) {
+      } else if (r.status === 429) {
         throw createAIError('RATE_LIMITED', 'Rate limit exceeded. Please try again in a few minutes.');
-      } else if (response.status === 503) {
+      } else if (r.status === 503) {
         throw createAIError('MODEL_UNAVAILABLE', 'AI service is temporarily unavailable. Please try again.');
-      } else if (response.status === 400) {
-        // Bad request - likely file format issue
+      } else if (r.status === 400) {
         if (errorMessage.includes('file') || errorMessage.includes('format') || errorMessage.includes('content')) {
           throw createAIError('PARSE_ERROR', 'Unable to process this file. Try using an image (PNG/JPG) of your resume instead.');
         }
         throw createAIError('PARSE_ERROR', errorMessage);
-      } else if (response.status === 413) {
+      } else if (r.status === 413) {
         throw createAIError('PARSE_ERROR', 'File is too large. Please use a smaller file or an image.');
       }
-      throw createAIError('UNKNOWN_ERROR', `Failed to parse resume: ${errorMessage}`);
+      // Unknown non-model error — try next model as a last resort.
+    }
+
+    if (!response) {
+      // Every model in the chain failed (all deprecated / unavailable).
+      throw createAIError(
+        'MODEL_UNAVAILABLE',
+        `Couldn't reach the AI service to read your resume (${lastModelError}). Please try again, or use "Build with AI" to type your details.`,
+      );
     }
 
     const data = await response.json();
