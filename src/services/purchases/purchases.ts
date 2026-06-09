@@ -33,6 +33,20 @@ let connected = false;
 let purchaseUpdateSub: { remove: () => void } | null = null;
 let purchaseErrorSub: { remove: () => void } | null = null;
 
+// SYNCHRONOUS guard against double-purchase. The store's isPurchasing flag
+// updates asynchronously, so two rapid taps can both pass a store-based
+// check before the first re-render — each firing a separate requestPurchase
+// and creating a separate order (the "7 charges from one tap" bug). This
+// module-level boolean flips synchronously, so the second call is rejected
+// immediately, before any await.
+let purchaseInFlight = false;
+
+// Promise that resolves once initPurchases() finishes (success OR failure).
+// getOfferings/buyProduct await this so they never fire fetchProducts
+// before the billing connection is established.
+let initPromise: Promise<void> | null = null;
+let initOutcome: 'pending' | 'ok' | 'failed' = 'pending';
+
 function devLog(...args: unknown[]) {
   if (__DEV__) console.log('[purchases]', ...args);
 }
@@ -46,84 +60,135 @@ function loadIap(): any | null {
   try {
     iap = require('expo-iap');
     return iap;
-  } catch (err) {
+  } catch (err: any) {
     devLog('Native module unavailable', err);
+    // CRITICAL diagnostic: surface the silent loadIap failure to analytics
+    // so we can tell apart "Expo Go" from "AAB has broken native binding".
+    track('purchases_loadiap_failed' as any, {
+      message: (err?.message || String(err)).slice(0, 300),
+      name: err?.name,
+    });
     return null;
   }
+}
+
+/** Reject if `p` doesn't settle within `ms` milliseconds. */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${ms}ms`));
+    }, ms);
+    p.then(
+      (v) => { clearTimeout(t); resolve(v); },
+      (e) => { clearTimeout(t); reject(e); },
+    );
+  });
 }
 
 /**
  * Idempotent. Connects to Google Play and starts the global purchase
  * listener. After this returns, the store's `activeTier` reflects what
  * the user actually owns.
+ *
+ * v1.8.3 diagnostics: every branch now fires an analytics event so we can
+ * see exactly where init dies. initConnection is wrapped in a 15s timeout
+ * so hangs surface as a `purchases_init_timeout` event instead of silently
+ * never resolving.
  */
 export async function initPurchases(): Promise<void> {
-  const m = loadIap();
-  if (!m) {
-    usePurchasesStore.getState().setInitialized(true);
-    return;
-  }
-
-  try {
-    if (!connected) {
-      await m.initConnection();
-      connected = true;
+  if (initPromise) return initPromise;
+  initPromise = (async () => {
+    const m = loadIap();
+    if (!m) {
+      // Track this branch explicitly — without this event we can't tell
+      // "Expo Go" from "AAB has broken native binding" from analytics.
+      track('purchases_init_skipped' as any, {
+        reason: isExpoGo ? 'expo_go' : 'native_module_unavailable',
+      });
+      initOutcome = 'failed';
+      usePurchasesStore.getState().setInitialized(true);
+      return;
     }
 
-    // Global purchase listener — fires for paywall purchases, restores,
-    // and subscription auto-renewals.
-    purchaseUpdateSub = m.purchaseUpdatedListener(async (purchase: any) => {
-      devLog('purchaseUpdated', purchase?.productId || purchase?.id);
-      try {
-        await handleSuccessfulPurchase(purchase);
-      } catch (err) {
-        devLog('purchaseUpdated handler failed', err);
-      }
+    // Surface the module shape so we can confirm initConnection exists
+    // and is callable from the JS bridge.
+    track('purchases_init_module_shape' as any, {
+      has_initConnection: typeof m.initConnection === 'function',
+      has_fetchProducts: typeof m.fetchProducts === 'function',
+      has_requestPurchase: typeof m.requestPurchase === 'function',
+      has_purchaseUpdatedListener: typeof m.purchaseUpdatedListener === 'function',
     });
 
-    purchaseErrorSub = m.purchaseErrorListener((err: any) => {
-      devLog('purchaseError', err?.code, err?.message);
-      const code = err?.code;
-      if (code === 'E_USER_CANCELLED' || code === 'user-cancelled') {
-        usePurchasesStore.getState().setPurchasing(false);
-        return;
+    try {
+      if (!connected) {
+        track('purchases_init_connect_start' as any, {});
+        // 15s timeout — if the native binding is broken, initConnection
+        // hangs forever rather than rejecting. Force a rejection so we
+        // can see it in analytics.
+        await withTimeout(m.initConnection(), 15_000, 'initConnection');
+        connected = true;
+        track('purchases_init_connect_done' as any, {});
       }
-      // Friendly UI message that hints at the real cause without scaring users
-      const friendlyMsg =
-        code === 'query-product'
-          ? 'This product is not available on your account right now. New products can take up to 24h to fully activate, or your Google account country may not be configured.'
-          : err?.message || 'Purchase failed';
-      usePurchasesStore.getState().setError(friendlyMsg);
-      usePurchasesStore.getState().setPurchasing(false);
-      track(ANALYTICS_EVENTS.PURCHASE_FAILED, {
-        code: code || 'UNKNOWN',
-        message: (err?.message || '').slice(0, 200),
-        // Pull every field we can to diagnose remotely
-        debugMessage: err?.debugMessage?.slice?.(0, 200),
-        responseCode: err?.responseCode,
-        productId: err?.productId,
-        userInfo: JSON.stringify(err?.userInfo || {}).slice(0, 200),
+
+      // Global purchase listener — fires for paywall purchases, restores,
+      // and subscription auto-renewals.
+      purchaseUpdateSub = m.purchaseUpdatedListener(async (purchase: any) => {
+        devLog('purchaseUpdated', purchase?.productId || purchase?.id);
+        try {
+          await handleSuccessfulPurchase(purchase);
+        } catch (err) {
+          devLog('purchaseUpdated handler failed', err);
+        }
       });
-    });
 
-    await refreshEntitlement();
-    // Successful init — log so we can confirm in analytics
-    track('purchases_init_success' as any, {
-      iap_available: true,
-    });
-  } catch (err: any) {
-    devLog('init failed', err);
-    // CRITICAL: surface init failures to analytics so we can diagnose
-    // "instant failed to query product" errors that are actually init
-    // failures masquerading as query failures.
-    track('purchases_init_failed' as any, {
-      code: err?.code || 'UNKNOWN',
-      message: (err?.message || String(err)).slice(0, 300),
-      name: err?.name,
-      stage: connected ? 'after_connect' : 'before_connect',
-    });
-    usePurchasesStore.getState().setInitialized(true);
-  }
+      purchaseErrorSub = m.purchaseErrorListener((err: any) => {
+        devLog('purchaseError', err?.code, err?.message);
+        const code = err?.code;
+        if (code === 'E_USER_CANCELLED' || code === 'user-cancelled') {
+          usePurchasesStore.getState().setPurchasing(false);
+          return;
+        }
+        // Friendly UI message that hints at the real cause without scaring users
+        const friendlyMsg =
+          code === 'query-product'
+            ? 'This product is not available on your account right now. New products can take up to 24h to fully activate, or your Google account country may not be configured.'
+            : err?.message || 'Purchase failed';
+        usePurchasesStore.getState().setError(friendlyMsg);
+        usePurchasesStore.getState().setPurchasing(false);
+        track(ANALYTICS_EVENTS.PURCHASE_FAILED, {
+          code: code || 'UNKNOWN',
+          message: (err?.message || '').slice(0, 200),
+          // Pull every field we can to diagnose remotely
+          debugMessage: err?.debugMessage?.slice?.(0, 200),
+          responseCode: err?.responseCode,
+          productId: err?.productId,
+          userInfo: JSON.stringify(err?.userInfo || {}).slice(0, 200),
+        });
+      });
+
+      await refreshEntitlement();
+      initOutcome = 'ok';
+      // Successful init — log so we can confirm in analytics
+      track('purchases_init_success' as any, {
+        iap_available: true,
+      });
+    } catch (err: any) {
+      devLog('init failed', err);
+      initOutcome = 'failed';
+      const isTimeout = String(err?.message || '').includes('timed out');
+      // CRITICAL: surface init failures to analytics so we can diagnose
+      // "instant failed to query product" errors that are actually init
+      // failures masquerading as query failures.
+      track((isTimeout ? 'purchases_init_timeout' : 'purchases_init_failed') as any, {
+        code: err?.code || 'UNKNOWN',
+        message: (err?.message || String(err)).slice(0, 300),
+        name: err?.name,
+        stage: connected ? 'after_connect' : 'before_connect',
+      });
+      usePurchasesStore.getState().setInitialized(true);
+    }
+  })();
+  return initPromise;
 }
 
 /**
@@ -191,15 +256,65 @@ async function handleSuccessfulPurchase(purchase: any): Promise<void> {
   });
 }
 
-/** Fetch product details for the paywall UI. */
+/** Fetch product details for the paywall UI.
+ *
+ * v1.8.3 policy fix: never returns USD MOCK_OFFERINGS in production. If
+ * Play Billing isn't available (Expo Go) we return mocks ONLY in __DEV__
+ * so designers can still preview the layout. In a real production build,
+ * a fetch failure returns [] — the paywall then shows a "prices
+ * unavailable" state instead of fake USD numbers that mismatch the
+ * native Play checkout sheet's localized currency. (Subscriptions policy
+ * violation 2026-05-27.)
+ */
 export async function getOfferings(): Promise<Offering[]> {
   const m = loadIap();
-  if (!m) return MOCK_OFFERINGS;
+  if (!m) return __DEV__ ? MOCK_OFFERINGS : [];
+
+  // CRITICAL: wait for initPurchases to settle before fetching. Without
+  // this, opening the paywall during cold-launch fires fetchProducts
+  // before initConnection() resolves, which silently returns empty and
+  // we end up showing mocks forever.
+  try {
+    if (initPromise) {
+      await withTimeout(initPromise, 20_000, 'init_await_in_getOfferings');
+    }
+  } catch (err: any) {
+    track('paywall_init_await_failed' as any, {
+      message: (err?.message || String(err)).slice(0, 200),
+    });
+    // Still try to fetch — maybe init succeeded but tracking lagged.
+  }
+
+  if (initOutcome !== 'ok') {
+    // We're going to fetch anyway, but log that we're doing so without
+    // a confirmed-good init. This makes "no init event + empty offerings"
+    // distinguishable from "init succeeded but Play returned nothing".
+    track('paywall_fetch_without_init' as any, {
+      outcome: initOutcome,
+    });
+  }
 
   try {
+    // v1.9.2: capture the FULL native error on fetch failure. The
+    // BillingClient responseCode is the smoking gun that tells us WHY a
+    // specific account fails while others succeed:
+    //   3 = BILLING_UNAVAILABLE (account country/Play version not set up)
+    //   4 = ITEM_UNAVAILABLE   (product not available for this account)
+    //   5 = DEVELOPER_ERROR    (app/package/signing misconfigured)
+    //   6 = ERROR              (generic, often transient)
+    const captureFetchError = (event: string) => (e: any) => {
+      track(event as any, {
+        message: (e?.message || String(e)).slice(0, 200),
+        code: e?.code,
+        responseCode: e?.responseCode ?? e?.userInfo?.responseCode,
+        debugMessage: (e?.debugMessage || e?.userInfo?.debugMessage || '').slice(0, 200),
+        userInfo: JSON.stringify(e?.userInfo || {}).slice(0, 200),
+      });
+      return [];
+    };
     const [subs, oneTimes] = await Promise.all([
-      m.fetchProducts({ skus: SUBSCRIPTION_SKUS, type: 'subs' }).catch(() => []),
-      m.fetchProducts({ skus: ONE_TIME_SKUS, type: 'in-app' }).catch(() => []),
+      m.fetchProducts({ skus: SUBSCRIPTION_SKUS, type: 'subs' }).catch(captureFetchError('paywall_fetch_subs_threw')),
+      m.fetchProducts({ skus: ONE_TIME_SKUS, type: 'in-app' }).catch(captureFetchError('paywall_fetch_onetime_threw')),
     ]);
 
     const offerings: Offering[] = [];
@@ -254,7 +369,11 @@ export async function getOfferings(): Promise<Offering[]> {
       first_sub_status: (subs || [])[0]?.productStatusAndroid,
     });
 
-    return offerings.length > 0 ? offerings : MOCK_OFFERINGS;
+    // v1.8.3 policy fix: prod returns [] on empty so the paywall renders
+    // a "prices unavailable" state instead of fake USD numbers. Dev/Expo
+    // Go preview still gets mocks so designers can iterate on layout.
+    if (offerings.length > 0) return offerings;
+    return __DEV__ ? MOCK_OFFERINGS : [];
   } catch (err: any) {
     devLog('getOfferings failed', err);
     // Surface the actual native error so we can diagnose remotely.
@@ -263,7 +382,7 @@ export async function getOfferings(): Promise<Offering[]> {
       message: (err?.message || String(err)).slice(0, 300),
       name: err?.name,
     });
-    return MOCK_OFFERINGS;
+    return __DEV__ ? MOCK_OFFERINGS : [];
   }
 }
 
@@ -272,6 +391,13 @@ export async function getOfferings(): Promise<Offering[]> {
  * happens via the purchaseUpdatedListener registered in initPurchases().
  */
 export async function buyProduct(sku: string): Promise<void> {
+  // HARD synchronous guard — reject a second purchase before any await so
+  // rapid taps / re-invocations can't each create an order.
+  if (purchaseInFlight) {
+    devLog('buyProduct ignored — a purchase is already in flight');
+    return;
+  }
+
   const m = loadIap();
   if (!m) {
     usePurchasesStore
@@ -280,6 +406,7 @@ export async function buyProduct(sku: string): Promise<void> {
     return;
   }
 
+  purchaseInFlight = true;
   usePurchasesStore.getState().setPurchasing(true);
   usePurchasesStore.getState().setError(null);
 
@@ -289,6 +416,25 @@ export async function buyProduct(sku: string): Promise<void> {
   });
 
   try {
+    // Don't let the user buy something they already own. Re-purchasing a
+    // subscription/lifetime creates a duplicate order; if they already own
+    // it, just restore the entitlement and bail.
+    try {
+      const existing: any[] = (await m.getAvailablePurchases()) || [];
+      const owns = existing.some((p) => {
+        const owned = p.productId || p.id || (p.productIds && p.productIds[0]);
+        return owned === sku;
+      });
+      if (owns) {
+        devLog('already owns', sku, '— restoring instead of buying again');
+        await refreshEntitlement();
+        usePurchasesStore.getState().setError(null);
+        return; // finally{} clears the flags
+      }
+    } catch {
+      // If the ownership check fails, proceed with purchase (best-effort).
+    }
+
     if (SUBSCRIPTION_SKUS.includes(sku as any)) {
       // For subscriptions we need the offerToken from the product details.
       // expo-iap requires an offerToken when offer details exist; we pull
@@ -327,6 +473,11 @@ export async function buyProduct(sku: string): Promise<void> {
       usePurchasesStore.getState().setError(err?.message || 'Purchase failed');
     }
     usePurchasesStore.getState().setPurchasing(false);
+  } finally {
+    // Clear the in-flight guard. The purchaseUpdatedListener will set the
+    // final entitlement state; this just re-enables the buy button once the
+    // native flow has been handed off (or errored/cancelled).
+    purchaseInFlight = false;
   }
 }
 

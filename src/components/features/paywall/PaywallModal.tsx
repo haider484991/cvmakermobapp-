@@ -267,6 +267,45 @@ export function PaywallModal({ visible, onClose, trigger = 'generic' }: Props) {
               <View style={{ paddingVertical: 24, alignItems: 'center' }}>
                 <ActivityIndicator color={colors.primary} />
               </View>
+            ) : sortedOfferings.length === 0 ? (
+              // v1.8.3 — when Play Billing returns no products we DO NOT
+              // show fallback USD prices (Subscriptions policy: displayed
+              // currency must match Play checkout sheet's localized
+              // currency). Instead show a neutral unavailable state.
+              <View
+                style={{
+                  paddingVertical: 28,
+                  paddingHorizontal: 16,
+                  alignItems: 'center',
+                  borderRadius: 16,
+                  backgroundColor: colors.surface,
+                  marginBottom: 12,
+                }}
+              >
+                <Text
+                  style={{
+                    color: colors.text,
+                    fontSize: 15,
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    marginBottom: 6,
+                  }}
+                >
+                  Pricing temporarily unavailable
+                </Text>
+                <Text
+                  style={{
+                    color: colors.text + '99',
+                    fontSize: 13,
+                    textAlign: 'center',
+                    lineHeight: 18,
+                  }}
+                >
+                  We couldn&rsquo;t load your country&rsquo;s prices from
+                  Google Play. Please check your connection and try
+                  again, or come back in a few minutes.
+                </Text>
+              </View>
             ) : (
               sortedOfferings.map((offering) => (
                 <OfferingCard
