@@ -109,6 +109,9 @@ export interface Resume {
   id: string;
   name: string;
   templateId: string;
+  /** Optional user-chosen accent color (hex). Re-colors the active
+   *  template's brand surfaces via the per-template color picker. */
+  accentColor?: string;
   createdAt: string;
   updatedAt: string;
   sections: ResumeSection[];

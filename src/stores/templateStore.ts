@@ -55,17 +55,23 @@ const TEMPLATES: ResumeTemplate[] = [
     atsScore: 98,
     isPremium: false,
     thumbnail: '',
-    previewColor: '#2563EB',
-    tags: ['ats-friendly', 'professional', 'blue'],
+    previewColor: '#1E3A5F',
+    tags: ['ats-friendly', 'professional', 'steel-blue'],
     styles: {
+      // PALETTE: Refined steel blue, deliberately darker than the generic
+      // Bootstrap #2563EB. Mono ink-charcoal body keeps the resume
+      // legible at print size; #475569 slate-grey textLight reads with
+      // more authority than the default #6B7280. Hairline border in
+      // pale slate, not blue-washed, so the page reads "professional"
+      // not "branded".
       colors: {
-        primary: '#2563EB',
-        secondary: '#1D4ED8',
+        primary: '#1E3A5F',
+        secondary: '#334155',
         accent: '#3B82F6',
-        text: '#1F2937',
-        textLight: '#6B7280',
+        text: '#0F172A',
+        textLight: '#475569',
         background: '#FFFFFF',
-        border: '#DBEAFE',
+        border: '#E2E8F0',
       },
       fonts: {
         heading: 'Georgia',
@@ -518,17 +524,24 @@ const TEMPLATES: ResumeTemplate[] = [
     atsScore: 97,
     isPremium: false,
     thumbnail: '',
-    previewColor: '#1E1B4B',
-    tags: ['finance', 'banking', 'serif', 'navy'],
+    previewColor: '#172554',
+    tags: ['finance', 'banking', 'serif', 'navy', 'brass'],
     styles: {
+      // PALETTE: Sophisticated bottle navy + brass accent. The hex is
+      // pulled from the cover of Bloomberg Businessweek's archive issues
+      // — it reads as "Wall Street" without being literal. Brass #B08D57
+      // accent for section underlines + the date column adds the only
+      // warmth on the page; everything else is mono. Pale champagne
+      // border #E8E1D3 instead of the old icy lavender, which clashed
+      // with the navy.
       colors: {
-        primary: '#1E1B4B',
-        secondary: '#312E81',
-        accent: '#4338CA',
-        text: '#1E1B4B',
-        textLight: '#6B7280',
+        primary: '#172554',
+        secondary: '#1E3A8A',
+        accent: '#B08D57',
+        text: '#0F1729',
+        textLight: '#475569',
         background: '#FFFFFF',
-        border: '#C7D2FE',
+        border: '#E8E1D3',
       },
       fonts: { heading: 'Georgia', body: 'Georgia', headingWeight: '700', bodyWeight: '400' },
       spacing: { sectionGap: 22, itemGap: 12, margins: 48, headerPadding: 24 },
@@ -697,17 +710,23 @@ const TEMPLATES: ResumeTemplate[] = [
     atsScore: 82,
     isPremium: true,
     thumbnail: '',
-    previewColor: '#9333EA',
-    tags: ['timeline', 'creative', 'purple'],
+    previewColor: '#6D28D9',
+    tags: ['timeline', 'creative', 'plum'],
     styles: {
+      // PALETTE: Muted plum, not bright purple. The previous #9333EA was
+      // saturated to the point of feeling juvenile; #6D28D9 reads as a
+      // mature, considered color choice you'd see on Substack or
+      // Notion's editorial pages. Secondary deepens to aubergine for
+      // contrast on the timeline rail dots; accent softens slightly so
+      // hover/secondary elements don't compete with the primary timeline.
       colors: {
-        primary: '#9333EA',
-        secondary: '#7E22CE',
-        accent: '#A855F7',
-        text: '#0F172A',
-        textLight: '#64748B',
+        primary: '#6D28D9',
+        secondary: '#4C1D95',
+        accent: '#8B5CF6',
+        text: '#1E1B29',
+        textLight: '#5B4F6B',
         background: '#FFFFFF',
-        border: '#E9D5FF',
+        border: '#EDE9FE',
       },
       fonts: { heading: 'Helvetica', body: 'Helvetica', headingWeight: '700', bodyWeight: '400' },
       spacing: { sectionGap: 20, itemGap: 14, margins: 48, headerPadding: 24 },
@@ -738,6 +757,81 @@ const TEMPLATES: ResumeTemplate[] = [
       },
       fonts: { heading: 'Georgia', body: 'Georgia', headingWeight: '700', bodyWeight: '400' },
       spacing: { sectionGap: 26, itemGap: 16, margins: 56, headerPadding: 24 },
+      layout: { headerStyle: 'centered', sectionStyle: 'underlined', columns: 1, showPhoto: false, iconStyle: 'none' },
+    },
+  },
+
+  /* ------------------------------------------------------------------------
+   * v1.9.7 — New premium templates designed to be "worth paying for": they
+   * add the things the original 22 never had — visual skill PROFICIENCY BARS,
+   * 5-dot RATINGS, and ICON contact rows. The premiumHtmlEngine renders these
+   * via skillStyle / contactStyle set in THEME_OVERRIDES (keyed by id below).
+   * ------------------------------------------------------------------------ */
+  {
+    id: 'aurora',
+    name: 'Aurora',
+    description: 'Indigo sidebar with photo, skill bars, and icon contacts',
+    category: 'modern',
+    atsScore: 88,
+    isPremium: true,
+    thumbnail: '',
+    previewColor: '#4F46E5',
+    tags: ['modern', 'infographic', 'skill-bars', 'indigo', 'photo'],
+    styles: {
+      colors: { primary: '#4F46E5', secondary: '#4338CA', accent: '#6366F1', text: '#0F172A', textLight: '#64748B', background: '#FFFFFF', border: '#E0E7FF' },
+      fonts: { heading: 'Helvetica', body: 'Helvetica', headingWeight: '700', bodyWeight: '400' },
+      spacing: { sectionGap: 20, itemGap: 12, margins: 0, headerPadding: 0 },
+      layout: { headerStyle: 'split', sectionStyle: 'sidebar', columns: 2, showPhoto: true, iconStyle: 'minimal' },
+    },
+  },
+  {
+    id: 'onyx',
+    name: 'Onyx',
+    description: 'Near-black sidebar, electric cyan accents, skill bars',
+    category: 'modern',
+    atsScore: 85,
+    isPremium: true,
+    thumbnail: '',
+    previewColor: '#0F172A',
+    tags: ['dark', 'tech', 'skill-bars', 'cyan', 'developer'],
+    styles: {
+      colors: { primary: '#0891B2', secondary: '#0E7490', accent: '#06B6D4', text: '#0F172A', textLight: '#64748B', background: '#FFFFFF', border: '#CFFAFE' },
+      fonts: { heading: 'Helvetica', body: 'Helvetica', headingWeight: '700', bodyWeight: '400' },
+      spacing: { sectionGap: 20, itemGap: 12, margins: 0, headerPadding: 0 },
+      layout: { headerStyle: 'split', sectionStyle: 'sidebar', columns: 2, showPhoto: true, iconStyle: 'minimal' },
+    },
+  },
+  {
+    id: 'vivid',
+    name: 'Vivid',
+    description: 'Teal right sidebar with rating dots and icon contacts',
+    category: 'creative',
+    atsScore: 84,
+    isPremium: true,
+    thumbnail: '',
+    previewColor: '#0D9488',
+    tags: ['creative', 'teal', 'rating-dots', 'photo', 'sidebar-right'],
+    styles: {
+      colors: { primary: '#0D9488', secondary: '#0F766E', accent: '#14B8A6', text: '#0F172A', textLight: '#64748B', background: '#FFFFFF', border: '#CCFBF1' },
+      fonts: { heading: 'Helvetica', body: 'Helvetica', headingWeight: '700', bodyWeight: '400' },
+      spacing: { sectionGap: 20, itemGap: 12, margins: 0, headerPadding: 0 },
+      layout: { headerStyle: 'split', sectionStyle: 'sidebar', columns: 2, showPhoto: true, iconStyle: 'minimal' },
+    },
+  },
+  {
+    id: 'luxe',
+    name: 'Luxe',
+    description: 'Editorial serif masthead with airy, refined spacing',
+    category: 'professional',
+    atsScore: 96,
+    isPremium: true,
+    thumbnail: '',
+    previewColor: '#18181B',
+    tags: ['editorial', 'serif', 'luxury', 'executive', 'minimal'],
+    styles: {
+      colors: { primary: '#18181B', secondary: '#3F3F46', accent: '#A1824A', text: '#18181B', textLight: '#6B7280', background: '#FFFFFF', border: '#E7E5E4' },
+      fonts: { heading: 'Georgia', body: 'Georgia', headingWeight: '700', bodyWeight: '400' },
+      spacing: { sectionGap: 26, itemGap: 16, margins: 54, headerPadding: 26 },
       layout: { headerStyle: 'centered', sectionStyle: 'underlined', columns: 1, showPhoto: false, iconStyle: 'none' },
     },
   },

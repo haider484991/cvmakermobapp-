@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp, FadeIn, useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
 import { useTheme } from '@/hooks/useTheme';
@@ -161,6 +161,108 @@ function TemplateCard({ template, isSelected, onSelect, index }: TemplateCardPro
   );
 }
 
+/**
+ * Preview sheet shown when a free user taps a Pro template. Instead of an
+ * instant paywall (the old "ambush" that sent ~47% of browsers away without
+ * ever creating a resume), we show the template large with a clear unlock CTA
+ * and an easy escape to free templates — an informed choice, not a wall.
+ */
+function TemplatePreviewSheet({
+  template,
+  onClose,
+  onUnlock,
+  colors,
+}: {
+  template: ResumeTemplate | null;
+  onClose: () => void;
+  onUnlock: () => void;
+  colors: any;
+}) {
+  return (
+    <Modal
+      visible={!!template}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <Pressable
+        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }}
+        onPress={onClose}
+      >
+        <Pressable
+          onPress={(e) => e.stopPropagation()}
+          style={{
+            backgroundColor: colors.background,
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            paddingHorizontal: 20,
+            paddingTop: 12,
+            paddingBottom: 32,
+          }}
+        >
+          <View style={{ alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border, marginBottom: 18 }} />
+
+          {template && (
+            <>
+              {/* Large preview */}
+              <View style={{ alignItems: 'center', marginBottom: 18 }}>
+                <View
+                  style={{
+                    width: 188,
+                    height: 266,
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    backgroundColor: template.styles.colors.background,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 14,
+                    elevation: 8,
+                  }}
+                >
+                  <LayoutThumb template={template} />
+                </View>
+              </View>
+
+              {/* Title + PRO badge */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <Text style={{ fontSize: 21, fontWeight: '700', color: colors.text, flex: 1 }}>
+                  {template.name}
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: colors.warning, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 10 }}>
+                  <Lock size={11} color="white" />
+                  <Text style={{ color: 'white', fontSize: 11, fontWeight: '700', marginLeft: 4 }}>PRO</Text>
+                </View>
+              </View>
+              <Text style={{ color: colors.textSecondary, fontSize: 13, marginBottom: 18, lineHeight: 18 }}>
+                {template.description} · ATS score {template.atsScore}%
+              </Text>
+
+              {/* Unlock */}
+              <Pressable
+                onPress={onUnlock}
+                style={{ backgroundColor: colors.primary, paddingVertical: 16, borderRadius: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}
+              >
+                <Star size={16} color="white" fill="white" />
+                <Text style={{ color: 'white', fontWeight: '700', fontSize: 16, marginLeft: 8 }}>
+                  Unlock all Pro templates
+                </Text>
+              </Pressable>
+              <Pressable onPress={onClose} style={{ paddingVertical: 14, alignItems: 'center' }}>
+                <Text style={{ color: colors.textSecondary, fontWeight: '600', fontSize: 15 }}>
+                  Browse free templates
+                </Text>
+              </Pressable>
+            </>
+          )}
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
 export default function Templates() {
   const { colors } = useTheme();
   const { t } = useTranslation();
@@ -170,6 +272,9 @@ export default function Templates() {
 
   const { isPremium } = usePremium();
   const [paywallVisible, setPaywallVisible] = useState(false);
+  // The Pro template the user is previewing (null = sheet closed). Tapping a
+  // locked template opens this sheet instead of an instant paywall.
+  const [previewTemplate, setPreviewTemplate] = useState<ResumeTemplate | null>(null);
 
   const {
     templates,
@@ -219,14 +324,12 @@ export default function Templates() {
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    // Premium gate: free users can preview the lock badge but selecting
-    // opens the paywall instead of applying the template.
+    // Premium gate: instead of ambushing the user with an instant paywall,
+    // open a preview sheet so they can SEE the Pro template up close and make
+    // an informed choice. The paywall only appears if they tap "Unlock".
     if (template.isPremium && !isPremium) {
-      track(ANALYTICS_EVENTS.PAYWALL_SHOWN, {
-        trigger: 'template',
-        template_id: template.id,
-      });
-      setPaywallVisible(true);
+      track('premium_template_previewed' as any, { template_id: template.id });
+      setPreviewTemplate(template);
       return;
     }
     setSelectedTemplate(template.id);
@@ -426,7 +529,18 @@ export default function Templates() {
         <View className="h-8" />
       </ScrollView>
 
-      {/* Paywall — opens when free user taps a premium template */}
+      {/* Pro template preview — replaces the instant paywall on tap. */}
+      <TemplatePreviewSheet
+        template={previewTemplate}
+        onClose={() => setPreviewTemplate(null)}
+        onUnlock={() => {
+          setPreviewTemplate(null);
+          setPaywallVisible(true);
+        }}
+        colors={colors}
+      />
+
+      {/* Paywall — opens from the preview sheet's "Unlock" button. */}
       <PaywallModal
         visible={paywallVisible}
         onClose={() => setPaywallVisible(false)}

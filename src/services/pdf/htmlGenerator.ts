@@ -41,7 +41,12 @@ export function generateResumeHTML(
   options: ResumeHTMLOptions = {},
 ): string {
   try {
-    return generatePremiumHTML(resume, template, { paperSize: options.paperSize });
+    // Pass the resume's chosen accent color so the exported PDF matches the
+    // re-colored preview exactly.
+    return generatePremiumHTML(resume, template, {
+      paperSize: options.paperSize,
+      accentColor: resume.accentColor,
+    });
   } catch (err) {
     if (__DEV__) {
       console.warn('[htmlGenerator] Premium engine failed, falling back to classic:', err);
