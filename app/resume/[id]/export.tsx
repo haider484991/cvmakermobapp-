@@ -3,6 +3,7 @@ import { View, Text, Pressable, ActivityIndicator, ScrollView, Alert } from 'rea
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInUp, FadeIn } from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/hooks/useTheme';
 import { useResumeStore } from '@/stores/resumeStore';
 import { useTemplateStore } from '@/stores/templateStore';
@@ -43,7 +44,7 @@ export default function ExportResume() {
   const { hapticEnabled } = useUIStore();
   const { isPremium } = usePremium();
   const [paywallVisible, setPaywallVisible] = useState(false);
-  const [paywallTrigger, setPaywallTrigger] = useState<'watermark' | 'ads'>('watermark');
+  const [paywallTrigger, setPaywallTrigger] = useState<'watermark' | 'ads' | 'export'>('watermark');
 
   // PDF Export hook
   const {
@@ -491,6 +492,53 @@ export default function ExportResume() {
               </View>
             </Pressable>
           </Animated.View>
+
+          {/* Pro card at the high-intent moment (v1.10): the user has a
+              finished resume in hand — this second is when Pro is worth the
+              most. Data: this moment triggered the paywall once in 60 days
+              while template-browsing triggered it 44×. */}
+          {!isPremium && (
+            <Animated.View entering={FadeInUp.delay(280)}>
+              <Pressable
+                onPress={() => {
+                  if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  setPaywallTrigger('export');
+                  setPaywallVisible(true);
+                }}
+                className="rounded-xl mb-3 overflow-hidden"
+              >
+                <LinearGradient
+                  colors={[colors.primary, '#06B6D4']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ padding: 16, flexDirection: 'row', alignItems: 'center' }}
+                >
+                  <View
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 13,
+                      backgroundColor: 'rgba(255,255,255,0.22)',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 12,
+                    }}
+                  >
+                    <Sparkles size={22} color="white" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: 'white', fontSize: 14, fontWeight: '700' }}>
+                      Go Pro — free for 3 days
+                    </Text>
+                    <Text style={{ color: 'rgba(255,255,255,0.92)', fontSize: 12, marginTop: 2, lineHeight: 16 }}>
+                      Clean PDF · no ads · tailor to any job · AI cover letters
+                    </Text>
+                  </View>
+                  <Text style={{ color: 'white', fontSize: 20, fontWeight: '300' }}>›</Text>
+                </LinearGradient>
+              </Pressable>
+            </Animated.View>
+          )}
 
           {/* Download PDF */}
           <Animated.View entering={FadeInUp.delay(300)}>

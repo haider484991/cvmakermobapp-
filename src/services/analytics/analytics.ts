@@ -222,6 +222,13 @@ export const ANALYTICS_EVENTS = {
   AI_BULLETS_ENHANCED: 'ai_bullets_enhanced',
   AI_SKILLS_SUGGESTED: 'ai_skills_suggested',
 
+  // Job-outcome features (v1.10) — the premium tier's reason to exist.
+  TAILOR_OPENED: 'tailor_opened',
+  TAILOR_ANALYZED: 'tailor_analyzed',
+  TAILOR_APPLIED: 'tailor_applied',
+  COVER_LETTER_OPENED: 'cover_letter_opened',
+  COVER_LETTER_GENERATED: 'cover_letter_generated',
+
   // Monetization (used by v1.8)
   PAYWALL_SHOWN: 'paywall_shown',
   PAYWALL_DISMISSED: 'paywall_dismissed',

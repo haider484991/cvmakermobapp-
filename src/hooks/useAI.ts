@@ -12,8 +12,10 @@ import {
   structureFromNarrative,
   buildContextFromResume,
   streamTextGeneration,
+  tailorToJob,
+  generateCoverLetter,
 } from '@/services/ai/resumeAI';
-import type { NarrativeStructureResult } from '@/services/ai/resumeAI';
+import type { NarrativeStructureResult, TailorResult } from '@/services/ai/resumeAI';
 import { isAPIKeyConfigured, parseAPIError } from '@/lib/openrouter';
 import type {
   AIContext,
@@ -510,6 +512,73 @@ export function useAI() {
     resetBullets: bulletsMutation.reset,
     resetSkills: skillsMutation.reset,
     resetScore: scoreMutation.reset,
+  };
+}
+
+/**
+ * Hook for tailoring a resume to a job posting (v1.10).
+ * Analysis runs free; applying the rewrites is the Pro action (caller gates).
+ * No caching — users iterate on different postings.
+ */
+export function useTailorToJob() {
+  const { setGenerating, setError, trackUsage } = useAIStore();
+
+  const mutation = useMutation<TailorResult, AIError, { resume: Resume; jobDescription: string }>({
+    mutationFn: async ({ resume, jobDescription }) => tailorToJob(resume, jobDescription),
+    onMutate: () => {
+      setGenerating(true, 'Comparing your resume against the job posting…');
+    },
+    onSuccess: (result) => {
+      setGenerating(false);
+      trackUsage('score', result.model as any, result.tokensUsed);
+    },
+    onError: (error) => {
+      setError(error);
+    },
+  });
+
+  return {
+    tailor: mutation.mutate,
+    tailorAsync: mutation.mutateAsync,
+    isLoading: mutation.isPending,
+    data: mutation.data,
+    error: mutation.error,
+    reset: mutation.reset,
+  };
+}
+
+/**
+ * Hook for generating a cover letter from the resume + a job posting (v1.10).
+ * Pro feature — the caller opens the paywall for free users before invoking.
+ */
+export function useCoverLetter() {
+  const { setGenerating, setError, trackUsage } = useAIStore();
+
+  const mutation = useMutation<
+    { letter: string; model: string; tokensUsed: number },
+    AIError,
+    { resume: Resume; jobDescription: string }
+  >({
+    mutationFn: async ({ resume, jobDescription }) => generateCoverLetter(resume, jobDescription),
+    onMutate: () => {
+      setGenerating(true, 'Writing your cover letter…');
+    },
+    onSuccess: (result) => {
+      setGenerating(false);
+      trackUsage('summary', result.model as any, result.tokensUsed);
+    },
+    onError: (error) => {
+      setError(error);
+    },
+  });
+
+  return {
+    generate: mutation.mutate,
+    generateAsync: mutation.mutateAsync,
+    isLoading: mutation.isPending,
+    data: mutation.data,
+    error: mutation.error,
+    reset: mutation.reset,
   };
 }
 

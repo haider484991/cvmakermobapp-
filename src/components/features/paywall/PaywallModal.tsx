@@ -50,15 +50,23 @@ interface Props {
     | 'ads'
     | 'ai_score'
     | 'profile'
+    | 'tailor'
+    | 'cover_letter'
+    | 'export'
     | 'generic';
 }
 
+// Outcome-first pitch (v1.10): lead with the features that get people HIRED
+// (job tailoring + cover letters), then the quality-of-life unlocks. The old
+// list led with annoyance-removal ("no watermark / no ads") — data showed 39%
+// of paywall viewers tapped a plan, so the desire is there; give the
+// fence-sitters a job outcome to buy, not just fewer ads.
 const FEATURES = [
-  { icon: Palette, label: 'All 22 premium templates' },
-  { icon: Shield, label: 'Remove watermark on PDF exports' },
-  { icon: Sparkles, label: 'Full AI Resume Score & coaching' },
+  { icon: Sparkles, label: 'Tailor your resume to any job post' },
+  { icon: Star, label: 'AI cover letters, written in one tap' },
+  { icon: Palette, label: 'All 26 templates incl. Pro designs' },
+  { icon: Shield, label: 'Clean PDF exports — no watermark' },
   { icon: Zap, label: 'No ads, ever' },
-  { icon: Star, label: 'Priority support & new features first' },
 ];
 
 const TRIGGER_HEADLINES: Record<NonNullable<Props['trigger']>, string> = {
@@ -67,6 +75,9 @@ const TRIGGER_HEADLINES: Record<NonNullable<Props['trigger']>, string> = {
   ads: 'Tired of ads? Go Pro',
   ai_score: 'Unlock the full AI analysis',
   profile: 'Upgrade to FreeResume Pro',
+  tailor: 'Apply your tailored resume',
+  cover_letter: 'Unlock AI cover letters',
+  export: 'Ship a resume that gets interviews',
   generic: 'Upgrade to FreeResume Pro',
 };
 

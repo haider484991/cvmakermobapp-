@@ -549,3 +549,101 @@ Important parsing rules:
 
 Return ONLY the JSON object, no additional text or markdown formatting.`;
 
+
+/* ----------------------------------------------------------------------------
+ * v1.10 — Job-outcome features (the premium tier's reason to exist)
+ * -------------------------------------------------------------------------- */
+
+/**
+ * Tailor a resume to a specific job posting. Returns a match analysis plus
+ * concrete rewrites the app can apply with one tap (Pro). experienceId keys
+ * the rewrites back to store entries so apply is a simple updateExperience.
+ */
+export const TAILOR_PROMPT = (
+  resume: {
+    jobTitle?: string;
+    summary?: string;
+    skills: string[];
+    experience: Array<{ id: string; title: string; company: string; bullets: string[] }>;
+  },
+  jobDescription: string
+): string => `
+Analyze how well this resume matches the job posting, then produce tailored rewrites.
+
+THE RESUME:
+- Target title: ${resume.jobTitle || '(none set)'}
+- Summary: ${resume.summary || '(none)'}
+- Skills: ${resume.skills.join(', ') || '(none)'}
+- Experience:
+${resume.experience
+  .map(
+    (e) => `  [id=${e.id}] ${e.title} at ${e.company}
+${e.bullets.map((b) => `    • ${b}`).join('\n')}`
+  )
+  .join('\n')}
+
+THE JOB POSTING:
+"""
+${jobDescription}
+"""
+
+Rules:
+1. matchScore: 0-100 honest assessment of the CURRENT resume vs this posting.
+2. matchedKeywords: skills/phrases from the posting the resume already shows (max 10).
+3. missingKeywords: important posting keywords the resume lacks (max 8) — these are what an ATS would flag.
+4. summaryRewrite: rewrite the summary to target THIS job. Keep it truthful to their experience — reframe, never fabricate. 2-3 sentences.
+5. experienceRewrites: for each experience entry worth improving (max 4), rewrite its bullets to emphasize what THIS posting cares about, weaving in missing keywords ONLY where the underlying experience plausibly supports them. Keep each bullet under 24 words, achievement-focused, starting with an action verb. Use the exact experienceId given.
+6. skillsToAdd: skills from missingKeywords the candidate plausibly has given their history (max 6). Never invent niche tools they clearly never used.
+
+Format the response as JSON:
+{
+  "matchScore": 72,
+  "matchedKeywords": ["..."],
+  "missingKeywords": ["..."],
+  "summaryRewrite": "...",
+  "experienceRewrites": [
+    { "experienceId": "...", "bullets": ["...", "..."] }
+  ],
+  "skillsToAdd": ["..."]
+}
+
+Return ONLY the JSON object, no additional text or markdown formatting.`;
+
+/**
+ * Generate a cover letter from the resume + job posting. Plain text output
+ * (no JSON) — the result is shown in an editable field.
+ */
+export const COVER_LETTER_PROMPT = (
+  resume: {
+    fullName?: string;
+    jobTitle?: string;
+    summary?: string;
+    skills: string[];
+    experience: Array<{ title: string; company: string; bullets: string[] }>;
+  },
+  jobDescription: string
+): string => `
+Write a cover letter for this candidate applying to the job below.
+
+CANDIDATE:
+- Name: ${resume.fullName || 'The candidate'}
+- Current title: ${resume.jobTitle || '(none)'}
+- Summary: ${resume.summary || '(none)'}
+- Key skills: ${resume.skills.slice(0, 12).join(', ') || '(none)'}
+- Recent experience:
+${resume.experience
+  .slice(0, 3)
+  .map((e) => `  ${e.title} at ${e.company}: ${e.bullets.slice(0, 2).join(' / ')}`)
+  .join('\n')}
+
+THE JOB POSTING:
+"""
+${jobDescription}
+"""
+
+Rules:
+- 3 short paragraphs, 180-260 words total. Hook → proof (1-2 concrete achievements mapped to the posting's needs) → close with enthusiasm and a call to action.
+- Mirror the posting's key language naturally. Confident, warm, zero clichés ("I am writing to apply", "team player", "fast-paced environment" are banned).
+- Truthful to the resume — reframe, never fabricate.
+- If the posting names a company, address it. Otherwise use "your team".
+- Output PLAIN TEXT only: no JSON, no markdown, no subject line, no placeholder brackets. Start with "Dear Hiring Manager," (or the company's name) and end with "Sincerely,\n${resume.fullName || ''}".`;

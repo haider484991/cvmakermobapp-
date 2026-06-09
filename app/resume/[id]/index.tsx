@@ -374,6 +374,43 @@ export default function ResumeEditor() {
         </Pressable>
       </Animated.View>
 
+      {/* Job tools (v1.10) — the outcome features. Tailor analysis is free
+          (the hook); applying it and cover letters are the Pro pitch. */}
+      <Animated.View entering={FadeIn.delay(250)} className="mx-4 mt-3 flex-row" style={{ gap: 10 }}>
+        <Pressable
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push(`/resume/${resumeId}/tailor`);
+          }}
+          className="flex-1 p-3.5 rounded-xl"
+          style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
+        >
+          <Text style={{ fontSize: 20, marginBottom: 4 }}>🎯</Text>
+          <Text className="font-semibold text-sm" style={{ color: colors.text }}>
+            Tailor to a job
+          </Text>
+          <Text className="text-xs mt-0.5" style={{ color: colors.textSecondary }}>
+            Match score + rewrite
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push(`/resume/${resumeId}/cover-letter`);
+          }}
+          className="flex-1 p-3.5 rounded-xl"
+          style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
+        >
+          <Text style={{ fontSize: 20, marginBottom: 4 }}>✉️</Text>
+          <Text className="font-semibold text-sm" style={{ color: colors.text }}>
+            Cover letter
+          </Text>
+          <Text className="text-xs mt-0.5" style={{ color: colors.textSecondary }}>
+            Written by AI · Pro
+          </Text>
+        </Pressable>
+      </Animated.View>
+
       {/* Sections List — kept for direct access to any section, but now
           secondary since NextStepCard above tells users where to go next. */}
       <ScrollView className="flex-1 px-4 mt-4" showsVerticalScrollIndicator={false}>

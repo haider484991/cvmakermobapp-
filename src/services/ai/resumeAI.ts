@@ -14,6 +14,8 @@ import {
   RESUME_SCORE_PROMPT,
   NARRATIVE_TO_RESUME_SYSTEM_PROMPT,
   NARRATIVE_TO_RESUME_PROMPT,
+  TAILOR_PROMPT,
+  COVER_LETTER_PROMPT,
 } from './prompts';
 import type { ParsedResumeData } from '@/types/resumeImport';
 import { normalizeParsedData } from '@/services/fileImport/resumeMapper';
@@ -509,6 +511,143 @@ export async function structureFromNarrative(
   };
 }
 
+/* ----------------------------------------------------------------------------
+ * v1.10 — Job-outcome features
+ * -------------------------------------------------------------------------- */
+
+/** One experience entry's rewritten bullets, keyed back to the store. */
+export interface ExperienceRewrite {
+  experienceId: string;
+  bullets: string[];
+}
+
+/** Result of tailoring a resume against a job posting. */
+export interface TailorResult {
+  matchScore: number;
+  matchedKeywords: string[];
+  missingKeywords: string[];
+  summaryRewrite: string;
+  experienceRewrites: ExperienceRewrite[];
+  skillsToAdd: string[];
+  model: string;
+  tokensUsed: number;
+}
+
+/**
+ * Analyze a resume against a job posting and produce applicable rewrites.
+ * The analysis (score + keywords) is shown free — it proves the value.
+ * Applying the rewrites is the Pro action, handled by the caller.
+ */
+export async function tailorToJob(
+  resume: Resume,
+  jobDescription: string,
+  options?: AIRequestOptions
+): Promise<TailorResult> {
+  const jd = (jobDescription || '').trim();
+  if (jd.length < 60) {
+    throw createAIError(
+      'PARSE_ERROR',
+      'Paste the full job posting (or at least its requirements section) so the AI has something to match against.'
+    );
+  }
+
+  const model = getModelForFeature('score', options);
+  const payload = {
+    jobTitle: resume.header.jobTitle,
+    summary: resume.summary,
+    skills: resume.skills.map((s) => s.name),
+    experience: resume.experience.map((e) => ({
+      id: e.id,
+      title: e.title,
+      company: e.company,
+      bullets: e.bullets ?? [],
+    })),
+  };
+
+  const response = await chatCompletion({
+    model,
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      // Cap the JD at ~8k chars so long postings leave room for the answer.
+      { role: 'user', content: TAILOR_PROMPT(payload, jd.slice(0, 8000)) },
+    ],
+    temperature: 0.4, // fidelity over creativity — these get applied verbatim
+    maxTokens: 3072,
+  });
+
+  const parsed = parseJSONResponse<Omit<TailorResult, 'model' | 'tokensUsed'>>(response.content);
+
+  if (typeof parsed?.matchScore !== 'number' || !Array.isArray(parsed.missingKeywords)) {
+    throw createAIError('PARSE_ERROR', 'Invalid response format for job tailoring');
+  }
+
+  // Only keep rewrites that reference real experience entries — the model
+  // occasionally invents ids; applying those would silently no-op or crash.
+  const validIds = new Set(resume.experience.map((e) => e.id));
+  const experienceRewrites = (parsed.experienceRewrites ?? []).filter(
+    (r) => r && validIds.has(r.experienceId) && Array.isArray(r.bullets) && r.bullets.length > 0
+  );
+
+  return {
+    matchScore: Math.min(100, Math.max(0, parsed.matchScore)),
+    matchedKeywords: (parsed.matchedKeywords ?? []).slice(0, 10),
+    missingKeywords: (parsed.missingKeywords ?? []).slice(0, 8),
+    summaryRewrite: parsed.summaryRewrite ?? '',
+    experienceRewrites,
+    skillsToAdd: (parsed.skillsToAdd ?? []).slice(0, 6),
+    model: response.model,
+    tokensUsed: response.tokensUsed,
+  };
+}
+
+/**
+ * Generate a cover letter from the resume + a job posting. Returns plain
+ * text the user edits before sending. Pro feature — gate at the caller.
+ */
+export async function generateCoverLetter(
+  resume: Resume,
+  jobDescription: string,
+  options?: AIRequestOptions
+): Promise<{ letter: string; model: string; tokensUsed: number }> {
+  const jd = (jobDescription || '').trim();
+  if (jd.length < 60) {
+    throw createAIError(
+      'PARSE_ERROR',
+      'Paste the job posting so the letter can speak to what they ask for.'
+    );
+  }
+
+  const model = getModelForFeature('summary', options);
+  const payload = {
+    fullName: resume.header.fullName,
+    jobTitle: resume.header.jobTitle,
+    summary: resume.summary,
+    skills: resume.skills.map((s) => s.name),
+    experience: resume.experience.map((e) => ({
+      title: e.title,
+      company: e.company,
+      bullets: e.bullets ?? [],
+    })),
+  };
+
+  const response = await chatCompletion({
+    model,
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: COVER_LETTER_PROMPT(payload, jd.slice(0, 8000)) },
+    ],
+    temperature: 0.7,
+    maxTokens: 1024,
+  });
+
+  const letter = response.content.trim();
+  if (letter.length < 80) {
+    throw createAIError('PARSE_ERROR', 'The AI returned an unusually short letter. Try again.');
+  }
+
+  return { letter, model: response.model, tokensUsed: response.tokensUsed };
+}
+
 /**
  * Export all AI service functions
  */
@@ -523,6 +662,8 @@ export const resumeAIService = {
   structureFromNarrative,
   buildContextFromResume,
   streamTextGeneration,
+  tailorToJob,
+  generateCoverLetter,
 };
 
 export default resumeAIService;
