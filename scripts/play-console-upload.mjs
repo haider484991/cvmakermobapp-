@@ -34,12 +34,13 @@ const LANG = 'en-US';
 const TRACK = 'production';
 
 // Play Console enforces 500 chars per locale. Keep this tight.
-const RELEASE_NOTES = `Stability + reliability update.
+const RELEASE_NOTES = `Major redesign — the best version yet.
 
-Improved: Crash reporting added — we now catch issues faster and ship fixes within hours.
-Improved: Paywall reliability and clearer error messages.
-Fixed: PDF export edge cases.
-All Pro features (22 templates, AI score, no ads, no watermark) unchanged.`;
+NEW: Build with AI — describe yourself in a paragraph, get a complete resume.
+NEW: Templates redesigned with Inter typography + Playfair on Executive.
+NEW: Preview now matches your PDF export exactly, with real page breaks.
+NEW: Date pickers, bullet-by-bullet input, smart progress tracking.
+Fixed: Resume import, full-page preview, and pricing display.`;
 
 function log(...args) {
   console.log('[play-upload]', ...args);
@@ -138,7 +139,7 @@ async function main() {
       ...target,
       // Override the display name so it reflects the actual app version
       // (EAS submitted with old version metadata; codes are correct).
-      name: '1.8.2',
+      name: JSON.parse(readFileSync(path.join(ROOT, 'app.json'), 'utf8')).expo.version,
       // "completed" = 100% rollout after Google review approves.
       // For a staged rollout instead: { status: 'inProgress', userFraction: 0.5 }
       status: 'completed',
@@ -162,21 +163,46 @@ async function main() {
   });
   log('  ✓ release updated');
 
-  // 6. Validate the edit before committing
-  log('Validating edit...');
-  await publisher.edits.validate({ packageName: PACKAGE, editId });
-  log('  ✓ valid');
+  // 6. Validate the edit before committing.
+  //    Note: validation may fail with "changes cannot be sent for review
+  //    automatically" when the account has an active policy violation or
+  //    after certain config changes (screenshots, etc.). In that case we
+  //    commit with changesNotSentForReview=true and the user finishes the
+  //    review submission in the Play Console UI — same effect, one extra
+  //    click. Detect that specific error and route around it.
+  let sendForReview = true;
+  try {
+    log('Validating edit...');
+    await publisher.edits.validate({ packageName: PACKAGE, editId });
+    log('  ✓ valid');
+  } catch (err) {
+    const msg = err?.errors?.[0]?.message || err?.message || String(err);
+    if (msg.includes('changesNotSentForReview')) {
+      log(`  ⚠ Play API requires manual review submission: ${msg.slice(0, 120)}`);
+      log('  → committing with changesNotSentForReview=true; finish in Play Console UI');
+      sendForReview = false;
+    } else {
+      throw err;
+    }
+  }
 
-  // 7. Commit (must be sent without changesNotSentForReview=true to go to review)
-  log('Committing edit (this sends the release to Google review)...');
+  // 7. Commit. If sendForReview, the release auto-routes to Google review.
+  //    Otherwise it lands as a committed draft you finalize manually.
+  log(`Committing edit (changesNotSentForReview=${!sendForReview})...`);
   const commitRes = await publisher.edits.commit({
     packageName: PACKAGE,
     editId,
-    changesNotSentForReview: false,
+    changesNotSentForReview: !sendForReview,
   });
   log(`  ✓ committed editId=${commitRes.data.id}`);
 
-  console.log('\nDone. The v1.5.1 release is now in Google review.');
+  if (sendForReview) {
+    console.log('\nDone. The v1.9.0 release is now in Google review.');
+  } else {
+    console.log('\nDone. Screenshots + release notes are committed to the v1.9.0 draft.');
+    console.log('FINAL STEP (manual): Open Play Console → Publishing overview → click');
+    console.log('"Send for review" to submit. Required because of the open policy violation.');
+  }
   console.log('Track it at: https://play.google.com/console');
 }
 

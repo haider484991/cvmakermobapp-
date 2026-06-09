@@ -5,6 +5,15 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  useFonts,
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+} from '@expo-google-fonts/inter';
+import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { useAppOpenAd } from '@/hooks/useAppOpenAd';
@@ -149,6 +158,36 @@ export default function RootLayout() {
   // first frame on init (takes <20ms in practice, all bundled JSON), then
   // render the full app.
   const [i18nReady, setI18nReady] = useState(false);
+
+  // Load Inter (v1.9.0 — premium typography). Bundled offline via
+  // @expo-google-fonts/inter so resume templates render with the same
+  // face on every device. We block the first paint until fonts are
+  // loaded so templates never flash with the system fallback first.
+  // Note: react-native-print/expo-print uses these via WOFF2 base64
+  // embedding for the PDF export (handled separately in the HTML engine).
+  const [fontsLoaded, fontError] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
+    // Playfair Display: display-only face used by Executive + Academic
+    // template names. Per research, only loaded at 24pt+ where the thin
+    // strokes can breathe. Body text in those templates stays on Inter
+    // (or Georgia for academic-serif PDF) to preserve readability.
+    PlayfairDisplay_700Bold,
+  });
+  // Treat load failure as "ready" — Inter falls back to system sans, which
+  // is fine. Better to render with the wrong face than hang on the splash.
+  const fontsReady = fontsLoaded || !!fontError;
+  useEffect(() => {
+    if (fontError) {
+      track('font_load_failed' as any, {
+        message: (fontError.message || String(fontError)).slice(0, 200),
+      });
+    }
+  }, [fontError]);
+
   useEffect(() => {
     initI18n().finally(() => setI18nReady(true));
     // Count this launch toward review-eligibility (idempotent per day).
@@ -163,9 +202,11 @@ export default function RootLayout() {
     initPurchases().catch(() => {});
   }, []);
 
-  if (!i18nReady) {
+  if (!i18nReady || !fontsReady) {
     // Brief loading flash — intentionally minimal so users don't notice
     // a multi-stage startup. Splash screen still owns the visual.
+    // Fonts typically load in <100ms from bundled assets; if they fail
+    // we still render (Inter falls back to system sans which is fine).
     return <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} />;
   }
 

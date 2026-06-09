@@ -38,7 +38,7 @@
         "serviceAccountKeyPath": "./play-store-credentials.json",
         "track": "internal",
         "changesNotSentForReview": false,
-        "releaseStatus": "draft"
+        "releaseStatus": "completed"
       }
     }
   }

@@ -3,7 +3,7 @@
     "name": "FreeResume AI - CV Builder",
     "slug": "freeresume-ai",
     "description": "Create professional resumes and CVs in minutes with FreeResume AI - the smart resume builder powered by artificial intelligence. Features AI-powered writing assistance, ATS-optimized templates, and easy PDF export.",
-    "version": "1.8.2",
+    "version": "1.9.7",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -28,7 +28,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.freeresumeai.app",
-      "versionCode": 4
+      "versionCode": 28
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -64,6 +64,14 @@
           "organization": "auh-partners",
           "project": "android",
           "url": "https://sentry.io/"
+        }
+      ],
+      "expo-font",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow FreeResume AI to add a headshot photo to your resume."
         }
       ]
     ],

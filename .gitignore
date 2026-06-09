@@ -48,3 +48,4 @@ play-store-credentials.json
 # AI Tool Configs
 .claude/
 .gemini/
+store-assets/template-renders/
