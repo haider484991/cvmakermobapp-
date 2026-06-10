@@ -3,7 +3,7 @@
     "name": "FreeResume AI - CV Builder",
     "slug": "freeresume-ai",
     "description": "Create professional resumes and CVs in minutes with FreeResume AI - the smart resume builder powered by artificial intelligence. Features AI-powered writing assistance, ATS-optimized templates, and easy PDF export.",
-    "version": "1.10.0",
+    "version": "1.10.1",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",

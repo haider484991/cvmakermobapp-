@@ -304,7 +304,15 @@ export async function generateAndSharePDF(
 }
 
 /**
- * Preview PDF in print dialog
+ * Preview PDF in the system print dialog.
+ *
+ * @deprecated DO NOT WIRE THIS TO UI. Print.printAsync throws a NATIVE
+ * PrintManagerNotAvailableException inside a WebView callback on devices
+ * where the print service is disabled (OnePlus/ColorOS, some custom ROMs).
+ * That exception is uncatchable from JS and hard-crashes the app
+ * (Sentry a271f198, fatal, production). Use the in-app WebView preview
+ * screen (app/resume/[id]/preview) instead — it renders the identical
+ * paginated output with zero PrintManager dependency.
  */
 export async function previewPDF(
   resume: Resume,

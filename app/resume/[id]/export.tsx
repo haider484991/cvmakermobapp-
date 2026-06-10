@@ -54,7 +54,6 @@ export default function ExportResume() {
     exportPDF,
     sharePDF,
     downloadPDF,
-    preview,
     clearError,
   } = usePDFExport({ isPremium });
 
@@ -93,13 +92,20 @@ export default function ExportResume() {
   // Preview is free — letting users see their resume before exporting is
   // a critical retention/trust step, and gating it behind a rewarded ad
   // tanks completion rates.
-  const handlePreview = useCallback(async () => {
+  //
+  // CRASH FIX (Sentry a271f198): this used to call Print.printAsync via
+  // previewPDF(), which throws PrintManagerNotAvailableException inside a
+  // native WebView callback on devices with the print service disabled
+  // (OnePlus/ColorOS commonly) — uncatchable from JS, hard-crashes the app.
+  // The in-app WebView preview shows the exact same paginated output
+  // (preview = export, v1.9.0) without ever touching Android's PrintManager.
+  const handlePreview = useCallback(() => {
     if (!id) return;
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    await preview(id, { paperSize });
-  }, [id, preview, paperSize, hapticEnabled]);
+    router.push(`/resume/${id}/preview`);
+  }, [id, router, hapticEnabled]);
 
   // Core export function (called after ad or directly)
   const performExportPDF = useCallback(async () => {
