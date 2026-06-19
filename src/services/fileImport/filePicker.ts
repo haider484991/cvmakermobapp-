@@ -35,10 +35,25 @@ export class FilePickerError extends Error {
  * Opens the document picker for selecting resume files
  * Supported formats: PDF, DOCX, PNG, JPG, JPEG, WEBP
  */
+/** file extension → canonical MIME, for when the picker reports a null/generic type. */
+const EXT_TO_MIME: Record<string, string> = {
+  pdf: 'application/pdf',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+};
+
 export async function pickResumeFile(): Promise<SelectedFile> {
   try {
     const result = await DocumentPicker.getDocumentAsync({
-      type: SUPPORTED_MIME_TYPES as unknown as string[],
+      // IMPORTANT: use '*/*', NOT a specific MIME-type array. On Android,
+      // passing EXTRA_MIME_TYPES makes several document providers (Drive,
+      // some file managers, "Recent") throw "Provider returned error" while
+      // copying the file. '*/*' routes through the reliable picker path; we
+      // validate the real file type below by mime OR extension.
+      type: '*/*',
       copyToCacheDirectory: true,
       multiple: false,
     });
@@ -63,11 +78,19 @@ export async function pickResumeFile(): Promise<SelectedFile> {
       );
     }
 
-    // Validate MIME type
-    const mimeType = asset.mimeType || '';
+    // Resolve the type from the reported MIME, falling back to the file's
+    // extension (under '*/*' some providers report null or octet-stream).
+    const ext = (asset.name || '').toLowerCase().split('.').pop() || '';
+    let mimeType = asset.mimeType || '';
+    if (mimeType === 'image/jpg') mimeType = 'image/jpeg'; // not a real MIME
+    if (!SUPPORTED_MIME_TYPES.includes(mimeType as any)) {
+      // mime missing/unrecognized — trust the extension if we know it
+      mimeType = EXT_TO_MIME[ext] || mimeType;
+    }
+
     if (!SUPPORTED_MIME_TYPES.includes(mimeType as any)) {
       throw new FilePickerError(
-        'Please select a PDF, DOCX, or image file (PNG, JPG, WEBP)',
+        'Please select a PDF, Word doc, or image (PNG, JPG, WEBP)',
         'WRONG_FORMAT'
       );
     }
