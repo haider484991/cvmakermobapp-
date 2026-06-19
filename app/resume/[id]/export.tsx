@@ -128,7 +128,7 @@ export default function ExportResume() {
           'Saved',
           result.method === 'shared'
             ? 'Your resume PDF is ready — pick where to send or save it.'
-            : 'Resume saved to your device. Find it in the folder you chose (e.g. Downloads).',
+            : 'Saved to your Downloads folder. Open Files → Downloads to find it.',
         );
         setTimeout(() => setExportSuccess(false), 3000);
         // Fire an interstitial after the success alert. Frequency-capped
@@ -580,7 +580,7 @@ export default function ExportResume() {
                   {adLoaded ? 'Watch Ad & Save PDF' : adLoading ? 'Loading Ad...' : 'Save PDF to Phone'}
                 </Text>
                 <Text className="text-sm" style={{ color: colors.textSecondary }}>
-                  {adLoaded ? 'Watch a short ad, then save free' : adLoading ? 'Please wait...' : 'Saves to a folder you choose'}
+                  {adLoaded ? 'Watch a short ad, then save free' : adLoading ? 'Please wait...' : 'Saves to your Downloads folder'}
                 </Text>
               </View>
               {adLoaded && (

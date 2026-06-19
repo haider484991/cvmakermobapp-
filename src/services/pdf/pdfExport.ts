@@ -6,21 +6,15 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Paths, File, Directory } from 'expo-file-system';
-// Legacy FS gives us the Storage Access Framework, which is the only way to
-// write a file to a user-visible folder (Downloads, Documents) on modern
-// Android without the restricted MANAGE_EXTERNAL_STORAGE permission.
-import {
-  StorageAccessFramework,
-  readAsStringAsync,
-  writeAsStringAsync,
-  EncodingType,
-} from 'expo-file-system/legacy';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform, ToastAndroid } from 'react-native';
 import { Resume } from '@/types/resume';
 import { ResumeTemplate } from '@/types/template';
 import { generateResumeHTML } from './htmlGenerator';
 import { useTemplateStore, TEMPLATES } from '@/stores/templateStore';
+// Native module: writes straight to the public Downloads folder via MediaStore
+// (Android 10+) — no folder picker, no permission. Replaces the Storage Access
+// Framework flow whose directory picker was friction users bailed on.
+import { MediaStoreSaver } from '../../../modules/mediastore-saver';
 
 export type PaperSize = 'letter' | 'a4';
 
@@ -157,61 +151,16 @@ export async function generatePDF(
   }
 }
 
-/** AsyncStorage key for the folder the user chose to save resumes into. */
-const SAF_DIR_KEY = '@pdf/saf-download-dir-v1';
-
 /**
- * Write an already-generated PDF into a user-visible folder via the Storage
- * Access Framework. The chosen folder is remembered, so only the FIRST save
- * shows a folder picker — every later save is silent.
+ * Save the resume PDF to the device's Downloads folder.
  *
- * Returns 'saved' with the new file URI, or 'cancelled' if the user dismissed
- * the picker. Throws on a real write failure so the caller can fall back to
- * the share sheet.
- */
-async function saveViaStorageAccessFramework(
-  tempUri: string,
-  baseName: string,
-): Promise<{ status: 'saved'; uri: string } | { status: 'cancelled' }> {
-  const base64 = await readAsStringAsync(tempUri, { encoding: EncodingType.Base64 });
-
-  const writeInto = async (dirUri: string): Promise<string> => {
-    // createFileAsync appends the extension from the mime type, so pass the
-    // name WITHOUT ".pdf" to avoid producing "Name_Resume.pdf.pdf".
-    const fileUri = await StorageAccessFramework.createFileAsync(dirUri, baseName, 'application/pdf');
-    await writeAsStringAsync(fileUri, base64, { encoding: EncodingType.Base64 });
-    return fileUri;
-  };
-
-  // 1) Reuse the remembered folder for a silent save.
-  const cachedDir = await AsyncStorage.getItem(SAF_DIR_KEY).catch(() => null);
-  if (cachedDir) {
-    try {
-      return { status: 'saved', uri: await writeInto(cachedDir) };
-    } catch {
-      // Permission revoked or folder gone — forget it and ask again below.
-      await AsyncStorage.removeItem(SAF_DIR_KEY).catch(() => {});
-    }
-  }
-
-  // 2) Ask the user to choose a folder (one time).
-  const perm = await StorageAccessFramework.requestDirectoryPermissionsAsync();
-  if (!perm.granted || !perm.directoryUri) {
-    return { status: 'cancelled' };
-  }
-  await AsyncStorage.setItem(SAF_DIR_KEY, perm.directoryUri).catch(() => {});
-  return { status: 'saved', uri: await writeInto(perm.directoryUri) };
-}
-
-/**
- * Save the resume PDF to the device.
+ * Android (10+): writes straight into public Downloads via MediaStore — no
+ * folder picker, no permission. It "just downloads," like any browser file.
+ * This replaces the Storage Access Framework flow whose directory picker was
+ * confusing friction users abandoned ("create a folder to save this file").
  *
- * On Android this now performs a REAL save to a user-chosen folder (Downloads,
- * Documents, etc.) via the Storage Access Framework — previously it copied the
- * file into the app's private directory and opened a share sheet, so "Download"
- * confusingly looked like "Share" and the file was never findable.
- *
- * On iOS the share sheet IS the native "Save to Files" path, so we keep it.
+ * Fallback (Android 9 and below, or a rare MediaStore error) and iOS: the
+ * native share sheet, which doubles as "Save to Files".
  */
 export async function downloadPDFToDevice(
   resume: Resume,
@@ -219,7 +168,7 @@ export async function downloadPDFToDevice(
   options: PDFExportOptions = {}
 ): Promise<PDFExportResult> {
   try {
-    // First generate the PDF.
+    // First generate the PDF (lands in app cache).
     const result = await generatePDF(resume, template, options);
     if (!result.success || !result.uri) {
       return result;
@@ -227,27 +176,28 @@ export async function downloadPDFToDevice(
 
     const sanitizedName =
       resume.header.fullName?.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_') || 'Resume';
-    const baseName = `${sanitizedName}_Resume`;
+    const fileName = `${sanitizedName}_Resume.pdf`;
 
     if (Platform.OS === 'android') {
+      // Preferred path: direct, silent save to the public Downloads folder.
       try {
-        const saved = await saveViaStorageAccessFramework(result.uri, baseName);
-        if (saved.status === 'saved') {
-          ToastAndroid.show('Saved to your device ✓', ToastAndroid.LONG);
-          return { success: true, uri: saved.uri, method: 'saved' };
+        if (MediaStoreSaver && MediaStoreSaver.isSupported()) {
+          const savedUri = await MediaStoreSaver.saveToDownloads(
+            result.uri,
+            fileName,
+            'application/pdf',
+          );
+          ToastAndroid.show('Saved to Downloads ✓', ToastAndroid.LONG);
+          return { success: true, uri: savedUri, method: 'saved' };
         }
-        // User backed out of the folder picker — a quiet no-op, not an error.
-        return { success: false, cancelled: true };
-      } catch (androidError) {
-        // Real SAF failure (rare) — fall back to the share sheet so the user
-        // can still get their file out via Drive/Gmail/etc.
-        console.error('[PDFExport] SAF save failed, falling back to share:', androidError);
-        const shared = await generateAndSharePDF(resume, template, options);
-        return { ...shared, method: shared.success ? 'shared' : undefined };
+      } catch (mediaStoreError) {
+        // Rare (e.g. storage full) — fall through to the share sheet so the
+        // user can still get their file out.
+        console.error('[PDFExport] MediaStore save failed, sharing instead:', mediaStoreError);
       }
     }
 
-    // iOS — share sheet doubles as "Save to Files".
+    // iOS, Android < 10, or a MediaStore failure → share sheet ("Save to Files").
     const shared = await generateAndSharePDF(resume, template, options);
     return { ...shared, method: shared.success ? 'shared' : undefined };
   } catch (error) {
