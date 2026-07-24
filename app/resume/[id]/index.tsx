@@ -72,7 +72,11 @@ export default function ResumeEditor() {
     updateSummary,
   } = useResumeStore();
 
-  const { profile: linkedInProfile, isLoading: isLinkedInLoading } = useLinkedIn();
+  const {
+    profile: linkedInProfile,
+    isLoading: isLinkedInLoading,
+    isConfigured: isLinkedInConfigured,
+  } = useLinkedIn();
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [showMenuModal, setShowMenuModal] = useState(false);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
@@ -442,10 +446,10 @@ export default function ResumeEditor() {
                     opacity: section.isVisible ? 1 : 0.5,
                   }}
                 >
-                  <View className="mr-3">
-                    <GripVertical size={20} color={colors.textMuted} />
-                  </View>
-
+                  {/* A GripVertical "drag handle" used to render here, but
+                      nothing implements drag-to-reorder — it promised an
+                      interaction that silently did nothing. Removed until
+                      reordering actually ships. */}
                   <View
                     className="w-10 h-10 rounded-xl items-center justify-center mr-3"
                     style={{ backgroundColor: colors.primary + '15' }}
@@ -504,21 +508,11 @@ export default function ResumeEditor() {
             );
           })}
 
-        {/* Add Section Button */}
-        <Pressable
-          className="flex-row items-center justify-center p-4 rounded-xl mb-8"
-          style={{
-            backgroundColor: colors.surface,
-            borderWidth: 2,
-            borderColor: colors.border,
-            borderStyle: 'dashed',
-          }}
-        >
-          <Plus size={20} color={colors.textMuted} />
-          <Text className="ml-2" style={{ color: colors.textMuted }}>
-            Add Custom Section
-          </Text>
-        </Pressable>
+        {/* NOTE: an "Add Custom Section" button used to sit here with no
+            onPress at all — a dead control. Custom sections have no editor
+            yet, so rather than ship a button that does nothing we removed it.
+            Re-add it together with the editor. */}
+        <View className="h-8" />
       </ScrollView>
 
       {/* Bottom Action Bar */}
@@ -572,29 +566,34 @@ export default function ResumeEditor() {
               </Pressable>
             </View>
 
-            {/* LinkedIn Import Option */}
-            <View className="mb-4">
-              <Text
-                className="text-sm font-medium mb-3 uppercase"
-                style={{ color: colors.textMuted }}
-              >
-                Import Data
-              </Text>
-              <LinkedInImportButton
-                fullWidth
-                variant="solid"
-                label="Import from LinkedIn"
-                onSuccess={handleLinkedInSuccess}
-                onError={handleLinkedInError}
-                disabled={isLinkedInLoading}
-              />
-              <Text
-                className="text-xs mt-2 text-center"
-                style={{ color: colors.textMuted }}
-              >
-                Import your profile, experience, and skills from LinkedIn
-              </Text>
-            </View>
+            {/* LinkedIn Import — only shown when LinkedIn OAuth is actually
+                configured. Without EXPO_PUBLIC_LINKEDIN_CLIENT_ID every tap
+                just produced a "not configured, contact support" alert, so
+                the button was pure frustration. */}
+            {isLinkedInConfigured && (
+              <View className="mb-4">
+                <Text
+                  className="text-sm font-medium mb-3 uppercase"
+                  style={{ color: colors.textMuted }}
+                >
+                  Import Data
+                </Text>
+                <LinkedInImportButton
+                  fullWidth
+                  variant="solid"
+                  label="Import from LinkedIn"
+                  onSuccess={handleLinkedInSuccess}
+                  onError={handleLinkedInError}
+                  disabled={isLinkedInLoading}
+                />
+                <Text
+                  className="text-xs mt-2 text-center"
+                  style={{ color: colors.textMuted }}
+                >
+                  Import your profile, experience, and skills from LinkedIn
+                </Text>
+              </View>
+            )}
 
             {/* Additional Menu Options */}
             <View className="mt-4 pt-4 border-t" style={{ borderColor: colors.border }}>

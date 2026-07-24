@@ -268,7 +268,10 @@ export const useAuthStore = create<AuthState>()(
           // Delete the user account using Supabase Edge Function or RPC
           // Note: Direct user deletion requires admin privileges
           // We use an RPC function that handles this securely
-          const { error: deleteError } = await supabase.rpc('delete_user_account');
+          // Cast: the generated Supabase types don't include this RPC (they
+          // haven't been regenerated since the function was added). Safe at
+          // runtime — the function exists in the database.
+          const { error: deleteError } = await (supabase.rpc as any)('delete_user_account');
 
           if (deleteError) {
             // If RPC fails, try signing out and let user know to contact support

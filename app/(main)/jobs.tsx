@@ -25,7 +25,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { Search, MapPin, Briefcase, X, Building2 } from 'lucide-react-native';
+import { Search, MapPin, Briefcase, X, Building2, Globe } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useUIStore } from '@/stores/uiStore';
 import { useJobStore } from '@/stores/jobStore';
@@ -104,6 +104,9 @@ function JobCard({ job, onPress, colors, index }: { job: Job; onPress: () => voi
               {job.publishedAt ? (
                 <Text style={{ fontSize: 11, color: colors.textMuted }}>{jobAge(job.publishedAt)}</Text>
               ) : null}
+              {job.source ? (
+                <Text style={{ fontSize: 10, color: colors.textMuted }}>· {job.source}</Text>
+              ) : null}
             </View>
           </View>
         </View>
@@ -123,6 +126,8 @@ export default function Jobs() {
   const seed = lastQuery || onboardingProfile.targetRole?.trim() || '';
   const [query, setQuery] = useState(seed);
   const [submitted, setSubmitted] = useState(seed);
+  const [location, setLocation] = useState('');
+  const [remoteOnly, setRemoteOnly] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -130,16 +135,21 @@ export default function Jobs() {
   const abortRef = useRef<AbortController | null>(null);
 
   const load = useCallback(
-    async (q: string, isRefresh = false) => {
+    async (q: string, loc: string, remote: boolean, isRefresh = false) => {
       abortRef.current?.abort();
       const ctrl = new AbortController();
       abortRef.current = ctrl;
       if (!isRefresh) setLoading(true);
       setError(null);
       try {
-        const { jobs: found } = await searchJobs(q, { signal: ctrl.signal });
+        const { jobs: found } = await searchJobs(q, { location: loc, remoteOnly: remote, signal: ctrl.signal });
         setJobs(found);
-        track(ANALYTICS_EVENTS.JOBS_SEARCHED, { query: q.slice(0, 60), results: found.length });
+        track(ANALYTICS_EVENTS.JOBS_SEARCHED, {
+          query: q.slice(0, 60),
+          location: loc.slice(0, 40),
+          remote_only: remote,
+          results: found.length,
+        });
       } catch (e: any) {
         if (e?.name === 'AbortError') return;
         setError("Couldn't load jobs. Check your connection and try again.");
@@ -153,20 +163,20 @@ export default function Jobs() {
 
   useEffect(() => {
     track(ANALYTICS_EVENTS.JOBS_FEED_OPENED, { seeded: !!seed });
-    load(submitted);
+    load(submitted, '', false);
     return () => abortRef.current?.abort();
   }, []);
 
   const runSearch = useCallback(
-    (q: string) => {
+    (q: string, loc = location, remote = remoteOnly) => {
       Keyboard.dismiss();
       if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       setQuery(q);
       setSubmitted(q);
       setLastQuery(q);
-      load(q);
+      load(q, loc, remote);
     },
-    [load, hapticEnabled, setLastQuery],
+    [load, hapticEnabled, setLastQuery, location, remoteOnly],
   );
 
   const openJob = useCallback(
@@ -222,6 +232,55 @@ export default function Jobs() {
                 </Pressable>
               )}
             </View>
+
+            {/* Location + remote filter — real local jobs, not just remote. */}
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(255,255,255,0.95)',
+                  borderRadius: 14,
+                  paddingHorizontal: 14,
+                }}
+              >
+                <MapPin size={16} color="#64748B" />
+                <TextInput
+                  value={location}
+                  onChangeText={setLocation}
+                  onSubmitEditing={() => runSearch(query, location, false)}
+                  placeholder="City (optional)"
+                  placeholderTextColor="#94A3B8"
+                  returnKeyType="search"
+                  editable={!remoteOnly}
+                  style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 8, fontSize: 14, color: '#0F172A', opacity: remoteOnly ? 0.45 : 1 }}
+                />
+              </View>
+              <Pressable
+                onPress={() => {
+                  const next = !remoteOnly;
+                  if (hapticEnabled) Haptics.selectionAsync();
+                  setRemoteOnly(next);
+                  if (next) setLocation('');
+                  runSearch(query, next ? '' : location, next);
+                }}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 14,
+                  borderRadius: 14,
+                  backgroundColor: remoteOnly ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.2)',
+                  borderWidth: 1.5,
+                  borderColor: remoteOnly ? 'white' : 'rgba(255,255,255,0.4)',
+                }}
+              >
+                <Globe size={15} color={remoteOnly ? '#0E7490' : 'white'} />
+                <Text style={{ marginLeft: 6, fontSize: 13, fontWeight: '700', color: remoteOnly ? '#0E7490' : 'white' }}>
+                  Remote
+                </Text>
+              </Pressable>
+            </View>
           </View>
         </SafeAreaView>
       </LinearGradient>
@@ -265,7 +324,7 @@ export default function Jobs() {
           <Text style={{ fontSize: 40, marginBottom: 12 }}>📡</Text>
           <Text style={{ color: colors.text, fontWeight: '600', textAlign: 'center' }}>{error}</Text>
           <Pressable
-            onPress={() => load(submitted)}
+            onPress={() => load(submitted, location, remoteOnly)}
             style={{ marginTop: 16, backgroundColor: colors.primary, borderRadius: 12, paddingHorizontal: 22, paddingVertical: 12 }}
           >
             <Text style={{ color: 'white', fontWeight: '700' }}>Try again</Text>
@@ -292,7 +351,7 @@ export default function Jobs() {
               refreshing={refreshing}
               onRefresh={() => {
                 setRefreshing(true);
-                load(submitted, true);
+                load(submitted, location, remoteOnly, true);
               }}
               tintColor={colors.primary}
             />

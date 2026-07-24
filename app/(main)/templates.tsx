@@ -15,6 +15,7 @@ import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import { usePremium } from '@/hooks/usePremium';
 import { PaywallModal } from '@/components/features/paywall/PaywallModal';
 import { LayoutThumb } from '@/components/features/templates';
+import { useGamification } from '@/hooks/useGamification';
 
 const CATEGORY_FILTERS: Array<{ key: TemplateCategory | 'all'; label: string }> = [
   { key: 'all', label: 'All' },
@@ -271,6 +272,7 @@ export default function Templates() {
   const { hapticEnabled } = useUIStore();
 
   const { isPremium } = usePremium();
+  const { trackTemplateViewed } = useGamification();
   const [paywallVisible, setPaywallVisible] = useState(false);
   // The Pro template the user is previewing (null = sheet closed). Tapping a
   // locked template opens this sheet instead of an instant paywall.
@@ -334,6 +336,9 @@ export default function Templates() {
     }
     setSelectedTemplate(template.id);
     // Analytics: which templates win?
+    // XP: this was never called, so the "Template Hunter" achievement
+    // (view 10 templates) could never unlock.
+    trackTemplateViewed();
     track(ANALYTICS_EVENTS.TEMPLATE_SELECTED, {
       template_id: template.id,
       template_name: template.name,

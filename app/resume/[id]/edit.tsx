@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useResumeStore } from '@/stores/resumeStore';
 import { useUIStore } from '@/stores/uiStore';
 import { useGenerateSummary, useEnhanceBullets, useSuggestSkills } from '@/hooks/useAI';
+import { useGamification } from '@/hooks/useGamification';
 import { buildContextFromResume } from '@/services/ai/resumeAI';
 import { AISuggestionCard } from '@/components/features/ai-assistant';
 import { Button, Input, Card, SavePromptModal, MonthYearPicker, PhotoPicker } from '@/components/ui';
@@ -105,6 +106,8 @@ export default function EditSection() {
     reset: resetSkills,
   } = useSuggestSkills();
 
+  const { trackSectionCompleted } = useGamification();
+
   // State for AI suggestions
   const [selectedSummaryIndex, setSelectedSummaryIndex] = useState<number | null>(null);
   const [enhancingExperienceId, setEnhancingExperienceId] = useState<string | null>(null);
@@ -112,6 +115,10 @@ export default function EditSection() {
 
   const handleBack = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // XP: award section-completion progress on the way out. This call site
+    // was missing entirely, so filling in your resume earned nothing and the
+    // "sectionsCompleted" achievements could never unlock.
+    trackSectionCompleted();
     router.back();
   };
 

@@ -430,10 +430,15 @@ export function AIFloatingButton({
 
           {/* AI Options */}
           <View style={{ paddingTop: 8 }}>
+            {/* These items NAVIGATE to the section where the AI tools live —
+                they don't generate inline. Labels say "Write/Improve…" rather
+                than "Generate…" so the menu doesn't promise an action it
+                doesn't perform (the old copy claimed it created content, then
+                just changed screens). */}
             <AIOptionItem
               icon={<FileText size={22} color={colors.primary} />}
-              title="Generate Summary"
-              description="Create a professional summary from your experience"
+              title="Write my summary"
+              description="Open the summary editor with AI suggestions"
               onPress={() => handleOptionPress(onGenerateSummary)}
               delay={100}
               isLoading={isGenerating && currentOperation?.includes('summary')}
@@ -441,8 +446,8 @@ export function AIFloatingButton({
 
             <AIOptionItem
               icon={<Zap size={22} color={colors.primary} />}
-              title="Enhance All Bullets"
-              description="Make your experience achievements stand out"
+              title="Improve my bullet points"
+              description="Open experience, where AI can rewrite each bullet"
               onPress={() => handleOptionPress(onEnhanceAllBullets)}
               delay={150}
               isLoading={isGenerating && currentOperation?.includes('bullet')}
@@ -450,8 +455,8 @@ export function AIFloatingButton({
 
             <AIOptionItem
               icon={<Lightbulb size={22} color={colors.primary} />}
-              title="Suggest Skills"
-              description="Get AI-recommended skills for your role"
+              title="Add skills"
+              description="Open skills, with AI recommendations for your role"
               onPress={() => handleOptionPress(onSuggestSkills)}
               delay={200}
               isLoading={isGenerating && currentOperation?.includes('skill')}
@@ -459,8 +464,8 @@ export function AIFloatingButton({
 
             <AIOptionItem
               icon={<Target size={22} color={colors.primary} />}
-              title="Score Resume"
-              description="Get an AI analysis of your resume"
+              title="Score my resume"
+              description="See your AI resume score and how to improve it"
               onPress={() => handleOptionPress(onScoreResume)}
               delay={250}
               isLoading={isGenerating && currentOperation?.includes('score')}

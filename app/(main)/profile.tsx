@@ -33,6 +33,7 @@ import {
   Share2,
   Users,
   BellRing,
+  RefreshCw,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useGamification } from '@/hooks/useGamification';
@@ -558,6 +559,36 @@ export default function Profile() {
                 showChevron={false}
               />
             )}
+          </Animated.View>
+
+          {/* Subscription Section.
+              Google Play's billing policy requires a subscriber to be able to
+              manage/cancel from inside the app. Both handlers were already
+              implemented but never rendered — a subscribed user had no in-app
+              way to manage, cancel, or restore. */}
+          <Animated.View entering={FadeInUp.delay(460)} className="mt-6">
+            <Text
+              className="text-sm font-medium mb-3 uppercase"
+              style={{ color: colors.textMuted }}
+            >
+              Subscription
+            </Text>
+
+            {isPremium && (
+              <SettingItem
+                icon={Crown}
+                label="Manage subscription"
+                value={activeTier ? activeTier[0].toUpperCase() + activeTier.slice(1) : undefined}
+                onPress={handleManageSubscription}
+              />
+            )}
+
+            <SettingItem
+              icon={RefreshCw}
+              label="Restore purchases"
+              onPress={handleRestorePurchases}
+              showChevron={false}
+            />
           </Animated.View>
 
           {/* Social Section */}

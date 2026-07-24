@@ -59,7 +59,7 @@ export interface UseSyncReturn {
 
 export function useSync(): UseSyncReturn {
   const { user, isAuthenticated } = useAuthStore();
-  const { getAllResumes, setResumes } = useResumeStore();
+  const { getAllResumes, mergeResumes } = useResumeStore();
 
   const [syncState, setSyncState] = useState<SyncState>(syncService.getState());
   const [isOnline, setIsOnline] = useState(true);
@@ -116,7 +116,9 @@ export function useSync(): UseSyncReturn {
       if (user?.id && isAuthenticated) {
         syncService.fetchResumes(user.id).then((serverResumes) => {
           if (serverResumes.length > 0) {
-            setResumes(serverResumes);
+            // Merge, never replace — see the note in refresh(). A realtime
+            // sync event must not wipe resumes that only exist locally.
+            mergeResumes(serverResumes);
           }
         }).catch((err) => {
           console.error('[useSync] Failed to refresh after sync event:', err);
@@ -127,7 +129,7 @@ export function useSync(): UseSyncReturn {
     // Use DeviceEventEmitter for React Native event handling
     const subscription = DeviceEventEmitter.addListener('resume-sync', handleSyncEvent);
     return () => subscription.remove();
-  }, [user?.id, isAuthenticated, setResumes]);
+  }, [user?.id, isAuthenticated, mergeResumes]);
 
   /**
    * Manually trigger sync
@@ -156,11 +158,13 @@ export function useSync(): UseSyncReturn {
 
     const serverResumes = await syncService.fetchResumes(user.id);
     if (serverResumes.length > 0) {
-      // Merge server data with local data
-      // Server data takes precedence for now
-      setResumes(serverResumes);
+      // DATA-LOSS FIX: this used to call setResumes(), which REPLACES the
+      // whole local map — so pull-to-refresh silently deleted any resume that
+      // hadn't synced yet. mergeResumes() keeps local-only resumes and
+      // resolves overlaps by updatedAt (newest wins).
+      mergeResumes(serverResumes);
     }
-  }, [isAuthenticated, user?.id, setResumes]);
+  }, [isAuthenticated, user?.id, mergeResumes]);
 
   return {
     status: syncState.status,

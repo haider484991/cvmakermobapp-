@@ -21,9 +21,13 @@ export interface Job {
   description: string;
   tags: string[];
   remote: boolean;
+  /** Which board this came from — shown as a small credit on the card. */
+  source?: string;
 }
 
 export interface JobSearchResult {
   jobs: Job[];
   total: number;
+  /** Per-source result counts [muse, remotive, jobicy] — for diagnostics. */
+  sources?: number[];
 }

@@ -553,26 +553,36 @@ function educationBlock(items: Education[], opts: BlockOpts): string {
 
 /* ---- Proficiency helpers (drive skill bars + rating dots) ---------------- */
 
-// When a skill has no explicit level we vary the fill so bars don't look like
-// a flat block of identical lengths — reads as real, hand-tuned proficiency.
-const SKILL_FALLBACK_PCT = [94, 84, 90, 80, 96, 86, 82, 92, 88];
-function levelToPct(level: Skill['level'], i: number): number {
+// HONESTY: we never invent a proficiency the user didn't enter. An earlier
+// version filled unrated skills with random-looking 80-96% bars so they
+// "read as real" — that puts a claim on the user's actual resume that they
+// never made. Unrated skills now fall back to a neutral full bar (the skill
+// is simply listed, not scored).
+const UNRATED_PCT = 100;
+const UNRATED_DOTS = 5;
+function levelToPct(level: Skill['level']): number {
   switch (level) {
     case 'expert': return 100;
     case 'advanced': return 85;
     case 'intermediate': return 66;
     case 'beginner': return 45;
-    default: return SKILL_FALLBACK_PCT[i % SKILL_FALLBACK_PCT.length];
+    default: return UNRATED_PCT;
   }
 }
-function levelToDots(level: Skill['level'], i: number): number {
+function levelToDots(level: Skill['level']): number {
   switch (level) {
     case 'expert': return 5;
     case 'advanced': return 4;
     case 'intermediate': return 3;
     case 'beginner': return 2;
-    default: return [5, 4, 5, 4, 4, 5][i % 6];
+    default: return UNRATED_DOTS;
   }
+}
+
+/** True when at least one skill has a user-set level — otherwise a meter
+ *  chart is meaningless and we render plain chips instead. */
+function anyRated(items: Skill[]): boolean {
+  return items.some((s) => !!s.level);
 }
 function profToDots(p: Language['proficiency']): number {
   switch (p) {
@@ -594,16 +604,18 @@ function skillsBlock(items: Skill[], opts: BlockOpts): string {
   const onPanel = opts.surface === 'panel';
   const style = opts.t.skillStyle;
 
-  // Premium: horizontal proficiency bars.
-  if (style === 'bars') {
+  // Premium: horizontal proficiency bars. Only when the user actually rated
+  // skills — otherwise every bar would be identical, which looks broken and
+  // says nothing.
+  if (style === 'bars' && anyRated(items)) {
     return `
       <section class="rb-section">
         ${sectionTitle('Skills', opts)}
         <div class="rb-skillbars">
           ${items
             .map(
-              (s, i) =>
-                `<div class="rb-skillbar"><span class="rb-skillbar-label">${esc(s.name)}</span><span class="rb-skillbar-track"><span class="rb-skillbar-fill" style="width:${levelToPct(s.level, i)}%"></span></span></div>`,
+              (s) =>
+                `<div class="rb-skillbar"><span class="rb-skillbar-label">${esc(s.name)}</span><span class="rb-skillbar-track"><span class="rb-skillbar-fill" style="width:${levelToPct(s.level)}%"></span></span></div>`,
             )
             .join('')}
         </div>
@@ -611,16 +623,16 @@ function skillsBlock(items: Skill[], opts: BlockOpts): string {
     `;
   }
 
-  // Premium: 5-dot rating per skill.
-  if (style === 'dots') {
+  // Premium: 5-dot rating per skill (same rule as bars).
+  if (style === 'dots' && anyRated(items)) {
     return `
       <section class="rb-section">
         ${sectionTitle('Skills', opts)}
         <div class="rb-ratings">
           ${items
             .map(
-              (s, i) =>
-                `<div class="rb-rating"><span class="rb-rating-label">${esc(s.name)}</span><span class="rb-rating-dots">${dotsHtml(levelToDots(s.level, i))}</span></div>`,
+              (s) =>
+                `<div class="rb-rating"><span class="rb-rating-label">${esc(s.name)}</span><span class="rb-rating-dots">${dotsHtml(levelToDots(s.level))}</span></div>`,
             )
             .join('')}
         </div>

@@ -91,7 +91,7 @@ export function AchievementUnlockModal({
         }}
       >
         {/* Confetti */}
-        {visible && <Confetti count={60} duration={4000} />}
+        {visible && <Confetti active count={60} duration={4000} />}
 
         <Animated.View
           entering={ZoomIn.duration(400)}

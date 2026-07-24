@@ -39,6 +39,17 @@ export const colors = {
 export const gradientColors = {
   // Main gradient: teal → cyan → blue
   primary: ['#14B8A6', '#0EA5E9', '#2563EB'] as const,
+  /**
+   * Two-stop brand gradient for cards/CTAs.
+   *
+   * Use this instead of `[colors.primary, '#06B6D4']`: in dark mode
+   * `colors.primary` IS `#06B6D4`, so that pairing collapsed into a flat
+   * solid color. These are fixed brand stops, so the gradient reads the same
+   * in both themes.
+   */
+  brand: ['#0E7490', '#06B6D4'] as const,
+  /** Accent gradient for secondary/AI surfaces (violet → brand cyan). */
+  accent: ['#7C3AED', '#0891B2'] as const,
   // Lighter variant
   light: ['#5EEAD4', '#67E8F9', '#93C5FD'] as const,
   // Darker variant
