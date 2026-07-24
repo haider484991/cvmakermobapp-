@@ -18,6 +18,7 @@ export default function ResumeLayout() {
             <Stack.Screen name="export" />
             <Stack.Screen name="tailor" />
             <Stack.Screen name="cover-letter" />
+            <Stack.Screen name="versions" />
         </Stack>
     );
 }

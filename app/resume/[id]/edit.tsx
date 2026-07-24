@@ -8,7 +8,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 import { useResumeStore } from '@/stores/resumeStore';
 import { useUIStore } from '@/stores/uiStore';
-import { useGenerateSummary, useEnhanceBullets, useSuggestSkills } from '@/hooks/useAI';
+import { useGenerateSummary, useEnhanceBullets, useSuggestSkills, useEnhanceSingleBullet } from '@/hooks/useAI';
 import { useGamification } from '@/hooks/useGamification';
 import { buildContextFromResume } from '@/services/ai/resumeAI';
 import { AISuggestionCard } from '@/components/features/ai-assistant';
@@ -123,12 +123,16 @@ export default function EditSection() {
     reset: resetSkills,
   } = useSuggestSkills();
 
+  const { enhanceBulletAsync } = useEnhanceSingleBullet();
+
   const { trackSectionCompleted } = useGamification();
 
   // State for AI suggestions
   const [selectedSummaryIndex, setSelectedSummaryIndex] = useState<number | null>(null);
   const [enhancingExperienceId, setEnhancingExperienceId] = useState<string | null>(null);
   const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
+  /** "<experienceId>:<bulletIndex>" while that bullet is being rewritten. */
+  const [enhancingBulletKey, setEnhancingBulletKey] = useState<string | null>(null);
 
   const handleBack = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -197,6 +201,40 @@ export default function EditSection() {
       }
     },
     [enhanceBulletsAsync]
+  );
+
+  /**
+   * Rewrite a single bullet in place. Distinct from "Enhance all bullets",
+   * which returns a review card for the whole role — this is the quick,
+   * targeted fix on the line you're actually looking at.
+   */
+  const handleEnhanceOneBullet = useCallback(
+    async (experience: WorkExperience, bullets: string[], index: number) => {
+      const original = bullets[index];
+      if (!original?.trim() || enhancingBulletKey) return;
+      if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setEnhancingBulletKey(`${experience.id}:${index}`);
+      try {
+        const improved = await enhanceBulletAsync({
+          bullet: original,
+          jobTitle: experience.title,
+        });
+        if (improved?.trim()) {
+          const next = [...bullets];
+          next[index] = improved.trim();
+          updateExperience(id, experience.id, {
+            bullets: next,
+            description: next.filter(Boolean).join('\n'),
+          });
+          if (hapticEnabled) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+      } catch {
+        // Surfaced by the AI store's error state; leave the original text.
+      } finally {
+        setEnhancingBulletKey(null);
+      }
+    },
+    [enhancingBulletKey, hapticEnabled, enhanceBulletAsync, id, updateExperience],
   );
 
   const handleApplyEnhancedBullets = useCallback(
@@ -678,22 +716,45 @@ export default function EditSection() {
                         lineHeight: 19,
                       }}
                     />
-                    {bullets.length > 1 && (
-                      <Pressable
-                        onPress={() => {
-                          if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                          const next = bullets.filter((_, i) => i !== bIdx);
-                          wrappedUpdateExperience(exp.id, {
-                            bullets: next,
-                            description: next.filter(Boolean).join('\n'),
-                          });
-                        }}
-                        hitSlop={6}
-                        style={{ paddingLeft: 8, paddingTop: 12 }}
-                      >
-                        <Trash2 size={16} color={colors.textMuted} />
-                      </Pressable>
-                    )}
+                    {/* Per-bullet AI rewrite. `useEnhanceSingleBullet` was
+                        fully implemented but had no caller anywhere — this is
+                        the highest-delight editor interaction and it was
+                        sitting unused. Only shown once there's text to improve. */}
+                    <View style={{ paddingLeft: 6, paddingTop: 10 }}>
+                      {bullet.trim().length > 8 && (
+                        <Pressable
+                          onPress={() => handleEnhanceOneBullet(exp, bullets, bIdx)}
+                          disabled={enhancingBulletKey !== null}
+                          hitSlop={6}
+                          style={{ paddingBottom: 6 }}
+                          accessibilityRole="button"
+                          accessibilityLabel="Improve this bullet with AI"
+                        >
+                          {enhancingBulletKey === `${exp.id}:${bIdx}` ? (
+                            <ActivityIndicator size="small" color={colors.primary} />
+                          ) : (
+                            <Sparkles size={16} color={colors.primary} />
+                          )}
+                        </Pressable>
+                      )}
+                      {bullets.length > 1 && (
+                        <Pressable
+                          onPress={() => {
+                            if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            const next = bullets.filter((_, i) => i !== bIdx);
+                            wrappedUpdateExperience(exp.id, {
+                              bullets: next,
+                              description: next.filter(Boolean).join('\n'),
+                            });
+                          }}
+                          hitSlop={6}
+                          accessibilityRole="button"
+                          accessibilityLabel="Delete bullet"
+                        >
+                          <Trash2 size={16} color={colors.textMuted} />
+                        </Pressable>
+                      )}
+                    </View>
                   </View>
                 ));
               })()}

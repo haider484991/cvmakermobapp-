@@ -40,6 +40,7 @@ import {
   X,
   ChevronUp,
   ChevronDown,
+  History,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { SectionType, Resume } from '@/types/resume';
@@ -787,6 +788,27 @@ export default function ResumeEditor() {
                 </View>
                 <Text className="flex-1 text-base" style={{ color: colors.text }}>
                   Export to PDF
+                </Text>
+                <ChevronRight size={20} color={colors.textMuted} />
+              </Pressable>
+
+              {/* Version history — versionService + useVersions were fully
+                  built (580 lines) with no UI consumer at all. */}
+              <Pressable
+                onPress={() => {
+                  setShowMenuModal(false);
+                  router.push(`/resume/${resumeId}/versions`);
+                }}
+                className="flex-row items-center py-3"
+              >
+                <View
+                  className="w-10 h-10 rounded-xl items-center justify-center mr-3"
+                  style={{ backgroundColor: colors.primary + '15' }}
+                >
+                  <History size={20} color={colors.primary} />
+                </View>
+                <Text className="flex-1 text-base" style={{ color: colors.text }}>
+                  Version History
                 </Text>
                 <ChevronRight size={20} color={colors.textMuted} />
               </Pressable>
