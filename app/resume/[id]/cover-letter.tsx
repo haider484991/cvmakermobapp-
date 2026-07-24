@@ -26,7 +26,7 @@ import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import * as Clipboard from 'expo-clipboard';
-import { ArrowLeft, Mail, Copy, Share2, Sparkles, Lock, Check, RefreshCw } from 'lucide-react-native';
+import { Mail, Copy, Share2, Sparkles, Lock, Check, RefreshCw, FileQuestion } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useUIStore } from '@/stores/uiStore';
 import { useResumeStore } from '@/stores/resumeStore';
@@ -35,7 +35,9 @@ import { usePremium } from '@/hooks/usePremium';
 import { usePurchasesStore, selectIsPremium } from '@/stores/purchasesStore';
 import { useCoverLetter } from '@/hooks/useAI';
 import { PaywallModal } from '@/components/features/paywall/PaywallModal';
+import { ScreenHeader, StateView } from '@/components/ui';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { gradientColors } from '@/constants/theme';
 
 const MIN_JD_CHARS = 60;
 const MAX_JD_CHARS = 12000;
@@ -112,8 +114,16 @@ export default function CoverLetter() {
 
   if (!resume) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ color: colors.textSecondary }}>Resume not found</Text>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <ScreenHeader title="AI Cover Letter" onBack={handleBack} />
+        <StateView
+          variant="error"
+          icon={FileQuestion}
+          title="Resume not found"
+          message="This resume may have been deleted."
+          actionLabel="Go back"
+          onAction={handleBack}
+        />
       </SafeAreaView>
     );
   }
@@ -121,16 +131,7 @@ export default function CoverLetter() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        {/* Header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 }}>
-          <Pressable onPress={handleBack} hitSlop={8} style={{ padding: 4 }}>
-            <ArrowLeft size={22} color={colors.text} />
-          </Pressable>
-          <Text style={{ flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600', color: colors.text }}>
-            AI Cover Letter
-          </Text>
-          <View style={{ width: 30 }} />
-        </View>
+        <ScreenHeader title="AI Cover Letter" onBack={handleBack} />
 
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }} keyboardShouldPersistTaps="handled">
           {letter ? (
@@ -217,7 +218,7 @@ export default function CoverLetter() {
             <>
               <Animated.View entering={FadeInUp.duration(300)}>
                 <LinearGradient
-                  colors={['#7C3AED', colors.primary]}
+                  colors={gradientColors.accent}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{ borderRadius: 16, padding: 20, marginBottom: 18 }}

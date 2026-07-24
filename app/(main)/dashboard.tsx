@@ -284,7 +284,7 @@ export default function Dashboard() {
             className="rounded-2xl overflow-hidden"
           >
             <LinearGradient
-              colors={[colors.primary, '#06B6D4']}
+              colors={gradientColors.brand}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{ padding: 18, flexDirection: 'row', alignItems: 'center' }}

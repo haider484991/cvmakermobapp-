@@ -39,6 +39,7 @@ import { usePurchasesStore } from '@/stores/purchasesStore';
 import { buyProduct, restorePurchases } from '@/services/purchases/purchases';
 import type { Offering } from '@/services/purchases/purchases';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { gradientColors } from '@/constants/theme';
 
 interface Props {
   visible: boolean;
@@ -188,7 +189,7 @@ export function PaywallModal({ visible, onClose, trigger = 'generic' }: Props) {
           {/* Hero */}
           <Animated.View entering={FadeIn.duration(300)}>
             <LinearGradient
-              colors={[colors.primary, '#06B6D4']}
+              colors={gradientColors.brand}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{

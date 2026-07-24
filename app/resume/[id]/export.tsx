@@ -34,6 +34,7 @@ import {
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import type { PaperSize } from '@/services/pdf';
+import { gradientColors } from '@/constants/theme';
 
 export default function ExportResume() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -514,7 +515,7 @@ export default function ExportResume() {
                 className="rounded-xl mb-3 overflow-hidden"
               >
                 <LinearGradient
-                  colors={[colors.primary, '#06B6D4']}
+                  colors={gradientColors.brand}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{ padding: 16, flexDirection: 'row', alignItems: 'center' }}

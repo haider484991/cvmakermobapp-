@@ -24,6 +24,7 @@ import { useJobStore } from '@/stores/jobStore';
 import { useResumeStore } from '@/stores/resumeStore';
 import { jobAge } from '@/services/jobs/jobsApi';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { gradientColors } from '@/constants/theme';
 
 export default function JobDetail() {
   const router = useRouter();
@@ -109,7 +110,7 @@ export default function JobDetail() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
-      <LinearGradient colors={[colors.primary, '#06B6D4']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+      <LinearGradient colors={gradientColors.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
         <SafeAreaView edges={['top']}>
           <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20 }}>
             <Pressable onPress={handleBack} hitSlop={10} style={{ padding: 4, marginBottom: 8 }}>
@@ -167,7 +168,7 @@ export default function JobDetail() {
         <Animated.View entering={FadeInUp.duration(300)}>
           <Pressable onPress={() => goWithJob('tailor')} style={{ borderRadius: 16, overflow: 'hidden' }}>
             <LinearGradient
-              colors={[colors.primary, '#06B6D4']}
+              colors={gradientColors.brand}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{ padding: 18, flexDirection: 'row', alignItems: 'center' }}

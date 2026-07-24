@@ -31,6 +31,7 @@ import { Confetti, PageIndicator } from '@/components/ui';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import { greetingName } from '@/services/onboarding/personalize';
 import * as Haptics from 'expo-haptics';
+import { gradientColors } from '@/constants/theme';
 
 type PathCardProps = {
   icon: any;
@@ -86,7 +87,7 @@ function PathCard({ icon: Icon, title, subtitle, onPress, colors, recommended, l
     <Animated.View entering={FadeInUp.delay(delay).duration(500).springify()}>
       <Pressable onPress={onPress} disabled={loading} style={{ borderRadius: 18, overflow: 'hidden', opacity: loading ? 0.8 : 1 }}>
         {isGradient ? (
-          <LinearGradient colors={[colors.primary, '#06B6D4']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+          <LinearGradient colors={gradientColors.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
             {body}
           </LinearGradient>
         ) : (

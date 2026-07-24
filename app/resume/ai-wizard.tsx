@@ -35,7 +35,6 @@ import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import {
-  ArrowLeft,
   Sparkles,
   Lightbulb,
   AlertCircle,
@@ -48,7 +47,9 @@ import { useResumeStore } from '@/stores/resumeStore';
 import { useStructureFromNarrative } from '@/hooks/useAI';
 import { mapParsedDataToResume } from '@/services/fileImport/resumeMapper';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { ScreenHeader } from '@/components/ui';
 import { seedNarrative } from '@/services/onboarding/personalize';
+import { gradientColors } from '@/constants/theme';
 
 const MIN_CHARS = 30;
 const MAX_CHARS = 6000;
@@ -184,26 +185,7 @@ export default function AIWizard() {
     const d = result.data;
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: colors.border,
-          }}
-        >
-          <Pressable onPress={handleRetry} hitSlop={8} style={{ padding: 4 }}>
-            <ArrowLeft size={22} color={colors.text} />
-          </Pressable>
-          <Text
-            style={{ flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600', color: colors.text }}
-          >
-            Review
-          </Text>
-          <View style={{ width: 30 }} />
-        </View>
+        <ScreenHeader title="Review" onBack={handleRetry} />
 
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
           {/* Confidence + warnings */}
@@ -387,30 +369,13 @@ export default function AIWizard() {
         style={{ flex: 1 }}
       >
         {/* Header */}
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-          }}
-        >
-          <Pressable onPress={handleBack} hitSlop={8} style={{ padding: 4 }}>
-            <ArrowLeft size={22} color={colors.text} />
-          </Pressable>
-          <Text
-            style={{ flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600', color: colors.text }}
-          >
-            Build with AI
-          </Text>
-          <View style={{ width: 30 }} />
-        </View>
+        <ScreenHeader title="Build with AI" onBack={handleBack} />
 
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }} keyboardShouldPersistTaps="handled">
           {/* Hero */}
           <Animated.View entering={FadeInUp.duration(300)}>
             <LinearGradient
-              colors={[colors.primary, '#06B6D4']}
+              colors={gradientColors.brand}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{ borderRadius: 16, padding: 20, marginBottom: 20 }}

@@ -30,7 +30,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { ArrowLeft, Target, Check, X, Sparkles, Lock } from 'lucide-react-native';
+import { Target, Check, X, Sparkles, Lock, FileQuestion } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useUIStore } from '@/stores/uiStore';
 import { useResumeStore } from '@/stores/resumeStore';
@@ -39,7 +39,9 @@ import { usePremium } from '@/hooks/usePremium';
 import { usePurchasesStore, selectIsPremium } from '@/stores/purchasesStore';
 import { useTailorToJob } from '@/hooks/useAI';
 import { PaywallModal } from '@/components/features/paywall/PaywallModal';
+import { ScreenHeader, StateView } from '@/components/ui';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { gradientColors } from '@/constants/theme';
 
 const MIN_JD_CHARS = 60;
 const MAX_JD_CHARS = 12000;
@@ -147,8 +149,16 @@ export default function TailorToJob() {
 
   if (!resume) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ color: colors.textSecondary }}>Resume not found</Text>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+        <ScreenHeader title="Tailor to a Job" onBack={handleBack} />
+        <StateView
+          variant="error"
+          icon={FileQuestion}
+          title="Resume not found"
+          message="This resume may have been deleted."
+          actionLabel="Go back"
+          onAction={handleBack}
+        />
       </SafeAreaView>
     );
   }
@@ -156,16 +166,7 @@ export default function TailorToJob() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        {/* Header */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12 }}>
-          <Pressable onPress={handleBack} hitSlop={8} style={{ padding: 4 }}>
-            <ArrowLeft size={22} color={colors.text} />
-          </Pressable>
-          <Text style={{ flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600', color: colors.text }}>
-            Tailor to a Job
-          </Text>
-          <View style={{ width: 30 }} />
-        </View>
+        <ScreenHeader title="Tailor to a Job" onBack={handleBack} />
 
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 120 }} keyboardShouldPersistTaps="handled">
           {/* ---------- RESULTS ---------- */}
@@ -316,7 +317,7 @@ export default function TailorToJob() {
             <>
               <Animated.View entering={FadeInUp.duration(300)}>
                 <LinearGradient
-                  colors={[colors.primary, '#06B6D4']}
+                  colors={gradientColors.brand}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{ borderRadius: 16, padding: 20, marginBottom: 18 }}
