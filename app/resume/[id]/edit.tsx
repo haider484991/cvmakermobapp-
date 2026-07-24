@@ -13,7 +13,7 @@ import { useGamification } from '@/hooks/useGamification';
 import { buildContextFromResume } from '@/services/ai/resumeAI';
 import { AISuggestionCard } from '@/components/features/ai-assistant';
 import { Button, Input, Card, SavePromptModal, MonthYearPicker, PhotoPicker } from '@/components/ui';
-import { ArrowLeft, Sparkles, Plus, Trash2, Check, Loader2, Eye } from 'lucide-react-native';
+import { ArrowLeft, Sparkles, Plus, Trash2, Check, Loader2, Eye, X } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { SectionType, WorkExperience, Education } from '@/types/resume';
 import type { SkillSuggestion } from '@/types/ai';
@@ -38,6 +38,7 @@ export default function EditSection() {
     deleteEducation,
     addSkill,
     deleteSkill,
+    updateSkill,
   } = useResumeStore();
 
   const resume = getResume(id);
@@ -199,6 +200,15 @@ export default function EditSection() {
     resetBullets();
     setEnhancingExperienceId(null);
   }, [resetBullets]);
+
+  /** Proficiency options. These drive the skill bars / rating dots in the
+   *  premium templates (Aurora, Onyx, Vivid) via `Skill.level`. */
+  const SKILL_LEVELS = [
+    { value: 'beginner' as const, label: 'Basic' },
+    { value: 'intermediate' as const, label: 'Good' },
+    { value: 'advanced' as const, label: 'Strong' },
+    { value: 'expert' as const, label: 'Expert' },
+  ];
 
   // Industry options offered to the user. Order is by frequency of resume
   // use (mining → least common). Each maps to AI skill suggestion context.
@@ -1057,26 +1067,79 @@ export default function EditSection() {
           </Button>
         </View>
 
-        {/* Skills List */}
-        <View className="flex-row flex-wrap gap-2">
+        {/* Skills list with a proficiency control.
+            Levels weren't editable before — addSkill hardcoded 'intermediate',
+            so the premium templates (Aurora / Onyx / Vivid) drew every skill
+            bar at exactly the same length. Setting a real level is what makes
+            those designs look hand-tuned. */}
+        {resume.skills.length > 0 && (
+          <Text className="text-xs mb-2" style={{ color: colors.textSecondary }}>
+            Tap a level to set how strong each skill is — it drives the skill bars in Aurora, Onyx and Vivid.
+          </Text>
+        )}
+        <View style={{ gap: 8 }}>
           {resume.skills.map((skill) => (
             <View
               key={skill.id}
-              className="flex-row items-center px-3 py-2 rounded-full"
-              style={{ backgroundColor: colors.primary + '15' }}
+              style={{
+                backgroundColor: colors.surface,
+                borderWidth: 1,
+                borderColor: colors.border,
+                borderRadius: 14,
+                paddingHorizontal: 12,
+                paddingVertical: 10,
+              }}
             >
-              <Text style={{ color: colors.primary }} className="font-medium">
-                {skill.name}
-              </Text>
-              <Pressable
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  deleteSkill(id, skill.id);
-                }}
-                className="ml-2"
-              >
-                <Text style={{ color: colors.primary }}>x</Text>
-              </Pressable>
+              <View className="flex-row items-center">
+                <Text className="flex-1 font-medium" style={{ color: colors.text }} numberOfLines={1}>
+                  {skill.name}
+                </Text>
+                <Pressable
+                  onPress={() => {
+                    if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    deleteSkill(id, skill.id);
+                  }}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Remove ${skill.name}`}
+                >
+                  <X size={16} color={colors.textMuted} />
+                </Pressable>
+              </View>
+              <View className="flex-row mt-2" style={{ gap: 6 }}>
+                {SKILL_LEVELS.map((lvl) => {
+                  const active = (skill.level ?? 'intermediate') === lvl.value;
+                  return (
+                    <Pressable
+                      key={lvl.value}
+                      onPress={() => {
+                        if (hapticEnabled) Haptics.selectionAsync();
+                        updateSkill(id, skill.id, { level: lvl.value });
+                      }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${skill.name}: ${lvl.label}`}
+                      accessibilityState={{ selected: active }}
+                      style={{
+                        flex: 1,
+                        paddingVertical: 6,
+                        borderRadius: 8,
+                        alignItems: 'center',
+                        backgroundColor: active ? colors.primary : colors.primary + '10',
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          fontWeight: active ? '700' : '500',
+                          color: active ? 'white' : colors.primary,
+                        }}
+                      >
+                        {lvl.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
             </View>
           ))}
         </View>

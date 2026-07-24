@@ -136,6 +136,16 @@ export interface PremiumTheme {
   background: string;
   /** Border / hairline color */
   border: string;
+  /**
+   * Section types the user switched OFF with the eye toggle in the editor.
+   *
+   * BUG FIX: the exporter used to ignore `resume.sections` entirely, so
+   * hiding a section changed the editor UI but the PDF still printed it —
+   * the toggle silently lied. Carried on the theme because the theme is
+   * already threaded into every block via BlockOpts, so one field fixes all
+   * six layout renderers and the sidebar panel at once.
+   */
+  hiddenSections?: Set<string>;
   /** How the Skills section renders. 'pills' (default) keeps the tag look;
    *  'bars' draws proficiency meters and 'dots' draws 5-dot ratings — both
    *  read as "premium" and are driven by Skill.level. The new pay-worthy
@@ -492,6 +502,7 @@ function sectionTitle(label: string, opts: BlockOpts): string {
 }
 
 function summaryBlock(text: string | undefined, opts: BlockOpts): string {
+  if (opts.t.hiddenSections?.has('summary')) return '';
   if (!text || !text.trim()) return '';
   return `
     <section class="rb-section">
@@ -502,6 +513,7 @@ function summaryBlock(text: string | undefined, opts: BlockOpts): string {
 }
 
 function experienceBlock(items: WorkExperience[], opts: BlockOpts): string {
+  if (opts.t.hiddenSections?.has('experience')) return '';
   if (!items?.length) return '';
   return `
     <section class="rb-section">
@@ -527,6 +539,7 @@ function experienceBlock(items: WorkExperience[], opts: BlockOpts): string {
 }
 
 function educationBlock(items: Education[], opts: BlockOpts): string {
+  if (opts.t.hiddenSections?.has('education')) return '';
   if (!items?.length) return '';
   return `
     <section class="rb-section">
@@ -600,6 +613,7 @@ function dotsHtml(on: number): string {
 }
 
 function skillsBlock(items: Skill[], opts: BlockOpts): string {
+  if (opts.t.hiddenSections?.has('skills')) return '';
   if (!items?.length) return '';
   const onPanel = opts.surface === 'panel';
   const style = opts.t.skillStyle;
@@ -662,6 +676,7 @@ function skillsBlock(items: Skill[], opts: BlockOpts): string {
 }
 
 function projectsBlock(items: Project[], opts: BlockOpts): string {
+  if (opts.t.hiddenSections?.has('projects')) return '';
   if (!items?.length) return '';
   return `
     <section class="rb-section">
@@ -685,6 +700,7 @@ function projectsBlock(items: Project[], opts: BlockOpts): string {
 }
 
 function certificationsBlock(items: Certification[], opts: BlockOpts): string {
+  if (opts.t.hiddenSections?.has('certifications')) return '';
   if (!items?.length) return '';
   return `
     <section class="rb-section">
@@ -707,6 +723,7 @@ function certificationsBlock(items: Certification[], opts: BlockOpts): string {
 }
 
 function languagesBlock(items: Language[], opts: BlockOpts): string {
+  if (opts.t.hiddenSections?.has('languages')) return '';
   if (!items?.length) return '';
   // Premium templates (skill bars/dots) get matching language proficiency
   // dots so the whole sidebar reads as one designed system.
@@ -742,6 +759,7 @@ function languagesBlock(items: Language[], opts: BlockOpts): string {
 }
 
 function awardsBlock(items: Award[], opts: BlockOpts): string {
+  if (opts.t.hiddenSections?.has('awards')) return '';
   if (!items?.length) return '';
   return `
     <section class="rb-section">
@@ -1534,6 +1552,13 @@ export function generatePremiumHTML(
   opts: PremiumHtmlOptions = {},
 ): string {
   const t = deriveTheme(template, opts.accentColor);
+  // Respect the editor's per-section eye toggle. Sections absent from the
+  // array default to visible, so resumes created before `sections` existed
+  // (and imported ones) keep rendering everything.
+  const hidden = new Set(
+    (resume.sections ?? []).filter((s) => s.isVisible === false).map((s) => s.type as string),
+  );
+  if (hidden.size) t.hiddenSections = hidden;
   const paper = opts.paperSize ?? 'letter';
   const mode = opts.mode ?? 'pdf';
   let body = '';
