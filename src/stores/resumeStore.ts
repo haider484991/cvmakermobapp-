@@ -11,6 +11,7 @@ import {
   Certification,
   Language,
   Award,
+  CustomSection,
   createEmptyResume,
 } from '@/types/resume';
 
@@ -59,6 +60,36 @@ interface ResumeState {
   updateProject: (resumeId: string, projectId: string, data: Partial<Project>) => void;
   deleteProject: (resumeId: string, projectId: string) => void;
 
+  // Certifications
+  addCertification: (resumeId: string, item: Certification) => void;
+  updateCertification: (resumeId: string, itemId: string, data: Partial<Certification>) => void;
+  deleteCertification: (resumeId: string, itemId: string) => void;
+
+  // Languages
+  addLanguage: (resumeId: string, item: Language) => void;
+  updateLanguage: (resumeId: string, itemId: string, data: Partial<Language>) => void;
+  deleteLanguage: (resumeId: string, itemId: string) => void;
+
+  // Awards
+  addAward: (resumeId: string, item: Award) => void;
+  updateAward: (resumeId: string, itemId: string, data: Partial<Award>) => void;
+  deleteAward: (resumeId: string, itemId: string) => void;
+
+  // Custom sections
+  addCustomSection: (resumeId: string, item: CustomSection) => void;
+  updateCustomSection: (resumeId: string, itemId: string, data: Partial<CustomSection>) => void;
+  deleteCustomSection: (resumeId: string, itemId: string) => void;
+
+  /** Move an entry up/down inside one of the list sections. */
+  moveItem: (
+    resumeId: string,
+    list: 'experience' | 'education' | 'skills' | 'projects' | 'certifications' | 'languages' | 'awards' | 'customSections',
+    itemId: string,
+    direction: 'up' | 'down',
+  ) => void;
+  /** Move a whole section up/down in the resume's section order. */
+  moveSection: (resumeId: string, sectionId: string, direction: 'up' | 'down') => void;
+
   // Sync
   setResumes: (resumes: Resume[]) => void;
   mergeResumes: (serverResumes: Resume[]) => void;
@@ -67,6 +98,53 @@ interface ResumeState {
   getActiveResume: () => Resume | null;
   getResume: (id: string) => Resume | null;
   getAllResumes: () => Resume[];
+}
+
+/* --------------------------------------------------------------------------
+ * Generic list mutators.
+ *
+ * certifications / languages / awards / customSections all store a flat array
+ * of `{ id, ... }` on the resume and need identical add/update/delete logic.
+ * These return zustand updater functions so each action stays a one-liner
+ * instead of four near-identical 40-line blocks.
+ * -------------------------------------------------------------------------- */
+
+type ListKey = 'certifications' | 'languages' | 'awards' | 'customSections';
+
+function listAdd(resumeId: string, key: ListKey, item: { id: string }) {
+  return (state: ResumeState): Partial<ResumeState> => {
+    const resume = state.resumes[resumeId];
+    if (!resume) return state;
+    const list = [...((resume[key] as any[]) ?? []), item];
+    return {
+      resumes: { ...state.resumes, [resumeId]: { ...resume, [key]: list, updatedAt: new Date().toISOString() } },
+      isDirty: true,
+    };
+  };
+}
+
+function listUpdate(resumeId: string, key: ListKey, itemId: string, data: object) {
+  return (state: ResumeState): Partial<ResumeState> => {
+    const resume = state.resumes[resumeId];
+    if (!resume) return state;
+    const list = ((resume[key] as any[]) ?? []).map((x) => (x?.id === itemId ? { ...x, ...data } : x));
+    return {
+      resumes: { ...state.resumes, [resumeId]: { ...resume, [key]: list, updatedAt: new Date().toISOString() } },
+      isDirty: true,
+    };
+  };
+}
+
+function listDelete(resumeId: string, key: ListKey, itemId: string) {
+  return (state: ResumeState): Partial<ResumeState> => {
+    const resume = state.resumes[resumeId];
+    if (!resume) return state;
+    const list = ((resume[key] as any[]) ?? []).filter((x) => x?.id !== itemId);
+    return {
+      resumes: { ...state.resumes, [resumeId]: { ...resume, [key]: list, updatedAt: new Date().toISOString() } },
+      isDirty: true,
+    };
+  };
 }
 
 export const useResumeStore = create<ResumeState>()(
@@ -417,6 +495,74 @@ export const useResumeStore = create<ResumeState>()(
           },
           isDirty: true,
         }));
+      },
+
+      /* ------------------------------------------------------------------
+       * Certifications / languages / awards / custom sections.
+       *
+       * These list sections had NO store actions at all, which is why their
+       * editors showed "This section is coming soon!" — the PDF engine could
+       * already render them and the AI importer could already extract them,
+       * so a user could import certifications and then never edit them.
+       * They all share the same add/update/delete shape, so they go through
+       * one generic helper instead of four copies of the same 40 lines.
+       * ------------------------------------------------------------------ */
+
+      addCertification: (resumeId, item) => set(listAdd(resumeId, 'certifications', item)),
+      updateCertification: (resumeId, itemId, data) => set(listUpdate(resumeId, 'certifications', itemId, data)),
+      deleteCertification: (resumeId, itemId) => set(listDelete(resumeId, 'certifications', itemId)),
+
+      addLanguage: (resumeId, item) => set(listAdd(resumeId, 'languages', item)),
+      updateLanguage: (resumeId, itemId, data) => set(listUpdate(resumeId, 'languages', itemId, data)),
+      deleteLanguage: (resumeId, itemId) => set(listDelete(resumeId, 'languages', itemId)),
+
+      addAward: (resumeId, item) => set(listAdd(resumeId, 'awards', item)),
+      updateAward: (resumeId, itemId, data) => set(listUpdate(resumeId, 'awards', itemId, data)),
+      deleteAward: (resumeId, itemId) => set(listDelete(resumeId, 'awards', itemId)),
+
+      addCustomSection: (resumeId, item) => set(listAdd(resumeId, 'customSections', item)),
+      updateCustomSection: (resumeId, itemId, data) => set(listUpdate(resumeId, 'customSections', itemId, data)),
+      deleteCustomSection: (resumeId, itemId) => set(listDelete(resumeId, 'customSections', itemId)),
+
+      moveItem: (resumeId, list, itemId, direction) => {
+        set((state) => {
+          const resume = state.resumes[resumeId];
+          if (!resume) return state;
+          const items = [...((resume[list] as any[]) ?? [])];
+          const i = items.findIndex((x) => x?.id === itemId);
+          const j = direction === 'up' ? i - 1 : i + 1;
+          if (i < 0 || j < 0 || j >= items.length) return state; // already at the edge
+          [items[i], items[j]] = [items[j], items[i]];
+          return {
+            resumes: {
+              ...state.resumes,
+              [resumeId]: { ...resume, [list]: items, updatedAt: new Date().toISOString() },
+            },
+            isDirty: true,
+          };
+        });
+      },
+
+      moveSection: (resumeId, sectionId, direction) => {
+        set((state) => {
+          const resume = state.resumes[resumeId];
+          if (!resume) return state;
+          // Work on an order-sorted copy so the indices match what the user sees.
+          const sections = [...(resume.sections ?? [])].sort((a, b) => a.order - b.order);
+          const i = sections.findIndex((s) => s.id === sectionId);
+          const j = direction === 'up' ? i - 1 : i + 1;
+          if (i < 0 || j < 0 || j >= sections.length) return state;
+          [sections[i], sections[j]] = [sections[j], sections[i]];
+          // Re-stamp order so it stays contiguous and the exporter can trust it.
+          const renumbered = sections.map((s, idx) => ({ ...s, order: idx }));
+          return {
+            resumes: {
+              ...state.resumes,
+              [resumeId]: { ...resume, sections: renumbered, updatedAt: new Date().toISOString() },
+            },
+            isDirty: true,
+          };
+        });
       },
 
       // Sync
