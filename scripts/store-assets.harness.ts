@@ -72,7 +72,7 @@ h1{font-weight:700;letter-spacing:-2.4px;line-height:1.02}
 .phone{position:absolute;left:50%;transform:translateX(-50%);background:#050D14;
   box-shadow:0 50px 120px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.09), inset 0 0 0 1px rgba(255,255,255,.05)}
 .screen{width:100%;height:100%;overflow:hidden;position:relative;background:#F7FAFC}
-.screen img{width:100%;display:block;object-fit:cover;object-position:top center}
+.screen img{width:100%;height:auto;display:block}
 .notch{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;
   background:#050D14;z-index:9;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
 /* soft screen sheen */
@@ -82,7 +82,7 @@ h1{font-weight:700;letter-spacing:-2.4px;line-height:1.02}
 /* floating paper */
 .paper{position:absolute;overflow:hidden;background:#fff;
   box-shadow:0 36px 90px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.14)}
-.paper img{width:100%;display:block;object-fit:cover;object-position:top center}
+.paper img{width:100%;height:auto;display:block}
 
 .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.2);
   background:rgba(255,255,255,.07);border-radius:100px;color:rgba(255,255,255,.85);font-weight:500}
@@ -197,8 +197,65 @@ function tabletFrame(name: string, w: number, h: number, headline: string, sub: 
 
 /* ---- Screen contents (real app UI, drawn at scale) ---------------- */
 
-const screenTemplate = (src: string) => `<img src="${src}" style="height:1392px"/>`;
-const screenTemplateT = (src: string, h: number) => `<img src="${src}" style="height:${h}px"/>`;
+/**
+ * Template screens rendered as the app's real PREVIEW screen: a chrome bar,
+ * a grey backdrop, and the resume as a page card with the next page peeking
+ * below.
+ *
+ * Two reasons this beats dropping the render straight into the device:
+ *  - the notch used to sit ON TOP of the resume's first heading, which looked
+ *    like a rendering bug;
+ *  - a portrait page is ~0.773 aspect and a phone screen is ~0.5, so a single
+ *    page can never fill the screen — a bare image left a slab of dead white.
+ * The page-on-backdrop treatment is both authentic and fills the frame.
+ */
+const screenTemplate = (src: string, scale = 1) => `
+  <div style="height:100%;background:#EDF1F5;display:flex;flex-direction:column">
+    <div style="background:#fff;padding:${74 * scale}px ${24 * scale}px ${16 * scale}px;
+      display:flex;align-items:center;gap:${12 * scale}px;border-bottom:1px solid #E6EDF2;flex:0 0 auto">
+      <span style="font-size:${24 * scale}px;color:#5B7180">‹</span>
+      <span style="font-size:${20 * scale}px;font-weight:700;color:#0B1B24;flex:1">Preview</span>
+      <span style="background:#E8F6F9;color:#0E7490;font-size:${15 * scale}px;font-weight:700;
+        padding:${6 * scale}px ${13 * scale}px;border-radius:${9 * scale}px">ATS 98</span>
+    </div>
+    <div style="flex:1;overflow:hidden;padding:${20 * scale}px ${20 * scale}px 0">
+      <div style="background:#fff;border-radius:${8 * scale}px;overflow:hidden;
+        box-shadow:0 ${10 * scale}px ${26 * scale}px rgba(11,27,36,.16)"><img src="${src}"/></div>
+      <div style="margin-top:${18 * scale}px;text-align:center;font-size:${15 * scale}px;color:#8A9BA8">Page 2</div>
+      <div style="margin-top:${10 * scale}px;background:#fff;border-radius:${8 * scale}px;height:${200 * scale}px;
+        box-shadow:0 ${10 * scale}px ${26 * scale}px rgba(11,27,36,.16)"></div>
+    </div>
+  </div>`;
+const screenTemplateT = (src: string, _h?: number) => screenTemplate(src, 1.45);
+
+/** Cover-letter screen — the frame headlined "Cover letters in one tap" was
+ *  showing a resume, which promised one thing and displayed another. */
+const screenCoverLetter = (scale = 1) => `
+  <div style="height:100%;background:#F7FAFC;padding:${88 * scale}px ${26 * scale}px 0">
+    <div style="background:linear-gradient(135deg,#7C3AED,#0891B2);border-radius:${26 * scale}px;padding:${28 * scale}px">
+      <div style="display:flex;align-items:center;gap:${10 * scale}px">
+        <span style="font-size:${26 * scale}px;font-weight:700;color:#fff">✉ Cover letter</span>
+        <span style="background:rgba(255,255,255,.24);color:#fff;font-size:${14 * scale}px;font-weight:800;
+          padding:${5 * scale}px ${11 * scale}px;border-radius:${9 * scale}px;letter-spacing:.6px">PRO</span>
+      </div>
+      <div style="font-size:${18 * scale}px;color:rgba(255,255,255,.9);margin-top:${8 * scale}px;line-height:1.45">
+        Written from your real experience — for this exact job.</div>
+    </div>
+    <div style="margin-top:${22 * scale}px;background:#fff;border:1px solid #E6EDF2;border-radius:${22 * scale}px;
+      padding:${28 * scale}px;font-size:${19 * scale}px;line-height:1.7;color:#0B1B24">
+      Dear Hiring Manager,<br/><br/>
+      When I saw that Linear is hiring a Senior Product Designer, I recognised the exact problems I've spent
+      the last three years solving. At Stripe I led the redesign of a payments dashboard used by 200,000+
+      businesses — cutting task completion time by 34%.<br/><br/>
+      <span style="color:#94A3B8">Your focus on design systems maps directly to the 60-component library I…</span>
+    </div>
+    <div style="display:flex;gap:${14 * scale}px;margin-top:${24 * scale}px">
+      <div style="flex:1;background:linear-gradient(135deg,#0E7490,#06B6D4);border-radius:${20 * scale}px;
+        padding:${22 * scale}px;text-align:center;font-size:${20 * scale}px;font-weight:700;color:#fff">⧉  Copy</div>
+      <div style="flex:1;background:#fff;border:1px solid #E6EDF2;border-radius:${20 * scale}px;
+        padding:${22 * scale}px;text-align:center;font-size:${20 * scale}px;font-weight:700;color:#0B1B24">↗  Share</div>
+    </div>
+  </div>`;
 
 const screenJobs = (scale = 1) => `
   <div style="height:100%;background:#F7FAFC;padding:${76 * scale}px ${26 * scale}px 0">
@@ -283,8 +340,8 @@ const screenExport = (scale = 1) => `
 /* The set                                                            */
 /* ------------------------------------------------------------------ */
 
-const paper = (src: string, css: string, h: number) =>
-  `<div class="paper" style="${css};border-radius:26px"><img src="${src}" style="height:${h}px"/></div>`;
+const paper = (src: string, css: string, _h?: number) =>
+  `<div class="paper" style="${css};border-radius:26px"><img src="${src}"/></div>`;
 
 const FRAMES: Frame[] = [
   phoneFrame('phone-01', 'Find jobs.<br/>Get <span class="hl">hired</span>.', 'Real openings + an AI resume tailored to each one', screenJobs(), {
@@ -303,7 +360,7 @@ const FRAMES: Frame[] = [
       paper(T.luxe, 'width:290px;height:640px;top:700px;right:8px;transform:rotate(8deg)', 640),
   }),
   phoneFrame('phone-06', 'Built to pass<br/><span class="hl">the robots</span>', 'Every template is scored for applicant tracking systems', screenTemplate(T.atsPro)),
-  phoneFrame('phone-07', 'Cover letters<br/>in <span class="hl">one tap</span>', 'Personal, specific, from your real experience', screenTemplate(T.exec)),
+  phoneFrame('phone-07', 'Cover letters<br/>in <span class="hl">one tap</span>', 'Personal, specific, from your real experience', screenCoverLetter()),
   phoneFrame('phone-08', 'Download.<br/>Apply. <span class="hl">Win</span>.', 'A crisp PDF saved straight to your phone', screenExport()),
 
   // 7-inch tablet (1200×1920)
@@ -348,9 +405,9 @@ const FEATURE = `
     </div>
   </div>
   <div class="paper" style="width:224px;height:452px;right:158px;top:52px;transform:rotate(6deg);border-radius:18px">
-    <img src="${T.aurora}" style="height:452px"/></div>
+    <img src="${T.aurora}"/></div>
   <div class="paper" style="width:196px;height:400px;right:6px;top:108px;transform:rotate(13deg);border-radius:16px">
-    <img src="${T.onyx}" style="height:400px"/></div>
+    <img src="${T.onyx}"/></div>
 </div>`;
 
 /* ------------------------------------------------------------------ */

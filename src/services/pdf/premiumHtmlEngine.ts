@@ -1089,8 +1089,13 @@ function baseStyles(t: PremiumTheme, paper: EnginePaperSize, mode: 'pdf' | 'prev
     }
 
     /* Pair lists (Languages) */
-    .rb-pairs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
-    .rb-pair { display: flex; justify-content: space-between; font-size: ${dens.meta}pt; }
+    /* Auto-fit, NOT a hard 1fr 1fr: a fixed two-column grid collapses inside
+       narrow containers (the 36% column of the two-column layouts, and any
+       sidebar), which ran the name into the proficiency — "MandarinProfessional".
+       auto-fit drops to a single column whenever the container is too narrow,
+       so this is correct in every layout. */
+    .rb-pairs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 16px; }
+    .rb-pair { display: flex; justify-content: space-between; gap: 4px 10px; flex-wrap: wrap; font-size: ${dens.meta}pt; }
     .rb-pair-k { color: ${t.text}; font-weight: 600; }
     .rb-pair-v { color: ${t.textMuted}; }
 
