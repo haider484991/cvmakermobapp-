@@ -146,6 +146,7 @@ function RootLayoutNav() {
           <Stack.Screen name="(onboarding)" options={{ animation: 'fade' }} />
           <Stack.Screen name="(main)" options={{ animation: 'fade' }} />
           <Stack.Screen name="resume" />
+          <Stack.Screen name="job-detail" />
         </Stack>
       </AuthGuard>
     </>

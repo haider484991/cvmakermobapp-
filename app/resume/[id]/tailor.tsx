@@ -34,6 +34,7 @@ import { ArrowLeft, Target, Check, X, Sparkles, Lock } from 'lucide-react-native
 import { useTheme } from '@/hooks/useTheme';
 import { useUIStore } from '@/stores/uiStore';
 import { useResumeStore } from '@/stores/resumeStore';
+import { useJobStore } from '@/stores/jobStore';
 import { usePremium } from '@/hooks/usePremium';
 import { usePurchasesStore, selectIsPremium } from '@/stores/purchasesStore';
 import { useTailorToJob } from '@/hooks/useAI';
@@ -74,7 +75,13 @@ export default function TailorToJob() {
   const { getResume, updateSummary, updateExperience, addSkill } = useResumeStore();
   const { tailorAsync, isLoading, data: result, error, reset } = useTailorToJob();
 
-  const [jobDescription, setJobDescription] = useState('');
+  // v1.11: when the user came from the Jobs feed, the posting is already
+  // waiting in the job store — pre-fill it so "tailor to this job" is truly
+  // one tap instead of "go find a posting and paste it".
+  const [prefilledJob] = useState(() => useJobStore.getState().consumePendingJob());
+  const [jobDescription, setJobDescription] = useState(() =>
+    prefilledJob ? `${prefilledJob.title} at ${prefilledJob.company}\n\n${prefilledJob.description}` : '',
+  );
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [applied, setApplied] = useState(false);
 
@@ -82,7 +89,7 @@ export default function TailorToJob() {
   const canAnalyze = jobDescription.trim().length >= MIN_JD_CHARS && !isLoading;
 
   useEffect(() => {
-    track(ANALYTICS_EVENTS.TAILOR_OPENED, { is_premium: isPremium });
+    track(ANALYTICS_EVENTS.TAILOR_OPENED, { is_premium: isPremium, from_job_feed: !!prefilledJob });
   }, []);
 
   const handleBack = useCallback(() => {

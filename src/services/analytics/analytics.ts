@@ -222,6 +222,14 @@ export const ANALYTICS_EVENTS = {
   AI_BULLETS_ENHANCED: 'ai_bullets_enhanced',
   AI_SKILLS_SUGGESTED: 'ai_skills_suggested',
 
+  // Live Job Feed (v1.11) — find → tailor → apply loop.
+  JOBS_FEED_OPENED: 'jobs_feed_opened',
+  JOBS_SEARCHED: 'jobs_searched',
+  JOB_VIEWED: 'job_viewed',
+  JOB_TAILOR_CLICKED: 'job_tailor_clicked',
+  JOB_COVER_LETTER_CLICKED: 'job_cover_letter_clicked',
+  JOB_APPLY_CLICKED: 'job_apply_clicked',
+
   // Job-outcome features (v1.10) — the premium tier's reason to exist.
   TAILOR_OPENED: 'tailor_opened',
   TAILOR_ANALYZED: 'tailor_analyzed',

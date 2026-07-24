@@ -20,7 +20,7 @@ import {
   LevelBadge,
   AchievementUnlockModal,
 } from '@/components/gamification';
-import { Plus, FileText, MoreVertical, Trash2, Copy, Edit3, Sparkles } from 'lucide-react-native';
+import { Plus, FileText, MoreVertical, Trash2, Copy, Edit3, Sparkles, Briefcase } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { gradientColors } from '@/constants/theme';
 import * as Haptics from 'expo-haptics';
@@ -312,6 +312,35 @@ export default function Dashboard() {
               </View>
               <Text style={{ color: 'white', fontSize: 20, fontWeight: '300' }}>›</Text>
             </LinearGradient>
+          </Pressable>
+        </Animated.View>
+
+        {/* Find Jobs (v1.11) — the app is now where the job search STARTS,
+            not just where the resume gets made. */}
+        <Animated.View entering={FadeInUp.delay(140)} style={{ marginTop: 12 }}>
+          <Pressable
+            onPress={() => {
+              if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/(main)/jobs');
+            }}
+            className="rounded-2xl p-5 flex-row items-center"
+            style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
+          >
+            <View
+              className="items-center justify-center mr-4"
+              style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: colors.primary + '15' }}
+            >
+              <Briefcase size={24} color={colors.primary} strokeWidth={2.5} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-base font-semibold" style={{ color: colors.text }}>
+                Find Jobs
+              </Text>
+              <Text className="text-xs mt-1" style={{ color: colors.textSecondary }}>
+                Browse remote roles — tailor your resume in one tap
+              </Text>
+            </View>
+            <Text style={{ color: colors.textSecondary, fontSize: 20, fontWeight: '300' }}>›</Text>
           </Pressable>
         </Animated.View>
 

@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { View, Text, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/useTheme';
-import { Home, Layout, User } from 'lucide-react-native';
+import { Home, Layout, User, Briefcase } from 'lucide-react-native';
 
 export default function MainLayout() {
   const { colors, isDark } = useTheme();
@@ -36,6 +36,13 @@ export default function MainLayout() {
         options={{
           title: 'Resumes',
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="jobs"
+        options={{
+          title: 'Jobs',
+          tabBarIcon: ({ color, size }) => <Briefcase size={size} color={color} />,
         }}
       />
       <Tabs.Screen

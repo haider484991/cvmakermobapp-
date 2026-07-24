@@ -30,6 +30,7 @@ import { ArrowLeft, Mail, Copy, Share2, Sparkles, Lock, Check, RefreshCw } from 
 import { useTheme } from '@/hooks/useTheme';
 import { useUIStore } from '@/stores/uiStore';
 import { useResumeStore } from '@/stores/resumeStore';
+import { useJobStore } from '@/stores/jobStore';
 import { usePremium } from '@/hooks/usePremium';
 import { usePurchasesStore, selectIsPremium } from '@/stores/purchasesStore';
 import { useCoverLetter } from '@/hooks/useAI';
@@ -48,7 +49,11 @@ export default function CoverLetter() {
   const { getResume } = useResumeStore();
   const { generateAsync, isLoading, error, reset } = useCoverLetter();
 
-  const [jobDescription, setJobDescription] = useState('');
+  // v1.11: pre-fill from the Jobs feed when the user came from a listing.
+  const [prefilledJob] = useState(() => useJobStore.getState().consumePendingJob());
+  const [jobDescription, setJobDescription] = useState(() =>
+    prefilledJob ? `${prefilledJob.title} at ${prefilledJob.company}\n\n${prefilledJob.description}` : '',
+  );
   const [letter, setLetter] = useState<string | null>(null);
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [copied, setCopied] = useState(false);
