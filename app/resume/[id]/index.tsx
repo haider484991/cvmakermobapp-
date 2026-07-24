@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView, TextInput, Alert, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -38,6 +38,8 @@ import {
   MoreVertical,
   Linkedin,
   X,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { SectionType, Resume } from '@/types/resume';
@@ -70,6 +72,8 @@ export default function ResumeEditor() {
     toggleSectionVisibility,
     updateHeader,
     updateSummary,
+    moveSection,
+    addSection,
   } = useResumeStore();
 
   const {
@@ -121,6 +125,47 @@ export default function ResumeEditor() {
   }, [isAuthenticated, shouldShowSavePrompt]);
 
   const resume = resumeId ? getResume(resumeId) : null;
+  const [showAddSection, setShowAddSection] = useState(false);
+
+  /** Sections in the user's chosen order — this is also the PDF order. */
+  const orderedSections = useMemo(
+    () => [...(resume?.sections ?? [])].sort((a, b) => a.order - b.order),
+    [resume?.sections],
+  );
+
+  /** Optional sections not on this resume yet. 'custom' can be added repeatedly. */
+  const availableSections = useMemo(() => {
+    const present = new Set(orderedSections.map((s) => s.type));
+    return (
+      [
+        { type: 'projects' as SectionType, title: 'Projects' },
+        { type: 'certifications' as SectionType, title: 'Certifications' },
+        { type: 'languages' as SectionType, title: 'Languages' },
+        { type: 'awards' as SectionType, title: 'Awards' },
+        { type: 'custom' as SectionType, title: 'Custom Section' },
+      ] as const
+    ).filter((o) => o.type === 'custom' || !present.has(o.type));
+  }, [orderedSections]);
+
+  /**
+   * Self-heal imported resumes: the AI importer can populate certifications,
+   * languages, awards or projects while `sections` still only lists the five
+   * seeded ones — leaving that data with no way into the editor. Add a section
+   * entry for anything that arrived with content.
+   */
+  useEffect(() => {
+    if (!resume || !resumeId) return;
+    const present = new Set((resume.sections ?? []).map((s) => s.type));
+    const withData: Array<[SectionType, string, number]> = [
+      ['projects', 'Projects', resume.projects?.length ?? 0],
+      ['certifications', 'Certifications', resume.certifications?.length ?? 0],
+      ['languages', 'Languages', resume.languages?.length ?? 0],
+      ['awards', 'Awards', resume.awards?.length ?? 0],
+    ];
+    withData.forEach(([type, title, count]) => {
+      if (count > 0 && !present.has(type)) addSection(resumeId, type, title);
+    });
+  }, [resumeId, resume?.projects?.length, resume?.certifications?.length, resume?.languages?.length, resume?.awards?.length]);
 
   const handleBack = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -425,8 +470,7 @@ export default function ResumeEditor() {
           Or jump to any section
         </Text>
 
-        {resume.sections
-          .sort((a, b) => a.order - b.order)
+        {orderedSections
           .map((section, index) => {
             const Icon = SECTION_ICONS[section.type] || FileText;
             const { filled, total, percent } = getSectionProgress(section.type);
@@ -491,9 +535,45 @@ export default function ResumeEditor() {
                     </View>
                   </View>
 
+                  {/* Reorder — drives the order of sections in the exported
+                      PDF. `moveSection` re-stamps `order` contiguously. */}
+                  <View className="ml-1">
+                    <Pressable
+                      onPress={() => {
+                        if (hapticEnabled) Haptics.selectionAsync();
+                        moveSection(resumeId!, section.id, 'up');
+                      }}
+                      disabled={index === 0}
+                      hitSlop={6}
+                      className="px-1"
+                      accessibilityRole="button"
+                      accessibilityLabel={`Move ${section.title} up`}
+                    >
+                      <ChevronUp size={16} color={index === 0 ? colors.border : colors.textMuted} />
+                    </Pressable>
+                    <Pressable
+                      onPress={() => {
+                        if (hapticEnabled) Haptics.selectionAsync();
+                        moveSection(resumeId!, section.id, 'down');
+                      }}
+                      disabled={index === orderedSections.length - 1}
+                      hitSlop={6}
+                      className="px-1"
+                      accessibilityRole="button"
+                      accessibilityLabel={`Move ${section.title} down`}
+                    >
+                      <ChevronDown
+                        size={16}
+                        color={index === orderedSections.length - 1 ? colors.border : colors.textMuted}
+                      />
+                    </Pressable>
+                  </View>
+
                   <Pressable
                     onPress={() => handleToggleSection(section.id)}
-                    className="p-2 ml-2"
+                    className="p-2 ml-1"
+                    accessibilityRole="button"
+                    accessibilityLabel={section.isVisible ? `Hide ${section.title}` : `Show ${section.title}`}
                   >
                     {section.isVisible ? (
                       <Eye size={18} color={colors.textMuted} />
@@ -508,12 +588,88 @@ export default function ResumeEditor() {
             );
           })}
 
-        {/* NOTE: an "Add Custom Section" button used to sit here with no
-            onPress at all — a dead control. Custom sections have no editor
-            yet, so rather than ship a button that does nothing we removed it.
-            Re-add it together with the editor. */}
+        {/* Add an optional section. Replaces a button that previously had no
+            onPress at all — now that projects/certifications/languages/awards
+            and custom sections all have editors, this actually does something. */}
+        {availableSections.length > 0 && (
+          <Pressable
+            onPress={() => {
+              if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setShowAddSection(true);
+            }}
+            className="flex-row items-center justify-center p-4 rounded-xl mb-4"
+            style={{
+              backgroundColor: colors.surface,
+              borderWidth: 2,
+              borderColor: colors.border,
+              borderStyle: 'dashed',
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Add a section"
+          >
+            <Plus size={20} color={colors.primary} />
+            <Text className="ml-2 font-medium" style={{ color: colors.primary }}>
+              Add Section
+            </Text>
+          </Pressable>
+        )}
         <View className="h-8" />
       </ScrollView>
+
+      {/* Section picker */}
+      <Modal
+        visible={showAddSection}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowAddSection(false)}
+      >
+        <Pressable
+          className="flex-1 justify-end"
+          style={{ backgroundColor: colors.overlay }}
+          onPress={() => setShowAddSection(false)}
+        >
+          <Pressable
+            className="rounded-t-3xl px-6 pt-6 pb-10"
+            style={{ backgroundColor: colors.surface }}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <View className="flex-row items-center justify-between mb-5">
+              <Text className="text-xl font-bold" style={{ color: colors.text }}>
+                Add a section
+              </Text>
+              <Pressable onPress={() => setShowAddSection(false)} hitSlop={8}>
+                <X size={20} color={colors.textMuted} />
+              </Pressable>
+            </View>
+            {availableSections.map((opt) => {
+              const Icon = SECTION_ICONS[opt.type] || FileText;
+              return (
+                <Pressable
+                  key={opt.type + opt.title}
+                  onPress={() => {
+                    if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    addSection(resumeId!, opt.type, opt.title);
+                    setShowAddSection(false);
+                    router.push(`/resume/${resumeId}/edit?section=${opt.type}`);
+                  }}
+                  className="flex-row items-center py-3"
+                >
+                  <View
+                    className="w-10 h-10 rounded-xl items-center justify-center mr-3"
+                    style={{ backgroundColor: colors.primary + '15' }}
+                  >
+                    <Icon size={20} color={colors.primary} />
+                  </View>
+                  <Text className="flex-1 text-base" style={{ color: colors.text }}>
+                    {opt.title}
+                  </Text>
+                  <ChevronRight size={20} color={colors.textMuted} />
+                </Pressable>
+              );
+            })}
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {/* Bottom Action Bar */}
       <View

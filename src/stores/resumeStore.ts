@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Resume,
   ResumeSection,
+  SectionType,
   WorkExperience,
   Education,
   Skill,
@@ -89,6 +90,10 @@ interface ResumeState {
   ) => void;
   /** Move a whole section up/down in the resume's section order. */
   moveSection: (resumeId: string, sectionId: string, direction: 'up' | 'down') => void;
+  /** Add an optional section (projects, certifications, languages, awards, custom). */
+  addSection: (resumeId: string, type: SectionType, title: string) => void;
+  /** Remove a section entry (does not delete the underlying data). */
+  removeSection: (resumeId: string, sectionId: string) => void;
 
   // Sync
   setResumes: (resumes: Resume[]) => void;
@@ -559,6 +564,45 @@ export const useResumeStore = create<ResumeState>()(
             resumes: {
               ...state.resumes,
               [resumeId]: { ...resume, sections: renumbered, updatedAt: new Date().toISOString() },
+            },
+            isDirty: true,
+          };
+        });
+      },
+
+      addSection: (resumeId, type, title) => {
+        set((state) => {
+          const resume = state.resumes[resumeId];
+          if (!resume) return state;
+          const sections = resume.sections ?? [];
+          // 'custom' can repeat (several custom sections); the rest are unique.
+          if (type !== 'custom' && sections.some((s) => s.type === type)) return state;
+          const order = sections.length ? Math.max(...sections.map((s) => s.order)) + 1 : 0;
+          const next = [
+            ...sections,
+            { id: `${Date.now()}-${type}`, type, title, isVisible: true, order },
+          ];
+          return {
+            resumes: {
+              ...state.resumes,
+              [resumeId]: { ...resume, sections: next, updatedAt: new Date().toISOString() },
+            },
+            isDirty: true,
+          };
+        });
+      },
+
+      removeSection: (resumeId, sectionId) => {
+        set((state) => {
+          const resume = state.resumes[resumeId];
+          if (!resume) return state;
+          const next = (resume.sections ?? [])
+            .filter((s) => s.id !== sectionId)
+            .map((s, idx) => ({ ...s, order: idx }));
+          return {
+            resumes: {
+              ...state.resumes,
+              [resumeId]: { ...resume, sections: next, updatedAt: new Date().toISOString() },
             },
             isDirty: true,
           };

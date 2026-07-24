@@ -13,7 +13,7 @@ import { useGamification } from '@/hooks/useGamification';
 import { buildContextFromResume } from '@/services/ai/resumeAI';
 import { AISuggestionCard } from '@/components/features/ai-assistant';
 import { Button, Input, Card, SavePromptModal, MonthYearPicker, PhotoPicker } from '@/components/ui';
-import { ArrowLeft, Sparkles, Plus, Trash2, Check, Loader2, Eye, X } from 'lucide-react-native';
+import { ArrowLeft, Sparkles, Plus, Trash2, Check, Loader2, Eye, X, ChevronUp, ChevronDown } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { SectionType, WorkExperience, Education } from '@/types/resume';
 import type { SkillSuggestion } from '@/types/ai';
@@ -39,6 +39,22 @@ export default function EditSection() {
     addSkill,
     deleteSkill,
     updateSkill,
+    addProject,
+    updateProject,
+    deleteProject,
+    addCertification,
+    updateCertification,
+    deleteCertification,
+    addLanguage,
+    updateLanguage,
+    deleteLanguage,
+    addAward,
+    updateAward,
+    deleteAward,
+    addCustomSection,
+    updateCustomSection,
+    deleteCustomSection,
+    moveItem,
   } = useResumeStore();
 
   const resume = getResume(id);
@@ -208,6 +224,14 @@ export default function EditSection() {
     { value: 'intermediate' as const, label: 'Good' },
     { value: 'advanced' as const, label: 'Strong' },
     { value: 'expert' as const, label: 'Expert' },
+  ];
+
+  /** Language proficiency options — map to Language.proficiency. */
+  const LANGUAGE_LEVELS = [
+    { value: 'basic' as const, label: 'Basic' },
+    { value: 'conversational' as const, label: 'Conv.' },
+    { value: 'professional' as const, label: 'Prof.' },
+    { value: 'native' as const, label: 'Native' },
   ];
 
   // Industry options offered to the user. Order is by frequency of resume
@@ -1153,6 +1177,379 @@ export default function EditSection() {
     );
   };
 
+  /** Dashed "add another" button shared by every list editor. */
+  const AddButton = ({ label, onPress }: { label: string; onPress: () => void }) => (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      className="flex-row items-center justify-center p-4 rounded-xl"
+      style={{
+        backgroundColor: colors.surface,
+        borderWidth: 2,
+        borderColor: colors.primary,
+        borderStyle: 'dashed',
+      }}
+    >
+      <Plus size={20} color={colors.primary} />
+      <Text className="ml-2 font-medium" style={{ color: colors.primary }}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+
+  /** Card header with a title, up/down reorder controls and a delete button. */
+  const ItemHeader = ({
+    title,
+    index,
+    total,
+    list,
+    itemId,
+    onDelete,
+  }: {
+    title: string;
+    index: number;
+    total: number;
+    list: Parameters<typeof moveItem>[1];
+    itemId: string;
+    onDelete: () => void;
+  }) => (
+    <View className="flex-row justify-between items-center mb-4">
+      <Text className="font-semibold" style={{ color: colors.text }}>
+        {title}
+      </Text>
+      <View className="flex-row items-center" style={{ gap: 14 }}>
+        {total > 1 && (
+          <>
+            <Pressable
+              onPress={() => {
+                if (hapticEnabled) Haptics.selectionAsync();
+                moveItem(id, list, itemId, 'up');
+              }}
+              disabled={index === 0}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Move up"
+            >
+              <ChevronUp size={18} color={index === 0 ? colors.border : colors.textSecondary} />
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                if (hapticEnabled) Haptics.selectionAsync();
+                moveItem(id, list, itemId, 'down');
+              }}
+              disabled={index === total - 1}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Move down"
+            >
+              <ChevronDown size={18} color={index === total - 1 ? colors.border : colors.textSecondary} />
+            </Pressable>
+          </>
+        )}
+        <Pressable onPress={onDelete} hitSlop={8} accessibilityRole="button" accessibilityLabel={`Delete ${title}`}>
+          <Trash2 size={18} color={colors.error} />
+        </Pressable>
+      </View>
+    </View>
+  );
+
+  /* ---------------------------------------------------------------
+   * The five sections that used to render "This section is coming
+   * soon!" — the PDF engine already rendered four of them and the AI
+   * importer already extracted all five, so this was the only missing
+   * link between importing a resume and being able to edit it.
+   * --------------------------------------------------------------- */
+
+  const renderProjectsSection = () => (
+    <Animated.View entering={FadeInUp.delay(100)}>
+      {resume.projects.map((proj, index) => (
+        <Card key={proj.id} variant="outlined" style={{ marginBottom: 16 }}>
+          <ItemHeader
+            title={`Project ${index + 1}`}
+            index={index}
+            total={resume.projects.length}
+            list="projects"
+            itemId={proj.id}
+            onDelete={() => {
+              if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              deleteProject(id, proj.id);
+            }}
+          />
+          <Input
+            label="Project name"
+            value={proj.name}
+            onChangeText={(v) => { updateProject(id, proj.id, { name: v }); triggerSavePromptIfNeeded(); }}
+            placeholder="Open Design Tokens"
+            containerStyle={{ marginBottom: 12 }}
+          />
+          <Input
+            label="Link (optional)"
+            value={proj.link || ''}
+            onChangeText={(v) => updateProject(id, proj.id, { link: v })}
+            placeholder="github.com/you/project"
+            autoCapitalize="none"
+            validate={validateUrl}
+            validateOnChange
+            containerStyle={{ marginBottom: 12 }}
+          />
+          <Input
+            label="Technologies (comma separated)"
+            value={(proj.technologies || []).join(', ')}
+            onChangeText={(v) =>
+              updateProject(id, proj.id, {
+                technologies: v.split(',').map((x) => x.trim()).filter(Boolean),
+              })
+            }
+            placeholder="React, TypeScript"
+            containerStyle={{ marginBottom: 12 }}
+          />
+          <Input
+            label="Description"
+            value={proj.description || ''}
+            onChangeText={(v) => updateProject(id, proj.id, { description: v })}
+            placeholder="What it does and what you built."
+            multiline
+            numberOfLines={3}
+          />
+        </Card>
+      ))}
+      <AddButton
+        label="Add Project"
+        onPress={() => {
+          if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          addProject(id, { id: Date.now().toString(), name: '', description: '', technologies: [], link: '' });
+        }}
+      />
+    </Animated.View>
+  );
+
+  const renderCertificationsSection = () => (
+    <Animated.View entering={FadeInUp.delay(100)}>
+      {(resume.certifications || []).map((c, index) => (
+        <Card key={c.id} variant="outlined" style={{ marginBottom: 16 }}>
+          <ItemHeader
+            title={`Certification ${index + 1}`}
+            index={index}
+            total={resume.certifications.length}
+            list="certifications"
+            itemId={c.id}
+            onDelete={() => {
+              if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              deleteCertification(id, c.id);
+            }}
+          />
+          <Input
+            label="Certification"
+            value={c.name}
+            onChangeText={(v) => { updateCertification(id, c.id, { name: v }); triggerSavePromptIfNeeded(); }}
+            placeholder="AWS Solutions Architect"
+            containerStyle={{ marginBottom: 12 }}
+          />
+          <Input
+            label="Issuing organisation"
+            value={c.issuer}
+            onChangeText={(v) => updateCertification(id, c.id, { issuer: v })}
+            placeholder="Amazon Web Services"
+            containerStyle={{ marginBottom: 12 }}
+          />
+          <MonthYearPicker
+            label="Date earned"
+            value={c.date}
+            onChange={(v) => updateCertification(id, c.id, { date: v })}
+            placeholder="Pick a date"
+          />
+          <View style={{ height: 12 }} />
+          <Input
+            label="Credential ID (optional)"
+            value={c.credentialId || ''}
+            onChangeText={(v) => updateCertification(id, c.id, { credentialId: v })}
+            placeholder="ABC-123456"
+            autoCapitalize="characters"
+          />
+        </Card>
+      ))}
+      <AddButton
+        label="Add Certification"
+        onPress={() => {
+          if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          addCertification(id, { id: Date.now().toString(), name: '', issuer: '', date: '' });
+        }}
+      />
+    </Animated.View>
+  );
+
+  const renderLanguagesSection = () => (
+    <Animated.View entering={FadeInUp.delay(100)}>
+      {(resume.languages || []).map((l, index) => (
+        <Card key={l.id} variant="outlined" style={{ marginBottom: 16 }}>
+          <ItemHeader
+            title={l.name || `Language ${index + 1}`}
+            index={index}
+            total={resume.languages.length}
+            list="languages"
+            itemId={l.id}
+            onDelete={() => {
+              if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              deleteLanguage(id, l.id);
+            }}
+          />
+          <Input
+            label="Language"
+            value={l.name}
+            onChangeText={(v) => { updateLanguage(id, l.id, { name: v }); triggerSavePromptIfNeeded(); }}
+            placeholder="Spanish"
+            containerStyle={{ marginBottom: 12 }}
+          />
+          <Text className="text-xs font-medium mb-2" style={{ color: colors.textSecondary }}>
+            Proficiency
+          </Text>
+          <View className="flex-row" style={{ gap: 6 }}>
+            {LANGUAGE_LEVELS.map((lvl) => {
+              const active = l.proficiency === lvl.value;
+              return (
+                <Pressable
+                  key={lvl.value}
+                  onPress={() => {
+                    if (hapticEnabled) Haptics.selectionAsync();
+                    updateLanguage(id, l.id, { proficiency: lvl.value });
+                  }}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 8,
+                    borderRadius: 8,
+                    alignItems: 'center',
+                    backgroundColor: active ? colors.primary : colors.primary + '10',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      fontWeight: active ? '700' : '500',
+                      color: active ? 'white' : colors.primary,
+                    }}
+                  >
+                    {lvl.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Card>
+      ))}
+      <AddButton
+        label="Add Language"
+        onPress={() => {
+          if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          addLanguage(id, { id: Date.now().toString(), name: '', proficiency: 'professional' });
+        }}
+      />
+    </Animated.View>
+  );
+
+  const renderAwardsSection = () => (
+    <Animated.View entering={FadeInUp.delay(100)}>
+      {(resume.awards || []).map((a, index) => (
+        <Card key={a.id} variant="outlined" style={{ marginBottom: 16 }}>
+          <ItemHeader
+            title={`Award ${index + 1}`}
+            index={index}
+            total={resume.awards.length}
+            list="awards"
+            itemId={a.id}
+            onDelete={() => {
+              if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              deleteAward(id, a.id);
+            }}
+          />
+          <Input
+            label="Award"
+            value={a.title}
+            onChangeText={(v) => { updateAward(id, a.id, { title: v }); triggerSavePromptIfNeeded(); }}
+            placeholder="Employee of the Year"
+            containerStyle={{ marginBottom: 12 }}
+          />
+          <Input
+            label="Issued by"
+            value={a.issuer}
+            onChangeText={(v) => updateAward(id, a.id, { issuer: v })}
+            placeholder="Acme Corp"
+            containerStyle={{ marginBottom: 12 }}
+          />
+          <MonthYearPicker
+            label="Date"
+            value={a.date}
+            onChange={(v) => updateAward(id, a.id, { date: v })}
+            placeholder="Pick a date"
+          />
+          <View style={{ height: 12 }} />
+          <Input
+            label="Description (optional)"
+            value={a.description || ''}
+            onChangeText={(v) => updateAward(id, a.id, { description: v })}
+            placeholder="What it was awarded for."
+            multiline
+            numberOfLines={2}
+          />
+        </Card>
+      ))}
+      <AddButton
+        label="Add Award"
+        onPress={() => {
+          if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          addAward(id, { id: Date.now().toString(), title: '', issuer: '', date: '' });
+        }}
+      />
+    </Animated.View>
+  );
+
+  const renderCustomSection = () => (
+    <Animated.View entering={FadeInUp.delay(100)}>
+      <Text className="text-xs mb-3" style={{ color: colors.textSecondary }}>
+        Add anything the standard sections don't cover — volunteering, publications, references, speaking.
+      </Text>
+      {(resume.customSections || []).map((cs, index) => (
+        <Card key={cs.id} variant="outlined" style={{ marginBottom: 16 }}>
+          <ItemHeader
+            title={cs.title || `Section ${index + 1}`}
+            index={index}
+            total={resume.customSections.length}
+            list="customSections"
+            itemId={cs.id}
+            onDelete={() => {
+              if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              deleteCustomSection(id, cs.id);
+            }}
+          />
+          <Input
+            label="Section title"
+            value={cs.title}
+            onChangeText={(v) => { updateCustomSection(id, cs.id, { title: v }); triggerSavePromptIfNeeded(); }}
+            placeholder="Volunteering"
+            containerStyle={{ marginBottom: 12 }}
+          />
+          <Input
+            label="Content"
+            value={cs.content}
+            onChangeText={(v) => updateCustomSection(id, cs.id, { content: v })}
+            placeholder={'One line per entry.\nMentored 12 junior designers at Code First Girls.'}
+            multiline
+            numberOfLines={5}
+          />
+        </Card>
+      ))}
+      <AddButton
+        label="Add Custom Section"
+        onPress={() => {
+          if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          addCustomSection(id, { id: Date.now().toString(), title: '', content: '' });
+        }}
+      />
+    </Animated.View>
+  );
+
   const renderSectionContent = () => {
     switch (section) {
       case 'header':
@@ -1165,14 +1562,18 @@ export default function EditSection() {
         return renderEducationSection();
       case 'skills':
         return renderSkillsSection();
+      case 'projects':
+        return renderProjectsSection();
+      case 'certifications':
+        return renderCertificationsSection();
+      case 'languages':
+        return renderLanguagesSection();
+      case 'awards':
+        return renderAwardsSection();
+      case 'custom':
+        return renderCustomSection();
       default:
-        return (
-          <View className="items-center py-8">
-            <Text style={{ color: colors.textMuted }}>
-              This section is coming soon!
-            </Text>
-          </View>
-        );
+        return renderCustomSection();
     }
   };
 
