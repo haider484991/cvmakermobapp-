@@ -15,7 +15,9 @@ import { AIScoreCard } from '@/components/features/ai-assistant';
 import { Button } from '@/components/ui';
 import { TemplateSwitcher, ColorPicker } from '@/components/features/templates';
 import { generatePremiumHTML } from '@/services/pdf/premiumHtmlEngine';
-import { ArrowLeft, Download, Share2, Sparkles, X, FileText, Settings, Play } from 'lucide-react-native';
+import { runAtsRoundTrip, type AtsRoundTripResult } from '@/services/ai/atsRoundTrip';
+import { track } from '@/services/analytics/analytics';
+import { ArrowLeft, Download, Share2, Sparkles, X, FileText, Settings, Play, ScanLine, ChevronRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 
 /**
@@ -184,6 +186,8 @@ export default function PreviewResume() {
   const [showJobDescriptionInput, setShowJobDescriptionInput] = useState(false);
   const [jobDescription, setJobDescription] = useState('');
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [atsRunning, setAtsRunning] = useState(false);
+  const [atsResult, setAtsResult] = useState<AtsRoundTripResult | null>(null);
 
   const handleBack = () => {
     if (hapticEnabled) {
@@ -200,6 +204,38 @@ export default function PreviewResume() {
   };
 
   // Direct download with ads
+  /**
+   * Run the ATS round trip: export the PDF, re-parse it, diff the result.
+   * Costs one AI call (same parser as resume import), so it's user-triggered
+   * rather than automatic.
+   */
+  const handleAtsTest = useCallback(async () => {
+    if (!resume || atsRunning) return;
+    if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setAtsRunning(true);
+    try {
+      const result = await runAtsRoundTrip(resume, template, 'letter');
+      setAtsResult(result);
+      track('ats_roundtrip_completed' as any, {
+        score: result.score,
+        issues: result.issues.length,
+        template_id: template?.id,
+      });
+      if (hapticEnabled) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (e: any) {
+      Alert.alert('Could not run the test', e?.message || 'Please try again.');
+      track('ats_roundtrip_failed' as any, { error: String(e?.message).slice(0, 200) });
+    } finally {
+      setAtsRunning(false);
+    }
+  }, [resume, template, atsRunning, hapticEnabled]);
+
+  /** Colour for the recovery score — green ≥90, amber ≥70, red below. */
+  const atsTone = useCallback(
+    (score: number) => (score >= 90 ? colors.success : score >= 70 ? colors.warning : colors.error),
+    [colors],
+  );
+
   const handleDownload = useCallback(async () => {
     if (!id) return;
 
@@ -486,6 +522,98 @@ export default function PreviewResume() {
             </View>
           </View>
         )}
+
+        {/* ATS round-trip test.
+            Unlike a keyword score or an LLM opinion, this exports the real
+            PDF, re-parses it, and reports what a scanner actually loses. */}
+        <View
+          className="mb-3 rounded-2xl overflow-hidden"
+          style={{ borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface }}
+        >
+          <Pressable
+            onPress={handleAtsTest}
+            disabled={atsRunning}
+            className="p-4 flex-row items-center"
+            accessibilityRole="button"
+            accessibilityLabel="Run the ATS scan test"
+          >
+            <View
+              className="w-11 h-11 rounded-xl items-center justify-center mr-3"
+              style={{ backgroundColor: colors.primary + '15' }}
+            >
+              {atsRunning ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <ScanLine size={22} color={colors.primary} />
+              )}
+            </View>
+            <View className="flex-1">
+              <Text className="font-bold" style={{ color: colors.text }}>
+                {atsRunning ? 'Scanning your PDF…' : 'Test how an ATS reads this'}
+              </Text>
+              <Text className="text-xs mt-0.5" style={{ color: colors.textSecondary }}>
+                {atsRunning
+                  ? 'Exporting, then reading it back like a recruiter’s system would'
+                  : 'We export your PDF, read it back, and show what gets lost'}
+              </Text>
+            </View>
+            {!atsRunning && !atsResult && <ChevronRight size={20} color={colors.textMuted} />}
+          </Pressable>
+
+          {atsResult && (
+            <Animated.View entering={FadeIn.duration(250)} className="px-4 pb-4">
+              <View
+                className="rounded-xl p-3 mb-3 flex-row items-center"
+                style={{ backgroundColor: atsTone(atsResult.score) + '12' }}
+              >
+                <Text style={{ fontSize: 30, fontWeight: '800', color: atsTone(atsResult.score) }}>
+                  {atsResult.score}%
+                </Text>
+                <Text className="ml-3 flex-1 text-xs" style={{ color: colors.textSecondary, lineHeight: 17 }}>
+                  of your content survived the scan.{' '}
+                  {atsResult.recovered.bullets[1] > 0 &&
+                    `${atsResult.recovered.bullets[0]}/${atsResult.recovered.bullets[1]} bullets, `}
+                  {atsResult.recovered.skills[1] > 0 &&
+                    `${atsResult.recovered.skills[0]}/${atsResult.recovered.skills[1]} skills readable.`}
+                </Text>
+              </View>
+
+              {atsResult.issues.slice(0, 5).map((issue, i) => (
+                <View key={i} className="flex-row mb-2.5">
+                  <View
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: 3,
+                      marginTop: 6,
+                      marginRight: 9,
+                      backgroundColor:
+                        issue.severity === 'critical'
+                          ? colors.error
+                          : issue.severity === 'warning'
+                            ? colors.warning
+                            : colors.success,
+                    }}
+                  />
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold" style={{ color: colors.text }}>
+                      {issue.title}
+                    </Text>
+                    <Text className="text-xs mt-0.5" style={{ color: colors.textSecondary, lineHeight: 17 }}>
+                      {issue.detail}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+
+              <Pressable onPress={handleAtsTest} className="mt-1 py-2">
+                <Text className="text-xs font-semibold" style={{ color: colors.primary }}>
+                  Re-run test
+                </Text>
+              </Pressable>
+            </Animated.View>
+          )}
+        </View>
 
         {/* Resume Preview — WebView rendering the EXACT HTML the PDF
             export will produce. Preview = Export by construction:
