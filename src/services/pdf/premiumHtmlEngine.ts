@@ -33,6 +33,7 @@ import {
   Certification,
   Language,
   Award,
+  CustomSection,
 } from '@/types/resume';
 import { ResumeTemplate } from '@/types/template';
 import { interFontFaceCss } from './interFonts';
@@ -758,6 +759,37 @@ function languagesBlock(items: Language[], opts: BlockOpts): string {
   `;
 }
 
+/**
+ * User-defined sections. `customSections` existed in the type system but was
+ * rendered nowhere, so anything a user wrote there silently never printed.
+ * Content is free text: each non-empty line becomes a bullet when there are
+ * several lines, otherwise it renders as a paragraph.
+ */
+function customSectionsBlock(items: CustomSection[], opts: BlockOpts): string {
+  if (opts.t.hiddenSections?.has('custom')) return '';
+  const withContent = (items || []).filter((c) => c?.title?.trim() || c?.content?.trim());
+  if (!withContent.length) return '';
+  return withContent
+    .map((c) => {
+      const lines = (c.content || '')
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean);
+      const body =
+        lines.length > 1
+          ? `<ul class="rb-list">${lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>`
+          : lines.length === 1
+            ? `<p class="rb-desc">${esc(lines[0])}</p>`
+            : '';
+      return `
+        <section class="rb-section">
+          ${sectionTitle(c.title?.trim() || 'Additional', opts)}
+          ${body}
+        </section>`;
+    })
+    .join('');
+}
+
 function awardsBlock(items: Award[], opts: BlockOpts): string {
   if (opts.t.hiddenSections?.has('awards')) return '';
   if (!items?.length) return '';
@@ -1382,6 +1414,7 @@ function renderSingle(resume: Resume, t: PremiumTheme, accent: 'clean' | 'leftba
       ${certificationsBlock(resume.certifications || [], opts)}
       ${languagesBlock(resume.languages || [], opts)}
       ${awardsBlock(resume.awards || [], opts)}
+      ${customSectionsBlock(resume.customSections || [], opts)}
     </div>
   `;
 }
@@ -1400,6 +1433,7 @@ function renderBanner(resume: Resume, t: PremiumTheme): string {
       ${certificationsBlock(resume.certifications || [], opts)}
       ${languagesBlock(resume.languages || [], opts)}
       ${awardsBlock(resume.awards || [], opts)}
+      ${customSectionsBlock(resume.customSections || [], opts)}
     </div>
   `;
 }
@@ -1418,6 +1452,7 @@ function renderSplit(resume: Resume, t: PremiumTheme): string {
       ${certificationsBlock(resume.certifications || [], opts)}
       ${languagesBlock(resume.languages || [], opts)}
       ${awardsBlock(resume.awards || [], opts)}
+      ${customSectionsBlock(resume.customSections || [], opts)}
     </div>
   `;
 }
@@ -1432,6 +1467,7 @@ function renderSidebar(resume: Resume, t: PremiumTheme, side: 'left' | 'right'):
       ${educationBlock(resume.education, body)}
       ${projectsBlock(resume.projects || [], body)}
       ${awardsBlock(resume.awards || [], body)}
+      ${customSectionsBlock(resume.customSections || [], body)}
     </main>
   `;
   const sidebar = sidebarPanel(resume, t);
@@ -1472,6 +1508,7 @@ function renderTwoColumn(resume: Resume, t: PremiumTheme): string {
           ${experienceBlock(resume.experience, opts)}
           ${projectsBlock(resume.projects || [], opts)}
           ${awardsBlock(resume.awards || [], opts)}
+          ${customSectionsBlock(resume.customSections || [], opts)}
         </div>
       </div>
     </div>
@@ -1538,6 +1575,7 @@ function renderTimeline(resume: Resume, t: PremiumTheme): string {
       ${certificationsBlock(resume.certifications || [], opts)}
       ${languagesBlock(resume.languages || [], opts)}
       ${awardsBlock(resume.awards || [], opts)}
+      ${customSectionsBlock(resume.customSections || [], opts)}
     </div>
   `;
 }
