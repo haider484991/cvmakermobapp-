@@ -19,6 +19,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Share,
+  Alert,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,7 +27,10 @@ import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import * as Clipboard from 'expo-clipboard';
-import { Mail, Copy, Share2, Sparkles, Lock, Check, RefreshCw, FileQuestion } from 'lucide-react-native';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+import { buildCoverLetterHtml } from '@/services/pdf/docExport';
+import { Mail, Copy, Share2, Sparkles, Lock, Check, RefreshCw, FileQuestion, FileDown } from 'lucide-react-native';
 import { useTheme } from '@/hooks/useTheme';
 import { useUIStore } from '@/stores/uiStore';
 import { useResumeStore } from '@/stores/resumeStore';
@@ -59,6 +63,7 @@ export default function CoverLetter() {
   const [letter, setLetter] = useState<string | null>(null);
   const [paywallVisible, setPaywallVisible] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   const resume = id ? getResume(id) : null;
   const canGenerate = jobDescription.trim().length >= MIN_JD_CHARS && !isLoading;
@@ -101,6 +106,30 @@ export default function CoverLetter() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [letter, hapticEnabled]);
+
+  /**
+   * Export the letter as a typeset PDF. Until now this screen could only copy
+   * text or share a raw string, so there was no way to attach a formatted
+   * cover letter to an application — despite the app already shipping an
+   * HTML→PDF pipeline.
+   */
+  const handleExportPdf = useCallback(async () => {
+    if (!letter || !resume || exportingPdf) return;
+    if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setExportingPdf(true);
+    try {
+      const html = buildCoverLetterHtml(letter, resume, 'letter');
+      const { uri } = await Print.printToFileAsync({ html, base64: false });
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Share cover letter' });
+      }
+      track('cover_letter_exported_pdf' as any, {});
+    } catch (e: any) {
+      Alert.alert('Export failed', e?.message || 'Could not create the PDF.');
+    } finally {
+      setExportingPdf(false);
+    }
+  }, [letter, resume, exportingPdf, hapticEnabled]);
 
   const handleShare = useCallback(async () => {
     if (!letter) return;
@@ -191,6 +220,31 @@ export default function CoverLetter() {
                 >
                   <Share2 size={16} color={colors.text} />
                   <Text style={{ color: colors.text, fontWeight: '600', marginLeft: 7 }}>Share</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleExportPdf}
+                  disabled={exportingPdf}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 14,
+                    borderRadius: 13,
+                    backgroundColor: colors.surface,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    opacity: exportingPdf ? 0.6 : 1,
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Export cover letter as PDF"
+                >
+                  {exportingPdf ? (
+                    <ActivityIndicator size="small" color={colors.text} />
+                  ) : (
+                    <FileDown size={16} color={colors.text} />
+                  )}
+                  <Text style={{ color: colors.text, fontWeight: '600', marginLeft: 7 }}>PDF</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => {

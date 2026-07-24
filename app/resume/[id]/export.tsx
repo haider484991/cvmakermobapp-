@@ -9,6 +9,8 @@ import { useResumeStore } from '@/stores/resumeStore';
 import { useTemplateStore } from '@/stores/templateStore';
 import { useUIStore } from '@/stores/uiStore';
 import { usePDFExport } from '@/hooks/usePDFExport';
+import { generateWordFile, generateTextFile } from '@/services/pdf/docExport';
+import * as Sharing from 'expo-sharing';
 import { useDownloadAd } from '@/hooks/useDownloadAd';
 import { useGamification } from '@/hooks/useGamification';
 import { interstitialAd } from '@/services/ads';
@@ -31,6 +33,7 @@ import {
   AlertCircle,
   Play,
   Sparkles,
+  FileType,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import type { PaperSize } from '@/services/pdf';
@@ -70,6 +73,8 @@ export default function ExportResume() {
   const { tryPrompt, modalProps: reviewModalProps } = useReviewPrompt();
 
   const [paperSize, setPaperSize] = useState<PaperSize>('letter');
+  /** Which alternate format is currently generating (null when idle). */
+  const [busyFormat, setBusyFormat] = useState<'word' | 'text' | null>(null);
   const [exportSuccess, setExportSuccess] = useState(false);
 
   const resume = getResume(id!);
@@ -264,6 +269,52 @@ export default function ExportResume() {
       console.error('[Export] Share unexpected error:', err);
     }
   }, [id, sharePDF, paperSize, hapticEnabled]);
+
+  /**
+   * Generate a Word or plain-text copy and hand it to the share sheet.
+   *
+   * These go through Sharing rather than the MediaStore "save to Downloads"
+   * path because the usual next step is attaching the file to an email or
+   * upload, not filing it away.
+   */
+  const handleExportFormat = useCallback(
+    async (format: 'word' | 'text') => {
+      if (!resume || busyFormat) return;
+      if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      setBusyFormat(format);
+      try {
+        const uri =
+          format === 'word'
+            ? await generateWordFile(resume, selectedTemplate, paperSize)
+            : await generateTextFile(resume);
+
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(uri, {
+            mimeType: format === 'word' ? 'application/msword' : 'text/plain',
+            dialogTitle: format === 'word' ? 'Share Word resume' : 'Share plain-text resume',
+          });
+        } else {
+          Alert.alert('Saved', `Your ${format === 'word' ? 'Word' : 'text'} resume is ready.`);
+        }
+        track(ANALYTICS_EVENTS.RESUME_EXPORT_SUCCEEDED, {
+          format,
+          template_id: selectedTemplate?.id,
+          paper_size: paperSize,
+        });
+        reviewSignals.pdfExported().catch(() => {});
+      } catch (err: any) {
+        if (hapticEnabled) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        Alert.alert(
+          'Export failed',
+          err?.message || `Could not create the ${format === 'word' ? 'Word' : 'text'} file.`,
+        );
+        track(ANALYTICS_EVENTS.RESUME_EXPORT_FAILED, { format, error: String(err?.message).slice(0, 200) });
+      } finally {
+        setBusyFormat(null);
+      }
+    },
+    [resume, busyFormat, hapticEnabled, selectedTemplate, paperSize],
+  );
 
   const handleSharePDF = useCallback(async () => {
     if (!id) return;
@@ -642,6 +693,69 @@ export default function ExportResume() {
             </Pressable>
           </Animated.View>
 
+          {/* Other formats — Word for recruiters/agencies who require an
+              editable file, plain text for pasting into ATS application forms
+              (Workday, Taleo). Both were missing entirely; every major
+              competitor ships them. */}
+          <Animated.View entering={FadeInUp.delay(380)} className="mt-2">
+            <Text className="text-sm font-medium mb-2" style={{ color: colors.textSecondary }}>
+              OTHER FORMATS
+            </Text>
+            <View className="flex-row" style={{ gap: 12 }}>
+              <Pressable
+                onPress={() => handleExportFormat('word')}
+                disabled={busyFormat !== null}
+                className="flex-1 p-4 rounded-xl items-center"
+                style={{
+                  backgroundColor: colors.surface,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  opacity: busyFormat !== null ? 0.6 : 1,
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Export as Word document"
+              >
+                {busyFormat === 'word' ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : (
+                  <FileType size={22} color={colors.primary} />
+                )}
+                <Text className="font-semibold mt-2" style={{ color: colors.text }}>
+                  Word (.doc)
+                </Text>
+                <Text className="text-xs mt-0.5" style={{ color: colors.textSecondary }}>
+                  Editable
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => handleExportFormat('text')}
+                disabled={busyFormat !== null}
+                className="flex-1 p-4 rounded-xl items-center"
+                style={{
+                  backgroundColor: colors.surface,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  opacity: busyFormat !== null ? 0.6 : 1,
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Export as plain text"
+              >
+                {busyFormat === 'text' ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : (
+                  <FileText size={22} color={colors.primary} />
+                )}
+                <Text className="font-semibold mt-2" style={{ color: colors.text }}>
+                  Plain text
+                </Text>
+                <Text className="text-xs mt-0.5" style={{ color: colors.textSecondary }}>
+                  For ATS forms
+                </Text>
+              </Pressable>
+            </View>
+          </Animated.View>
+
           {/* Watermark Notice — tappable: opens paywall for free users.
               Hidden entirely for premium since there's nothing to advertise. */}
           {!isPremium && (
@@ -662,7 +776,7 @@ export default function ExportResume() {
                     </Text>
                     <Text className="text-sm mt-1" style={{ color: colors.textSecondary }}>
                       Free PDFs include a small "Made with FreeResume AI" footer.
-                      Upgrade to FreeResume Pro to remove it and unlock all 22 templates.
+                      Upgrade to FreeResume Pro to remove it and unlock all 26 templates.
                     </Text>
                   </View>
                 </View>
