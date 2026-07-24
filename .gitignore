@@ -49,3 +49,4 @@ play-store-credentials.json
 .claude/
 .gemini/
 store-assets/template-renders/
+scripts/.assets.cjs
