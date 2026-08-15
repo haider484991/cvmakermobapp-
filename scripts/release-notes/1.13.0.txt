@@ -1,0 +1,4 @@
+Smarter AI writing: summaries, bullet points, scores and cover letters now follow professional resume-writing rules — real numbers only, no clichés, correct tense.
+New: the AI replies in your language — describe yourself in Spanish, Hindi or Urdu and your resume comes back in it.
+Fixed: importing long or detailed resumes no longer fails.
+Improved: faster, more reliable AI that switches providers automatically during outages.

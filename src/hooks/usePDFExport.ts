@@ -16,6 +16,18 @@ import {
   PDFExportResult,
   PaperSize,
 } from '@/services/pdf';
+import { reviewSignals } from '@/services/review/reviewManager';
+import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+
+/**
+ * A finished export is the app's peak-value moment — record it for the
+ * review prompt manager (which decides if/when to actually ask) and for
+ * analytics. Both were defined from day one but never fired.
+ */
+function recordExportSuccess(method: 'file' | 'share' | 'download'): void {
+  reviewSignals.pdfExported().catch(() => {});
+  track(ANALYTICS_EVENTS.RESUME_EXPORT_SUCCEEDED, { method });
+}
 
 export interface UsePDFExportOptions {
   /**
@@ -128,8 +140,10 @@ export function usePDFExport(options: UsePDFExportOptions = {}): UsePDFExportRet
         if (result.success && result.uri) {
           setLastGeneratedUri(result.uri);
           setProgress('PDF generated successfully!');
+          recordExportSuccess('file');
         } else {
           setError(result.error || 'Failed to generate PDF');
+          track(ANALYTICS_EVENTS.RESUME_EXPORT_FAILED, { method: 'file' });
         }
 
         return result;
@@ -177,8 +191,10 @@ export function usePDFExport(options: UsePDFExportOptions = {}): UsePDFExportRet
           if (result.uri) {
             setLastGeneratedUri(result.uri);
           }
+          recordExportSuccess('share');
         } else {
           setError(result.error || 'Failed to share PDF');
+          track(ANALYTICS_EVENTS.RESUME_EXPORT_FAILED, { method: 'share' });
         }
 
         return result;
@@ -228,8 +244,10 @@ export function usePDFExport(options: UsePDFExportOptions = {}): UsePDFExportRet
           if (result.uri) {
             setLastGeneratedUri(result.uri);
           }
+          recordExportSuccess('download');
         } else {
           setError(result.error || 'Failed to download PDF');
+          track(ANALYTICS_EVENTS.RESUME_EXPORT_FAILED, { method: 'download' });
         }
 
         return result;
