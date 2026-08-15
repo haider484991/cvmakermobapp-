@@ -2,10 +2,9 @@ import {
   chatCompletion,
   streamingChatCompletion,
   parseJSONResponse,
-  getModelByTier,
-  DEFAULT_MODELS,
   createAIError,
 } from '@/lib/openrouter';
+import { resolveModelChain, type AICapability } from '@/services/ai/modelRegistry';
 import {
   SYSTEM_PROMPT,
   SUMMARY_PROMPT,
@@ -34,36 +33,38 @@ import type {
 import type { Resume, WorkExperience } from '@/types/resume';
 
 /**
- * Default request options
+ * Default request options. maxTokens is a ceiling, not a cost — output is
+ * only billed as generated, and a low cap is how we got truncated JSON.
  */
-const DEFAULT_OPTIONS: Required<AIRequestOptions> = {
-  model: 'x-ai/grok-4.3',
+const DEFAULT_OPTIONS = {
   temperature: 0.7,
-  maxTokens: 2048,
+  maxTokens: 4096,
 };
 
 /**
- * Merge options with defaults
+ * Which registry capability serves each feature.
  */
-function mergeOptions(options?: AIRequestOptions): Required<AIRequestOptions> {
-  return {
-    ...DEFAULT_OPTIONS,
-    ...options,
-  };
-}
+const FEATURE_CAPABILITY: Record<'summary' | 'bullets' | 'skills' | 'score', AICapability> = {
+  summary: 'text-quality',
+  bullets: 'text-fast',
+  skills: 'text-fast',
+  score: 'text-quality',
+};
 
 /**
- * Get the appropriate model for a feature
+ * Resolve models for a feature. An explicit options.model pins the request
+ * to that model; otherwise the registry supplies a validated chain that is
+ * also sent as OpenRouter's server-side fallback array.
  */
-function getModelForFeature(
-  feature: keyof typeof DEFAULT_MODELS,
+async function resolveFeatureModels(
+  feature: keyof typeof FEATURE_CAPABILITY,
   options?: AIRequestOptions
-): AIModel {
+): Promise<{ model: AIModel; models: string[] }> {
   if (options?.model) {
-    return options.model;
+    return { model: options.model, models: [options.model] };
   }
-  const tier = DEFAULT_MODELS[feature];
-  return getModelByTier(tier).id;
+  const chain = await resolveModelChain(FEATURE_CAPABILITY[feature]);
+  return { model: chain[0], models: chain };
 }
 
 /**
@@ -77,17 +78,18 @@ export async function generateSummary(
   context: AIContext,
   options?: AIRequestOptions
 ): Promise<SummaryGenerationResult> {
-  const model = getModelForFeature('summary', options);
-  const mergedOptions = mergeOptions({ ...options, model });
+  const { model, models } = await resolveFeatureModels('summary', options);
 
   const response = await chatCompletion({
-    model: mergedOptions.model,
+    model,
+    models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: SUMMARY_PROMPT(context) },
     ],
-    temperature: mergedOptions.temperature,
-    maxTokens: mergedOptions.maxTokens,
+    temperature: options?.temperature ?? DEFAULT_OPTIONS.temperature,
+    maxTokens: options?.maxTokens ?? DEFAULT_OPTIONS.maxTokens,
+    responseFormat: 'json_object',
   });
 
   const parsed = parseJSONResponse<{ summaries: string[] }>(response.content);
@@ -118,21 +120,22 @@ export async function enhanceBulletPoints(
     throw createAIError('PARSE_ERROR', 'No bullet points provided to enhance');
   }
 
-  const model = getModelForFeature('bullets', options);
-  const mergedOptions = mergeOptions({ ...options, model });
+  const { model, models } = await resolveFeatureModels('bullets', options);
 
   const context: Partial<AIContext> = {
     jobTitle: experience.title,
   };
 
   const response = await chatCompletion({
-    model: mergedOptions.model,
+    model,
+    models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: BULLET_POINT_PROMPT(experience.bullets, context) },
     ],
-    temperature: mergedOptions.temperature,
-    maxTokens: mergedOptions.maxTokens,
+    temperature: options?.temperature ?? DEFAULT_OPTIONS.temperature,
+    maxTokens: options?.maxTokens ?? DEFAULT_OPTIONS.maxTokens,
+    responseFormat: 'json_object',
   });
 
   const parsed = parseJSONResponse<{ bullets: BulletPointResult[] }>(response.content);
@@ -167,11 +170,11 @@ export async function suggestSkills(
     throw createAIError('PARSE_ERROR', 'Job title and industry are required');
   }
 
-  const model = getModelForFeature('skills', options);
-  const mergedOptions = mergeOptions({ ...options, model });
+  const { model, models } = await resolveFeatureModels('skills', options);
 
   const response = await chatCompletion({
-    model: mergedOptions.model,
+    model,
+    models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {
@@ -179,8 +182,9 @@ export async function suggestSkills(
         content: SKILL_SUGGESTION_PROMPT(jobTitle, industry, existingSkills),
       },
     ],
-    temperature: mergedOptions.temperature,
-    maxTokens: mergedOptions.maxTokens,
+    temperature: options?.temperature ?? DEFAULT_OPTIONS.temperature,
+    maxTokens: options?.maxTokens ?? DEFAULT_OPTIONS.maxTokens,
+    responseFormat: 'json_object',
   });
 
   const parsed = parseJSONResponse<{ skills: SkillSuggestion[] }>(response.content);
@@ -217,17 +221,18 @@ export async function scoreResume(
   jobDescription?: string,
   options?: AIRequestOptions
 ): Promise<ResumeScore> {
-  const model = getModelForFeature('score', options);
-  const mergedOptions = mergeOptions({ ...options, model });
+  const { model, models } = await resolveFeatureModels('score', options);
 
   const response = await chatCompletion({
-    model: mergedOptions.model,
+    model,
+    models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: RESUME_SCORE_PROMPT(resume, jobDescription) },
     ],
     temperature: 0.5, // Lower temperature for more consistent scoring
-    maxTokens: mergedOptions.maxTokens,
+    maxTokens: options?.maxTokens ?? DEFAULT_OPTIONS.maxTokens,
+    responseFormat: 'json_object',
   });
 
   interface ParsedScore {
@@ -297,11 +302,11 @@ export async function enhanceSingleBullet(
   jobTitle?: string,
   options?: AIRequestOptions
 ): Promise<string> {
-  const model = getModelForFeature('bullets', options);
-  const mergedOptions = mergeOptions({ ...options, model });
+  const { model, models } = await resolveFeatureModels('bullets', options);
 
   const response = await chatCompletion({
-    model: mergedOptions.model,
+    model,
+    models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {
@@ -315,7 +320,7 @@ ${jobTitle ? `Role: ${jobTitle}` : ''}
 Return only the improved bullet point, starting with a strong action verb. Include metrics if possible. Keep it under 20 words.`,
       },
     ],
-    temperature: mergedOptions.temperature,
+    temperature: options?.temperature ?? DEFAULT_OPTIONS.temperature,
     maxTokens: 256,
   });
 
@@ -343,8 +348,7 @@ export async function generateSummaryStreaming(
   callbacks: StreamingCallbacks,
   options?: AIRequestOptions
 ): Promise<void> {
-  const model = getModelForFeature('summary', options);
-  const mergedOptions = mergeOptions({ ...options, model });
+  const { model, models } = await resolveFeatureModels('summary', options);
 
   const streamingPrompt = `Based on the following context, write ONE professional summary paragraph for a resume. The summary should be 3-4 sentences, highlight key achievements, and be written in first person. Do NOT use JSON format - just write the summary text directly.
 
@@ -357,12 +361,13 @@ ${context.experience?.length ? `- Experience: ${context.experience.map(e => e.ti
 Write a compelling, achievement-focused professional summary:`;
 
   await streamingChatCompletion({
-    model: mergedOptions.model,
+    model,
+    models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: streamingPrompt },
     ],
-    temperature: mergedOptions.temperature,
+    temperature: options?.temperature ?? DEFAULT_OPTIONS.temperature,
     maxTokens: 512,
     onChunk: callbacks.onChunk,
     onComplete: callbacks.onComplete,
@@ -384,8 +389,7 @@ export async function enhanceBulletStreaming(
   callbacks: StreamingCallbacks,
   options?: AIRequestOptions
 ): Promise<void> {
-  const model = getModelForFeature('bullets', options);
-  const mergedOptions = mergeOptions({ ...options, model });
+  const { model, models } = await resolveFeatureModels('bullets', options);
 
   const streamingPrompt = `Transform this job responsibility into an achievement-focused bullet point. Start with a strong action verb, include metrics if possible, and keep it under 20 words. Do NOT use JSON format - just write the improved bullet point directly.
 
@@ -395,12 +399,13 @@ ${jobTitle ? `Role: ${jobTitle}` : ''}
 Improved bullet point:`;
 
   await streamingChatCompletion({
-    model: mergedOptions.model,
+    model,
+    models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: streamingPrompt },
     ],
-    temperature: mergedOptions.temperature,
+    temperature: options?.temperature ?? DEFAULT_OPTIONS.temperature,
     maxTokens: 256,
     onChunk: callbacks.onChunk,
     onComplete: callbacks.onComplete,
@@ -420,17 +425,17 @@ export async function streamTextGeneration(
   callbacks: StreamingCallbacks,
   options?: AIRequestOptions
 ): Promise<void> {
-  const model = getModelForFeature('summary', options);
-  const mergedOptions = mergeOptions({ ...options, model });
+  const { model, models } = await resolveFeatureModels('summary', options);
 
   await streamingChatCompletion({
-    model: mergedOptions.model,
+    model,
+    models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: prompt },
     ],
-    temperature: mergedOptions.temperature,
-    maxTokens: mergedOptions.maxTokens,
+    temperature: options?.temperature ?? DEFAULT_OPTIONS.temperature,
+    maxTokens: options?.maxTokens ?? DEFAULT_OPTIONS.maxTokens,
     onChunk: callbacks.onChunk,
     onComplete: callbacks.onComplete,
     onError: callbacks.onError,
@@ -473,18 +478,20 @@ export async function structureFromNarrative(
     );
   }
 
-  const model = getModelForFeature('summary', options);
+  const { model, models } = await resolveFeatureModels('summary', options);
   // Cap input at ~6000 chars (~1500 tokens) so the response has room.
   const trimmed = narrative.trim().slice(0, 6000);
 
   const response = await chatCompletion({
     model,
+    models,
     messages: [
       { role: 'system', content: NARRATIVE_TO_RESUME_SYSTEM_PROMPT },
       { role: 'user', content: NARRATIVE_TO_RESUME_PROMPT(trimmed) },
     ],
     temperature: 0.4,
-    maxTokens: 3072,
+    maxTokens: 8192,
+    responseFormat: 'json_object',
   });
 
   const parsed = parseJSONResponse<{
@@ -551,7 +558,7 @@ export async function tailorToJob(
     );
   }
 
-  const model = getModelForFeature('score', options);
+  const { model, models } = await resolveFeatureModels('score', options);
   const payload = {
     jobTitle: resume.header.jobTitle,
     summary: resume.summary,
@@ -566,13 +573,15 @@ export async function tailorToJob(
 
   const response = await chatCompletion({
     model,
+    models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       // Cap the JD at ~8k chars so long postings leave room for the answer.
       { role: 'user', content: TAILOR_PROMPT(payload, jd.slice(0, 8000)) },
     ],
     temperature: 0.4, // fidelity over creativity — these get applied verbatim
-    maxTokens: 3072,
+    maxTokens: 8192,
+    responseFormat: 'json_object',
   });
 
   const parsed = parseJSONResponse<Omit<TailorResult, 'model' | 'tokensUsed'>>(response.content);
@@ -617,7 +626,7 @@ export async function generateCoverLetter(
     );
   }
 
-  const model = getModelForFeature('summary', options);
+  const { model, models } = await resolveFeatureModels('summary', options);
   const payload = {
     fullName: resume.header.fullName,
     jobTitle: resume.header.jobTitle,
@@ -632,6 +641,7 @@ export async function generateCoverLetter(
 
   const response = await chatCompletion({
     model,
+    models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: COVER_LETTER_PROMPT(payload, jd.slice(0, 8000)) },

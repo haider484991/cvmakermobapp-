@@ -3,7 +3,8 @@
  * Analyzes resumes and provides scores with improvement suggestions
  */
 
-import { chatCompletion, createAIError } from '@/lib/openrouter';
+import { chatCompletion, parseJSONResponse } from '@/lib/openrouter';
+import { resolveModelChain } from '@/services/ai/modelRegistry';
 import type { Resume } from '@/types/resume';
 
 export interface ResumeScore {
@@ -118,29 +119,21 @@ export async function scoreResume(resume: Resume): Promise<ScoringResult> {
     console.log('[ResumeScorer] Starting resume analysis...');
 
     const prompt = buildScoringPrompt(resume);
+    const models = await resolveModelChain('text-quality');
 
     const result = await chatCompletion({
-      model: 'x-ai/grok-4.3',
+      model: models[0],
+      models,
       messages: [
         { role: 'system', content: SCORING_SYSTEM_PROMPT },
         { role: 'user', content: prompt },
       ],
       temperature: 0.3,
-      maxTokens: 1500,
+      maxTokens: 4096,
+      responseFormat: 'json_object',
     });
 
-    // Parse the JSON response
-    let cleanContent = result.content.trim();
-    if (cleanContent.startsWith('```json')) {
-      cleanContent = cleanContent.slice(7);
-    } else if (cleanContent.startsWith('```')) {
-      cleanContent = cleanContent.slice(3);
-    }
-    if (cleanContent.endsWith('```')) {
-      cleanContent = cleanContent.slice(0, -3);
-    }
-
-    const score = JSON.parse(cleanContent.trim()) as ResumeScore;
+    const score = parseJSONResponse<ResumeScore>(result.content);
 
     console.log('[ResumeScorer] Analysis complete. Score:', score.overall);
 

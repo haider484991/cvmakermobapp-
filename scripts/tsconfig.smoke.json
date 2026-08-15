@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "@/services/analytics/sentry": ["scripts/sentry-stub.ts"],
+      "@/*": ["src/*"]
+    }
+  }
+}

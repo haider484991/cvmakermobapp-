@@ -26,10 +26,16 @@ import { recordSession } from '@/services/review/reviewManager';
 import { initSentry } from '@/services/analytics/sentry';
 import { track, ANALYTICS_EVENTS, flushAnalytics } from '@/services/analytics/analytics';
 import { initPurchases } from '@/services/purchases/purchases';
+import { initModelRegistry } from '@/services/ai/modelRegistry';
 
 // Initialize Sentry as early as possible so it can catch crashes during
 // the very first render. Safe no-op if DSN env var isn't configured.
 initSentry();
+
+// Warm the AI model catalog (validates our model chains against OpenRouter's
+// live list, so deprecated models heal without an app update). Non-blocking;
+// failures fall back to the hardcoded chains.
+initModelRegistry();
 
 const queryClient = new QueryClient({
   defaultOptions: {

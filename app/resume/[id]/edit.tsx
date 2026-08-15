@@ -131,6 +131,9 @@ export default function EditSection() {
   const [selectedSummaryIndex, setSelectedSummaryIndex] = useState<number | null>(null);
   const [enhancingExperienceId, setEnhancingExperienceId] = useState<string | null>(null);
   const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
+  // Lives at component level (not inside renderSkillsSection) so the hook
+  // order can't shift when the rendered section changes.
+  const [newSkill, setNewSkill] = useState('');
   /** "<experienceId>:<bulletIndex>" while that bullet is being rewritten. */
   const [enhancingBulletKey, setEnhancingBulletKey] = useState<string | null>(null);
 
@@ -969,8 +972,6 @@ export default function EditSection() {
   };
 
   const renderSkillsSection = () => {
-    const [newSkill, setNewSkill] = useState('');
-
     const handleAddSkill = () => {
       if (newSkill.trim()) {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

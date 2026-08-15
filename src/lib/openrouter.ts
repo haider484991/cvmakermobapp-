@@ -1,5 +1,4 @@
-import OpenAI from 'openai';
-import type { AIModel, AIModelConfig, AIModelTier, AIError, AIErrorCode } from '@/types/ai';
+import type { AIError, AIErrorCode } from '@/types/ai';
 
 /**
  * OpenRouter base URL for API requests
@@ -7,51 +6,10 @@ import type { AIModel, AIModelConfig, AIModelTier, AIError, AIErrorCode } from '
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 
 /**
- * Available AI models configuration
- */
-export const AI_MODELS: Record<AIModelTier, AIModelConfig> = {
-  fast: {
-    id: 'x-ai/grok-4.3',
-    name: 'Grok 4.3',
-    tier: 'fast',
-    description: 'Fast responses for quick suggestions',
-    maxTokens: 4096,
-    costPer1KTokens: 0.0005,
-  },
-  quality: {
-    id: 'x-ai/grok-4.3',
-    name: 'Grok 4.3',
-    tier: 'quality',
-    description: 'High-quality responses for detailed analysis',
-    maxTokens: 4096,
-    costPer1KTokens: 0.0025,
-  },
-  budget: {
-    id: 'x-ai/grok-4.3',
-    name: 'Grok 4.3',
-    tier: 'budget',
-    description: 'Cost-effective option for basic suggestions',
-    maxTokens: 4096,
-    costPer1KTokens: 0.0005,
-  },
-};
-
-/**
- * Default model for each feature type
- */
-export const DEFAULT_MODELS: Record<string, AIModelTier> = {
-  summary: 'quality',
-  bullets: 'fast',
-  skills: 'fast',
-  score: 'quality',
-};
-
-/**
  * Get the API key from environment
  */
 function getApiKey(): string {
   const apiKey = process.env.EXPO_PUBLIC_OPENROUTER_API_KEY;
-  console.log('[OpenRouter] API Key present:', !!apiKey, 'Length:', apiKey?.length, 'Starts with:', apiKey?.substring(0, 10));
   if (!apiKey) {
     throw createAIError('API_KEY_MISSING', 'OpenRouter API key is not configured');
   }
@@ -59,63 +17,15 @@ function getApiKey(): string {
 }
 
 /**
- * Create the OpenAI client configured for OpenRouter
- */
-export function createOpenRouterClient(): OpenAI {
-  const apiKey = getApiKey();
-
-  return new OpenAI({
-    apiKey,
-    baseURL: OPENROUTER_BASE_URL,
-    dangerouslyAllowBrowser: true, // Required for React Native
-    defaultHeaders: {
-      'HTTP-Referer': 'https://freeresumeai.app',
-      'X-Title': 'FreeResume AI',
-    },
-  });
-}
-
-/**
- * Singleton client instance
- */
-let clientInstance: OpenAI | null = null;
-
-/**
- * Get or create the OpenRouter client instance
- */
-export function getOpenRouterClient(): OpenAI {
-  if (!clientInstance) {
-    clientInstance = createOpenRouterClient();
-  }
-  return clientInstance;
-}
-
-/**
- * Reset the client instance (useful for testing or API key changes)
- */
-export function resetOpenRouterClient(): void {
-  clientInstance = null;
-}
-
-/**
- * Get model configuration by tier
- */
-export function getModelByTier(tier: AIModelTier): AIModelConfig {
-  return AI_MODELS[tier];
-}
-
-/**
- * Get model configuration by model ID
- */
-export function getModelById(modelId: AIModel): AIModelConfig | undefined {
-  return Object.values(AI_MODELS).find((model) => model.id === modelId);
-}
-
-/**
  * Create a standardized AI error
  */
 export function createAIError(code: AIErrorCode, message: string): AIError {
-  const retryableCodes: AIErrorCode[] = ['RATE_LIMITED', 'NETWORK_ERROR', 'MODEL_UNAVAILABLE'];
+  const retryableCodes: AIErrorCode[] = [
+    'RATE_LIMITED',
+    'NETWORK_ERROR',
+    'MODEL_UNAVAILABLE',
+    'TRUNCATED',
+  ];
 
   return {
     code,
@@ -125,24 +35,13 @@ export function createAIError(code: AIErrorCode, message: string): AIError {
 }
 
 /**
- * Parse OpenRouter/OpenAI errors into standardized format
+ * Parse fetch/runtime errors into standardized format
  */
 export function parseAPIError(error: unknown): AIError {
-  if (error instanceof OpenAI.APIError) {
-    switch (error.status) {
-      case 401:
-        return createAIError('API_KEY_INVALID', 'Invalid API key');
-      case 429:
-        return createAIError('RATE_LIMITED', 'Rate limit exceeded. Please try again later.');
-      case 503:
-        return createAIError('MODEL_UNAVAILABLE', 'Model is currently unavailable');
-      default:
-        return createAIError('UNKNOWN_ERROR', error.message);
-    }
-  }
-
   if (error instanceof Error) {
-    if (error.message.includes('network') || error.message.includes('fetch')) {
+    const message = error.message.toLowerCase();
+    // React Native's fetch throws "Network request failed"
+    if (message.includes('network') || message.includes('fetch')) {
       return createAIError('NETWORK_ERROR', 'Network error. Please check your connection.');
     }
     return createAIError('UNKNOWN_ERROR', error.message);
@@ -159,23 +58,89 @@ export function isAPIKeyConfigured(): boolean {
 }
 
 /**
+ * Map an HTTP error status from OpenRouter to a standardized AIError.
+ */
+function errorFromStatus(status: number, message: string): AIError {
+  switch (status) {
+    case 401:
+      return createAIError('API_KEY_INVALID', 'Invalid API key');
+    case 429:
+      return createAIError('RATE_LIMITED', 'Rate limit exceeded. Please try again later.');
+    case 404:
+    case 503:
+      return createAIError('MODEL_UNAVAILABLE', 'Model is currently unavailable');
+    default:
+      return createAIError('UNKNOWN_ERROR', message);
+  }
+}
+
+/**
  * Chat completion request with OpenRouter
  */
 export interface ChatCompletionOptions {
-  model: AIModel;
+  /** Primary model ID. */
+  model: string;
+  /**
+   * Full fallback chain (usually from resolveModelChain). Sent as
+   * OpenRouter's `models` array so a deprecated/unavailable primary falls
+   * through server-side within a single request.
+   */
+  models?: string[];
   messages: Array<{
     role: 'system' | 'user' | 'assistant';
     content: string;
   }>;
   temperature?: number;
   maxTokens?: number;
+  /** Ask the provider to emit syntactically valid JSON. */
+  responseFormat?: 'json_object';
+  /**
+   * Reasoning/"thinking" is disabled by default: it eats into max_tokens
+   * (that's how resume imports got truncated into unparseable JSON) and
+   * none of our extraction/rewrite tasks benefit from it. Models without
+   * a reasoning control ignore the parameter.
+   */
+  allowReasoning?: boolean;
 }
 
 export interface ChatCompletionResult {
   content: string;
-  model: AIModel;
+  /** The model that actually answered (matters when the fallback chain engaged). */
+  model: string;
   tokensUsed: number;
   finishReason: string;
+}
+
+/**
+ * Build the OpenRouter request body shared by both completion functions.
+ */
+function buildRequestBody(options: ChatCompletionOptions): Record<string, unknown> {
+  const body: Record<string, unknown> = {
+    model: options.model,
+    messages: options.messages,
+    temperature: options.temperature ?? 0.7,
+    max_tokens: options.maxTokens ?? 4096,
+  };
+  if (options.models && options.models.length > 1) {
+    // OpenRouter rejects fallback arrays longer than 3 with a 400.
+    body.models = options.models.slice(0, 3);
+  }
+  if (options.responseFormat === 'json_object') {
+    body.response_format = { type: 'json_object' };
+  }
+  if (!options.allowReasoning) {
+    body.reasoning = { enabled: false };
+  }
+  return body;
+}
+
+function openRouterHeaders(apiKey: string): Record<string, string> {
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${apiKey}`,
+    'HTTP-Referer': 'https://freeresumeai.app',
+    'X-Title': 'FreeResume AI',
+  };
 }
 
 /**
@@ -189,36 +154,29 @@ export async function chatCompletion(
   try {
     const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://freeresumeai.app',
-        'X-Title': 'FreeResume AI',
-      },
-      body: JSON.stringify({
-        model: options.model,
-        messages: options.messages,
-        temperature: options.temperature ?? 0.7,
-        max_tokens: options.maxTokens ?? 2048,
-      }),
+      headers: openRouterHeaders(apiKey),
+      body: JSON.stringify(buildRequestBody(options)),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const errorMessage = errorData?.error?.message || `API error: ${response.status}`;
-
-      if (response.status === 401) {
-        throw createAIError('API_KEY_INVALID', 'Invalid API key');
-      } else if (response.status === 429) {
-        throw createAIError('RATE_LIMITED', 'Rate limit exceeded. Please try again later.');
-      } else if (response.status === 503) {
-        throw createAIError('MODEL_UNAVAILABLE', 'Model is currently unavailable');
-      }
-      throw createAIError('UNKNOWN_ERROR', errorMessage);
+      throw errorFromStatus(response.status, errorMessage);
     }
 
     const data = await response.json();
     const choice = data.choices?.[0];
+    const finishReason = choice?.finish_reason ?? 'unknown';
+
+    // A hit on the token cap means the tail of the answer is missing —
+    // for our JSON tasks that output is useless, so fail loudly instead
+    // of letting JSON.parse produce a misleading "parse error".
+    if (finishReason === 'length') {
+      throw createAIError(
+        'TRUNCATED',
+        'The AI response was cut off before it finished. Please try again.'
+      );
+    }
 
     if (!choice?.message?.content) {
       throw createAIError('PARSE_ERROR', 'No content in response');
@@ -226,9 +184,9 @@ export async function chatCompletion(
 
     return {
       content: choice.message.content,
-      model: options.model,
+      model: data.model ?? options.model,
       tokensUsed: data.usage?.total_tokens ?? 0,
-      finishReason: choice.finish_reason ?? 'unknown',
+      finishReason,
     };
   } catch (error) {
     if ((error as AIError).code) {
@@ -239,29 +197,45 @@ export async function chatCompletion(
 }
 
 /**
- * Parse JSON from AI response, handling potential markdown code blocks
+ * Parse JSON from an AI response. Even with response_format enforcement,
+ * some providers wrap output in markdown fences or stray prose, so this
+ * degrades in steps: fenced block → raw parse → outermost {...} / [...] slice.
  */
 export function parseJSONResponse<T>(content: string): T {
-  // Remove markdown code blocks if present
-  let cleanContent = content.trim();
+  let clean = content.trim();
 
-  if (cleanContent.startsWith('```json')) {
-    cleanContent = cleanContent.slice(7);
-  } else if (cleanContent.startsWith('```')) {
-    cleanContent = cleanContent.slice(3);
+  const fenced = clean.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenced) {
+    clean = fenced[1].trim();
+  } else {
+    // Unclosed fence (typical of a truncated response) — strip what we can
+    if (clean.startsWith('```json')) clean = clean.slice(7);
+    else if (clean.startsWith('```')) clean = clean.slice(3);
+    if (clean.endsWith('```')) clean = clean.slice(0, -3);
+    clean = clean.trim();
   }
-
-  if (cleanContent.endsWith('```')) {
-    cleanContent = cleanContent.slice(0, -3);
-  }
-
-  cleanContent = cleanContent.trim();
 
   try {
-    return JSON.parse(cleanContent) as T;
+    return JSON.parse(clean) as T;
   } catch {
-    throw createAIError('PARSE_ERROR', 'Failed to parse AI response as JSON');
+    // fall through to bracket extraction
   }
+
+  const candidates: Array<[number, number]> = [
+    [clean.indexOf('{'), clean.lastIndexOf('}')],
+    [clean.indexOf('['), clean.lastIndexOf(']')],
+  ];
+  for (const [start, end] of candidates) {
+    if (start !== -1 && end > start) {
+      try {
+        return JSON.parse(clean.slice(start, end + 1)) as T;
+      } catch {
+        // try next candidate
+      }
+    }
+  }
+
+  throw createAIError('PARSE_ERROR', 'Failed to parse AI response as JSON');
 }
 
 /**
@@ -285,33 +259,14 @@ export async function streamingChatCompletion(
   try {
     const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://freeresumeai.app',
-        'X-Title': 'FreeResume AI',
-      },
-      body: JSON.stringify({
-        model: options.model,
-        messages: options.messages,
-        temperature: options.temperature ?? 0.7,
-        max_tokens: options.maxTokens ?? 2048,
-        stream: true, // Enable streaming
-      }),
+      headers: openRouterHeaders(apiKey),
+      body: JSON.stringify({ ...buildRequestBody(options), stream: true }),
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const errorMessage = errorData?.error?.message || `API error: ${response.status}`;
-
-      if (response.status === 401) {
-        throw createAIError('API_KEY_INVALID', 'Invalid API key');
-      } else if (response.status === 429) {
-        throw createAIError('RATE_LIMITED', 'Rate limit exceeded. Please try again later.');
-      } else if (response.status === 503) {
-        throw createAIError('MODEL_UNAVAILABLE', 'Model is currently unavailable');
-      }
-      throw createAIError('UNKNOWN_ERROR', errorMessage);
+      throw errorFromStatus(response.status, errorMessage);
     }
 
     const reader = response.body?.getReader();

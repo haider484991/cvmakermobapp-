@@ -1,24 +1,13 @@
 import type { Resume, WorkExperience } from './resume';
 
 /**
- * Available AI models via OpenRouter
+ * An OpenRouter model ID (e.g. "google/gemini-2.5-flash").
+ *
+ * Deliberately just a string: IDs get deprecated without warning, so the
+ * concrete choice lives in src/services/ai/modelRegistry.ts, which
+ * validates preferred models against OpenRouter's live catalog at runtime.
  */
-/**
- * Available AI models via OpenRouter.
- * NOTE: grok-4.1-fast was deprecated by xAI in 2026. Migrated to grok-4.3.
- */
-export type AIModel = 'x-ai/grok-4.3';
-
-export type AIModelTier = 'fast' | 'quality' | 'budget';
-
-export interface AIModelConfig {
-  id: AIModel;
-  name: string;
-  tier: AIModelTier;
-  description: string;
-  maxTokens: number;
-  costPer1KTokens: number;
-}
+export type AIModel = string;
 
 /**
  * Context provided to AI for generating suggestions
@@ -139,6 +128,7 @@ export type AIErrorCode =
   | 'MODEL_UNAVAILABLE'
   | 'CONTEXT_TOO_LONG'
   | 'PARSE_ERROR'
+  | 'TRUNCATED'
   | 'NETWORK_ERROR'
   | 'UNKNOWN_ERROR';
 

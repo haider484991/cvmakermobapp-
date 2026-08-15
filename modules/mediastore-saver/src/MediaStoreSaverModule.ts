@@ -1,6 +1,6 @@
 import { NativeModule, requireNativeModule } from 'expo';
 
-declare class MediaStoreSaverModule extends NativeModule<{}> {
+declare class MediaStoreSaverModule extends NativeModule<Record<string, never>> {
   /** True only where MediaStore Downloads works without a picker/permission (Android 10+). */
   isSupported(): boolean;
   /** Copy a local file into the public Downloads folder. Resolves to the content:// URI. */

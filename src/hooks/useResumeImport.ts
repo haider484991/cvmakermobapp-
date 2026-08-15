@@ -17,6 +17,7 @@ import { parseResumeWithAI } from '@/services/ai/resumeParser';
 import { mapParsedDataToResume, getImportStats } from '@/services/fileImport/resumeMapper';
 import { reviewSignals } from '@/services/review/reviewManager';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { captureError } from '@/services/analytics/sentry';
 import type { SelectedFile, ParsedResumeData, ImportStats } from '@/types/resumeImport';
 import type { Resume } from '@/types/resume';
 
@@ -51,6 +52,15 @@ export function useResumeImport() {
     },
     onError: (error: Error) => {
       store.setError(error.message);
+      // Deliberate report (parse failures used to reach Sentry only as
+      // context-free unhandled promise rejections).
+      const file = store.selectedFile;
+      captureError(error, {
+        feature: 'resume_import',
+        stage: store.status,
+        fileType: file?.type,
+        fileSizeKb: file?.size ? Math.round(file.size / 1024) : undefined,
+      });
     },
   });
 
@@ -90,7 +100,9 @@ export function useResumeImport() {
       return;
     }
 
-    await parseMutation.mutateAsync(file);
+    // Failures land in store.error via onError; swallowing here keeps them
+    // from doubling as unhandled promise rejections in Sentry.
+    await parseMutation.mutateAsync(file).catch(() => {});
   }, [store, parseMutation]);
 
   /**
@@ -99,7 +111,7 @@ export function useResumeImport() {
   const selectAndParse = useCallback(async (): Promise<void> => {
     const file = await selectFile();
     if (file) {
-      await parseMutation.mutateAsync(file);
+      await parseMutation.mutateAsync(file).catch(() => {});
     }
   }, [selectFile, parseMutation]);
 
