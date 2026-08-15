@@ -131,7 +131,12 @@ export async function enhanceBulletPoints(
     models,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: BULLET_POINT_PROMPT(experience.bullets, context) },
+      {
+        role: 'user',
+        content: BULLET_POINT_PROMPT(experience.bullets, context, {
+          isCurrentRole: experience.isCurrentRole,
+        }),
+      },
     ],
     temperature: options?.temperature ?? DEFAULT_OPTIONS.temperature,
     maxTokens: options?.maxTokens ?? DEFAULT_OPTIONS.maxTokens,
@@ -568,6 +573,13 @@ export async function tailorToJob(
       title: e.title,
       company: e.company,
       bullets: e.bullets ?? [],
+    })),
+    // Postings often carry hard degree requirements — the match analysis
+    // needs to see education to judge them.
+    education: resume.education.map((e) => ({
+      degree: e.degree,
+      field: e.field,
+      institution: e.institution,
     })),
   };
 

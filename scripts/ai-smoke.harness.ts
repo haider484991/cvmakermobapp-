@@ -11,9 +11,11 @@
  *      reasoning-off + fallback array accepted by the API)
  *   3. parseResumeWithAI — a generated PDF resume through the actual
  *      vision parse path
+ *   4. Output-quality gates — generated summaries and bullets must obey
+ *      the craft contract (no clichés, no weak openers, sane lengths)
  *
- * Needs EXPO_PUBLIC_OPENROUTER_API_KEY in .env. Makes 2 paid API calls
- * (well under a cent). Sentry is stubbed via tsconfig.smoke.json.
+ * Needs EXPO_PUBLIC_OPENROUTER_API_KEY in .env. Makes 4 paid API calls
+ * (about a cent). Sentry is stubbed via tsconfig.smoke.json.
  */
 
 import { readFileSync } from 'node:fs';
@@ -98,7 +100,9 @@ async function main(): Promise<void> {
 
   // Import after env is loaded so module-level env reads see the values.
   const { resolveModelChain } = await import('@/services/ai/modelRegistry');
-  const { structureFromNarrative } = await import('@/services/ai/resumeAI');
+  const { structureFromNarrative, generateSummary, enhanceBulletPoints } = await import(
+    '@/services/ai/resumeAI'
+  );
   const { parseResumeWithAI } = await import('@/services/ai/resumeParser');
 
   console.log('\n--- 1. Model chains vs live catalog ---');
@@ -144,6 +148,52 @@ async function main(): Promise<void> {
     );
     check('pdf: skills extracted', (result.data.skills?.length ?? 0) >= 3, `${result.data.skills?.length ?? 0} skills`);
   }
+
+  console.log('\n--- 4. Output-quality gates (live) ---');
+  // Phrases the SYSTEM_PROMPT bans outright — if these appear, the craft
+  // contract regressed.
+  const BANNED =
+    /results[- ]driven|detail[- ]oriented|team player|proven track record|go[- ]getter|think outside the box|hard[- ]working|fast[- ]paced environment|seasoned professional|self[- ]starter/i;
+  const WEAK_OPENER = /^(responsible for|helped|worked on|assisted with|tasked with|duties included)/i;
+
+  const summaryResult = await generateSummary({
+    jobTitle: 'Digital Marketing Manager',
+    industry: 'E-commerce',
+    yearsOfExperience: 6,
+    skills: ['SEO', 'Google Ads', 'Email Marketing', 'Analytics'],
+  });
+  check('summary: returns 3 options', summaryResult.summaries.length === 3, `model=${summaryResult.model}`);
+  summaryResult.summaries.forEach((s, i) => {
+    const words = s.trim().split(/\s+/).length;
+    check(`summary ${i + 1}: 35-100 words`, words >= 35 && words <= 100, `${words} words`);
+    check(`summary ${i + 1}: no banned clichés`, !BANNED.test(s), BANNED.exec(s)?.[0]);
+  });
+
+  const bulletsResult = await enhanceBulletPoints({
+    id: 'exp1',
+    company: 'TechNova',
+    title: 'Marketing Coordinator',
+    location: 'Lahore',
+    startDate: '2020-01',
+    endDate: '2022-01',
+    isCurrentRole: false,
+    description: '',
+    bullets: [
+      'Responsible for managing social media accounts',
+      'Helped the team with customer emails and newsletters',
+    ],
+  } as never);
+  check('bullets: both enhanced', bulletsResult.bullets.length === 2, `model=${bulletsResult.model}`);
+  bulletsResult.bullets.forEach((b, i) => {
+    check(
+      `bullet ${i + 1}: strong opener`,
+      !WEAK_OPENER.test(b.enhancedBullet.trim()),
+      b.enhancedBullet
+    );
+    check(`bullet ${i + 1}: no banned clichés`, !BANNED.test(b.enhancedBullet), undefined);
+    const words = b.enhancedBullet.trim().split(/\s+/).length;
+    check(`bullet ${i + 1}: under 26 words`, words <= 26, `${words} words`);
+  });
 
   console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}`);
   process.exit(failures === 0 ? 0 : 1);

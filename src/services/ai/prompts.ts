@@ -1,16 +1,23 @@
 import type { AIContext, Resume } from '@/types';
 
 /**
- * System prompt establishing the AI's role and expertise
+ * System prompt establishing the AI's role and the writing contract every
+ * feature inherits. This is where output quality is won or lost: the craft
+ * rules here apply to summaries, bullets, tailoring and cover letters alike.
  */
-export const SYSTEM_PROMPT = `You are an expert resume writer and career coach with over 15 years of experience helping professionals across various industries land their dream jobs. You specialize in:
+export const SYSTEM_PROMPT = `You are an elite resume writer and career coach. Recruiters spend ~7 seconds on a first pass; everything you write must survive that pass and an ATS keyword scan.
 
-- Crafting compelling professional summaries that highlight unique value propositions
-- Transforming job descriptions into impactful, achievement-focused bullet points
-- Identifying relevant skills and keywords for ATS optimization
-- Providing actionable feedback to improve resume quality
-
-Your responses should be professional, specific, and tailored to the individual's career goals and industry. Always prioritize clarity, impact, and authenticity in your suggestions.`;
+WRITING RULES — apply to every resume line you produce:
+- Language: write in the same language as the user's own content. Spanish resume in → Spanish out. Default to English only when the input is English or ambiguous.
+- No personal pronouns in summaries or bullets (no "I", "my", "we").
+- Tense: present tense for current roles, past tense for previous roles.
+- Every bullet starts with a strong, specific action verb. Vary the verbs — never start two consecutive bullets with the same one. Never open with "Responsible for", "Helped", "Worked on", "Assisted with", "Tasked with", or "Duties included".
+- Quantify with numbers the user stated or clearly implied (%, $, time, team size, users, volume). NEVER invent a number. When no metric exists, anchor the line with concrete scope instead: tools used, stakeholders served, cadence, scale words the user gave.
+- Banned phrases — never output any of these: "results-driven", "detail-oriented", "team player", "proven track record", "go-getter", "think outside the box", "hard-working", "passionate", "dynamic", "synergy", "self-starter", "seasoned professional", "fast-paced environment", "excellent communication skills".
+- Prefer concrete nouns and verifiable claims over adjectives. Show, don't claim.
+- Cut filler: "successfully", "effectively", "various", "numerous", "etc." add nothing.
+- ATS-safe output: plain text, standard terminology, no emoji or decorative symbols.
+- Authenticity: sharpen what the user actually did. Never fabricate employers, titles, dates, credentials, or metrics.`;
 
 /**
  * Generate context description from AIContext object
@@ -60,12 +67,17 @@ function buildContextString(context: AIContext): string {
  * Prompt for generating professional summaries
  */
 export const SUMMARY_PROMPT = (context: AIContext): string => `
-Generate 3 distinct professional summary options for a resume. Each summary should be:
-- 3-4 sentences long (50-80 words)
-- Written in first person without using "I"
-- Achievement-oriented and quantifiable where possible
-- Tailored to the candidate's background and target role
-- ATS-friendly with relevant keywords
+Generate 3 distinct professional summary options for a resume. Each summary must be:
+- 3-4 sentences, 50-80 words
+- No personal pronouns; open with the professional identity, not a filler phrase
+  (pattern: "[Title] with [N] years [specialization]…" — vary the construction across the 3 options)
+- Built from the candidate's actual background below — reuse their strongest concrete facts and any numbers they provided; never invent numbers
+- Loaded with the natural keywords a recruiter searching for the target role would use
+
+Calibrate to seniority:
+- 0-2 years: lead with skills, education, and trajectory — concrete projects beat empty confidence
+- 3-7 years: lead with specialization and 1-2 proof points of delivered impact
+- 8+ years: lead with scope (team size, budget, breadth) and business outcomes
 
 Candidate Information:
 ${buildContextString(context)}
@@ -81,12 +93,12 @@ Return your response as a JSON object with this exact structure:
   ]
 }
 
-Each summary should have a different focus:
-1. Leadership/management oriented
-2. Technical/skills oriented
-3. Results/achievement oriented
+Each summary takes a different angle (these labels are internal guidance — never echo them or their variations like "results-driven" in the summary text):
+1. Ownership: emphasize what they led, owned, or ran
+2. Craft: emphasize their strongest technical/domain skills in action
+3. Impact: emphasize measurable outcomes and business wins they produced
 
-Ensure each summary is unique, compelling, and showcases the candidate's value proposition.
+Every option must be specific enough that it could ONLY describe this candidate — if a line would fit any resume, rewrite it. Final check before answering: none of the banned phrases from your writing rules may appear in any option.
 `;
 
 /**
@@ -94,17 +106,19 @@ Ensure each summary is unique, compelling, and showcases the candidate's value p
  */
 export const BULLET_POINT_PROMPT = (
   bullets: string[],
-  context: Partial<AIContext>
+  context: Partial<AIContext>,
+  roleContext?: { isCurrentRole?: boolean }
 ): string => `
-Transform the following job description bullet points into powerful, achievement-focused statements using the STAR (Situation, Task, Action, Result) or XYZ (Accomplished X by doing Y, resulting in Z) format.
+Transform the following bullet points into achievement statements using the XYZ pattern: what was accomplished (X), measured how (Y), by doing what (Z). Where no measurement exists, fall back to action + concrete scope + outcome.
 
-Guidelines for enhancement:
-- Start each bullet with a strong action verb
-- Include quantifiable metrics where possible (%, $, #)
-- Focus on impact and results, not just responsibilities
-- Keep bullets concise (1-2 lines, under 20 words ideal)
-- Use industry-relevant keywords for ATS optimization
-- Maintain authenticity - enhance, don't fabricate
+Guidelines:
+- ${roleContext?.isCurrentRole ? 'This is a CURRENT role: write every bullet in present tense.' : 'This is a PAST role: write every bullet in past tense.'}
+- Start each bullet with a strong, specific action verb; no two bullets in this set may open with the same verb
+- Keep the user's real numbers; surface numbers they implied (e.g. "the whole team" → the count if stated elsewhere); NEVER invent a metric
+- If a bullet has no possible metric, anchor it with scope: tools, volume words the user gave, stakeholders, cadence
+- Impact over duty: say what changed because they did the work, not what they were assigned
+- One line each, under 22 words
+- Weave in terminology a recruiter for this role would search, where it fits naturally
 
 ${context.jobTitle ? `Role Context: ${context.jobTitle}` : ''}
 ${context.industry ? `Industry: ${context.industry}` : ''}
@@ -211,6 +225,30 @@ ${
 
 Skills:
 ${resume.skills.length > 0 ? resume.skills.map((s) => s.name).join(', ') : '[No skills listed]'}
+
+Projects:
+${
+  resume.projects.length > 0
+    ? resume.projects.map((p) => `${p.name}: ${p.description}`).join('\n')
+    : '[None listed]'
+}
+
+Certifications:
+${
+  resume.certifications.length > 0
+    ? resume.certifications.map((c) => `${c.name} (${c.issuer})`).join('; ')
+    : '[None listed]'
+}
+
+Languages:
+${
+  resume.languages.length > 0
+    ? resume.languages.map((l) => `${l.name} (${l.proficiency})`).join(', ')
+    : '[None listed]'
+}
+
+Awards:
+${resume.awards.length > 0 ? resume.awards.map((a) => a.title).join('; ') : '[None listed]'}
 ---
 
 ${jobDescription ? `Target Job Description:\n${jobDescription}\n---` : ''}
@@ -221,6 +259,21 @@ Scoring Criteria (each category out of 20 points):
 3. Keywords - Industry terms, ATS optimization, job-relevant language
 4. Impact - Achievement focus, quantifiable results, value demonstration
 5. Completeness - Coverage of essential sections and information depth
+   (projects/certifications/languages/awards are optional extras — missing
+   ones must not tank the score if the core sections are strong)
+
+Ground your scores in observable evidence before writing them:
+- Count the bullets that contain a number or measurable outcome vs those that don't
+- Count bullets that open with weak phrases ("Responsible for", "Helped", "Worked on")
+- Check summary length (50-80 words is the target) and whether it is specific to this person
+- Note any cliché filler ("team player", "results-driven", "detail-oriented")
+
+Calibration — use the full range, don't cluster at 70-85:
+- 90-100: interview-ready; a recruiter would shortlist this as-is
+- 75-89: strong foundation, a few clear upgrades left
+- 60-74: real gaps — generic bullets, missing metrics, or thin sections
+- 40-59: substantial rework needed across multiple sections
+- Below 40: skeleton resume; most sections missing or placeholder-quality
 
 Return your response as a JSON object with this exact structure:
 {
@@ -283,54 +336,6 @@ Provide specific, actionable feedback based on the actual content. Be constructi
 `;
 
 /**
- * Prompt for generating a single quick suggestion
- */
-export const QUICK_SUGGESTION_PROMPT = (
-  type: 'summary' | 'bullet' | 'skill',
-  content: string,
-  context?: Partial<AIContext>
-): string => {
-  const contextStr = context
-    ? `Context: ${context.jobTitle || ''} ${context.industry ? `in ${context.industry}` : ''}`
-    : '';
-
-  switch (type) {
-    case 'summary':
-      return `
-Improve this professional summary to be more impactful and ATS-friendly:
-
-"${content}"
-
-${contextStr}
-
-Return only the improved summary text, no explanation needed. Keep it 3-4 sentences.
-`;
-
-    case 'bullet':
-      return `
-Transform this job responsibility into an achievement-focused bullet point:
-
-"${content}"
-
-${contextStr}
-
-Return only the improved bullet point, starting with a strong action verb. Include metrics if possible.
-`;
-
-    case 'skill':
-      return `
-Based on this context, suggest ONE highly relevant skill to add:
-
-${content}
-
-${contextStr}
-
-Return only the skill name, nothing else.
-`;
-  }
-};
-
-/**
  * System prompt for the "Tell me about yourself" wizard.
  *
  * Distinct from RESUME_PARSE_SYSTEM_PROMPT (which extracts from formal
@@ -363,7 +368,8 @@ Rules of engagement:
 - Split run-on sentences into bullet points when they describe distinct achievements; keep prose together when it's continuous.
 - Skills: extract every tool, language, framework, or competency mentioned. Don't suggest tangentially related ones the user didn't mention.
 - Education: only include if the user mentions a school, degree, or graduation.
-- Warnings: surface every assumption you had to make so the user can correct it.`;
+- Warnings: surface every assumption you had to make so the user can correct it.
+- Language: write all resume content in the same language the user wrote in — never translate their story into English uninvited.`;
 
 /**
  * Prompt for structuring a free-text "tell me about yourself" narrative
@@ -442,6 +448,7 @@ Important guidelines:
 - Add warnings for ambiguous or potentially incorrect extractions
 - If a field cannot be determined, use empty strings or empty arrays
 - Extract bullet points from job descriptions, preserving their original meaning
+- Keep extracted content in the resume's original language — never translate it
 - Infer skill levels only when explicitly stated in the resume
 - For proficiency levels in languages, map common terms to: basic, conversational, professional, native`;
 
@@ -565,6 +572,7 @@ export const TAILOR_PROMPT = (
     summary?: string;
     skills: string[];
     experience: Array<{ id: string; title: string; company: string; bullets: string[] }>;
+    education?: Array<{ degree: string; field: string; institution: string }>;
   },
   jobDescription: string
 ): string => `
@@ -574,6 +582,11 @@ THE RESUME:
 - Target title: ${resume.jobTitle || '(none set)'}
 - Summary: ${resume.summary || '(none)'}
 - Skills: ${resume.skills.join(', ') || '(none)'}
+- Education: ${
+  resume.education?.length
+    ? resume.education.map((e) => `${e.degree} in ${e.field}, ${e.institution}`).join('; ')
+    : '(none listed)'
+}
 - Experience:
 ${resume.experience
   .map(

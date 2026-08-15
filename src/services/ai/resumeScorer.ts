@@ -52,7 +52,18 @@ Scoring Guidelines:
 - keywords: Industry-relevant terms, skills alignment
 - impact: Action verbs, measurable achievements, value demonstration
 - completeness: All sections filled, contact info, education, experience
+  (certifications/languages/awards are optional extras — their absence must
+  not tank the score when core sections are strong)
 - atsCompatibility: How well the resume will pass Applicant Tracking Systems
+
+Ground the scores in evidence before writing them: count bullets with numbers
+vs without, count weak openers ("Responsible for", "Helped"), check whether the
+summary is specific to this person or could fit anyone.
+
+Calibration — use the full 0-100 range, don't cluster at 70-85:
+- 90-100 interview-ready | 75-89 strong with clear upgrades left
+- 60-74 real gaps (generic bullets, missing metrics, thin sections)
+- 40-59 substantial rework | below 40 skeleton resume
 
 Be encouraging but honest. Focus on actionable improvements.`;
 
@@ -106,6 +117,20 @@ LinkedIn: ${contact.linkedin || 'Not provided'}`);
       `- ${p.name}: ${p.description}${p.technologies?.length ? ` (${p.technologies.join(', ')})` : ''}`
     ).join('\n');
     sections.push(`PROJECTS:\n${projText}`);
+  }
+
+  // Optional extras — shown so the scorer credits them instead of assuming
+  // an incomplete resume.
+  if (resume.certifications?.length > 0) {
+    sections.push(
+      `CERTIFICATIONS: ${resume.certifications.map(c => `${c.name} (${c.issuer})`).join('; ')}`
+    );
+  }
+  if (resume.languages?.length > 0) {
+    sections.push(`LANGUAGES: ${resume.languages.map(l => `${l.name} (${l.proficiency})`).join(', ')}`);
+  }
+  if (resume.awards?.length > 0) {
+    sections.push(`AWARDS: ${resume.awards.map(a => a.title).join('; ')}`);
   }
 
   return `Please analyze and score this resume:\n\n${sections.join('\n\n')}`;
