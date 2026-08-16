@@ -1,0 +1,4 @@
+IA que escreve melhor: resumos, bullets, pontuações e cartas de apresentação seguem regras profissionais de currículo — só números reais, sem clichês, tempos verbais corretos.
+Novo: a IA responde no seu idioma — descreva-se em português e seu currículo vem em português.
+Corrigido: importar currículos longos ou detalhados não falha mais.
+Melhorado: IA mais rápida e confiável, com troca automática de provedor.

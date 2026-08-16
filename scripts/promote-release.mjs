@@ -71,11 +71,40 @@ async function main() {
   });
   log('track updated');
 
-  await publisher.edits.validate({ packageName: PACKAGE, editId });
-  log('validated');
+  // See set-release-notes.mjs: when a rejected change is pending, Play
+  // refuses automatic review — commit with changesNotSentForReview=true
+  // (query string only; validate doesn't accept the flag) and finish with
+  // the console's "Send for review" button.
+  const isManualReviewError = (err) =>
+    String(err?.message || '').includes('changesNotSentForReview');
 
-  await publisher.edits.commit({ packageName: PACKAGE, editId });
-  log('committed — release submitted for Google review, then rolls out to 100%');
+  let manualSend = false;
+  try {
+    await publisher.edits.validate({ packageName: PACKAGE, editId });
+    log('validated');
+  } catch (err) {
+    if (!isManualReviewError(err)) throw err;
+    manualSend = true;
+    log('Play refuses automatic review for this app state — using unsent-changes mode');
+  }
+
+  if (!manualSend) {
+    try {
+      await publisher.edits.commit({ packageName: PACKAGE, editId });
+      log('committed — release submitted for Google review, then rolls out to 100%');
+    } catch (err) {
+      if (!isManualReviewError(err)) throw err;
+      manualSend = true;
+    }
+  }
+
+  if (manualSend) {
+    await publisher.edits.commit(
+      { packageName: PACKAGE, editId },
+      { params: { changesNotSentForReview: 'true' } },
+    );
+    log('committed as UNSENT changes — finish in Play Console: Publishing overview → "Send for review"');
+  }
 
   const verifyEdit = await publisher.edits.insert({ packageName: PACKAGE });
   const after = await publisher.edits.tracks.get({
