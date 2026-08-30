@@ -32,13 +32,132 @@
   },
   "onboarding": {
     "welcome": {
-      "headline": "Build your career with intelligent design",
-      "subhead": "AI-powered resume builder. Free forever.",
+      "tagline": "Build Your Dream Resume for Free",
+      "badge": "100% FREE • AI-POWERED • ATS-READY",
+      "whyChooseUs": "Why Choose Us",
+      "features": {
+        "ai": {
+          "title": "AI-Powered Writing",
+          "description": "Smart suggestions to make your resume stand out"
+        },
+        "templates": {
+          "title": "26 Pro Templates",
+          "description": "Skill bars, icon contacts & ATS-ready designs"
+        },
+        "quick": {
+          "title": "Quick & Easy",
+          "description": "Create a professional resume in under 5 minutes"
+        },
+        "export": {
+          "title": "PDF Export",
+          "description": "Download and share your resume instantly"
+        }
+      },
+      "valuePoints": {
+        "noCard": "No credit card needed",
+        "freeEdit": "Free to build & edit",
+        "readyMinutes": "Ready in minutes"
+      },
       "getStarted": "Get Started Free",
       "haveResume": "I already have a resume",
       "importing": "Reading your resume…",
+      "importFailedTitle": "Import Failed",
       "importFailed": "We couldn't read that file. Try a PDF, Word doc, or photo of your resume.",
-      "trusted": "Trusted by 10,000+ job seekers worldwide"
+      "trustBadge": "ATS-friendly templates recruiters can actually read"
+    },
+    "goals": {
+      "title": "Let's personalize\nyour resume",
+      "subtitle": "A few quick taps and we'll tailor your templates, AI suggestions, and starting point.",
+      "nameLabel": "What should we call you?",
+      "namePlaceholder": "Your first name",
+      "goalLabel": "What brings you here?",
+      "roleLabel": "What role are you targeting?",
+      "rolePlaceholder": "e.g. Software Engineer, Product Manager",
+      "industryLabel": "Your industry",
+      "levelLabel": "Experience level"
+    },
+    "options": {
+      "goals": {
+        "new-job": "Land a new job",
+        "first-job": "Get my first job",
+        "career-switch": "Switch careers",
+        "promotion": "Go for a promotion",
+        "exploring": "Just exploring"
+      },
+      "industries": {
+        "tech": "Technology",
+        "techInline": "technology",
+        "healthcare": "Healthcare",
+        "healthcareInline": "healthcare",
+        "finance": "Finance",
+        "financeInline": "finance",
+        "marketing": "Marketing",
+        "marketingInline": "marketing",
+        "education": "Education",
+        "educationInline": "education",
+        "engineering": "Engineering",
+        "engineeringInline": "engineering",
+        "design": "Design",
+        "designInline": "design",
+        "sales": "Sales",
+        "salesInline": "sales",
+        "other": "Other",
+        "otherInline": "other"
+      },
+      "levels": {
+        "entry": {
+          "label": "Entry Level",
+          "description": "0–2 years",
+          "yearsHint": "about a year"
+        },
+        "mid": {
+          "label": "Mid Level",
+          "description": "3–5 years",
+          "yearsHint": "around 4 years"
+        },
+        "senior": {
+          "label": "Senior",
+          "description": "6–10 years",
+          "yearsHint": "about 8 years"
+        },
+        "executive": {
+          "label": "Executive",
+          "description": "10+ years",
+          "yearsHint": "over a decade"
+        }
+      }
+    },
+    "complete": {
+      "greetingNamed": "You're all set, {{name}}! ",
+      "greeting": "You're all set! ",
+      "subtitle": "How do you want to start? You can change everything later.",
+      "recommended": "RECOMMENDED",
+      "pathAI": {
+        "title": "Build with AI",
+        "subtitle": "Describe yourself in a sentence — AI writes your first draft."
+      },
+      "pathImport": {
+        "title": "I already have a resume",
+        "subtitle": "Import a PDF or Word doc and we'll fill it in."
+      },
+      "pathTemplate": {
+        "title": "Start from a template",
+        "subtitle": "Pick a design and fill it in yourself."
+      },
+      "footer": "Free to build • No credit card needed",
+      "resumeNameWithRole": "{{role}} Resume",
+      "resumeName": "My Resume"
+    },
+    "seed": {
+      "join": " ",
+      "roleFallback": "professional",
+      "experienceFallback": "experience",
+      "yearsOfExperience": "{{years}} of experience",
+      "inIndustry": " in {{industry}}",
+      "line1": "I'm a {{role}} with {{experience}}{{industry}}.",
+      "line2": "Most recently I [your current or latest role] where I [one or two things you achieved — add numbers if you can].",
+      "line3": "Before that I [previous role and what you did].",
+      "line4": "I'm strong in [your top skills or tools], and I have [your degree or relevant certification]."
     }
   },
   "dashboard": {
@@ -191,5 +310,355 @@
     "createAccount": "Create Account",
     "alreadyHave": "Already have an account?",
     "dontHave": "Don't have an account?"
+  },
+  "wizard": {
+    "title": "Build with AI",
+    "reviewTitle": "Review",
+    "heroTitleWithRole": "Let's build your {{role}} resume",
+    "heroTitle": "Tell me about yourself",
+    "heroSubtitleSeeded": "We started a draft from your answers. Replace the [brackets] with your details, then generate.",
+    "heroSubtitle": "Type or paste a paragraph or two about your role, experience, and skills. The AI will turn it into a structured resume you can edit and download.",
+    "examplesLabel": "Stuck? Load an example, then swap in your own details",
+    "inputPlaceholder": "I've been a [role] for [n] years. Currently at [company] doing [main work]. Before that I [previous role]. I'm strong in [tools/skills]...",
+    "charsToGo": "{{count}} more characters",
+    "words": "{{count}} words",
+    "readiness": {
+      "placeholder": "Still our template",
+      "keepGoing": "Keep going",
+      "strong": "Great — this will work well",
+      "ok": "Good, a bit more would help",
+      "thin": "Thin — add some detail"
+    },
+    "blocked": {
+      "brackets": "Replace the [bracketed] parts with your own details — the AI will write about whatever is in the box.",
+      "template": "This is still our example. Swap in your own roles, companies and skills so the resume comes out as yours."
+    },
+    "hintsTitle": "Add these and the resume gets noticeably better",
+    "hint": {
+      "detail": "Write a few more sentences — the more you give it, the better the resume",
+      "employer": "Name the companies or organisations you worked for",
+      "numbers": "Add a number — team size, years, budget, growth, anything measurable",
+      "skills": "List your top skills or tools",
+      "education": "Mention your degree, training or certifications"
+    },
+    "generate": "Generate my resume",
+    "generateBlocked": "Make it yours first",
+    "generating": "Building your resume…",
+    "genericError": "Something went wrong. Try again.",
+    "confidence": {
+      "high": "High confidence",
+      "moderate": "Moderate confidence",
+      "low": "Low confidence — review carefully"
+    },
+    "assumptions": "AI made these assumptions",
+    "section": {
+      "personal": "Personal",
+      "summary": "Summary",
+      "experience": "Experience ({{count}})",
+      "skills": "Skills ({{count}})",
+      "education": "Education"
+    },
+    "field": {
+      "name": "Name",
+      "title": "Title",
+      "location": "Location"
+    },
+    "roleUnknown": "(role unknown)",
+    "companyUnknown": "(company unknown)",
+    "present": "Present",
+    "weakResult": "There wasn't much for the AI to work with, so this resume is nearly empty. Going back and adding a couple of sentences will change it completely.",
+    "addMoreDetail": "Add more detail",
+    "useAnyway": "Use anyway",
+    "tryAgain": "Try Again",
+    "createResume": "Create Resume",
+    "guided": {
+      "stepOf": "Step {{current}} of {{total}}",
+      "steps": {
+        "you": {
+          "title": "Who are you?",
+          "subtitle": "Just the basics — this goes at the top of your resume."
+        },
+        "work": {
+          "title": "Where do you work?",
+          "subtitle": "Your most recent job. You can add older ones after."
+        },
+        "highlights": {
+          "title": "What do you do there?",
+          "subtitle": "A sentence or two is plenty. Numbers make it much stronger."
+        },
+        "skills": {
+          "title": "What are you good at?",
+          "subtitle": "Tap the ones that apply. Add your own if we missed any."
+        },
+        "education": {
+          "title": "Any education or training?",
+          "subtitle": "Optional — skip it if it doesn't apply to you."
+        }
+      },
+      "nameLabel": "Your name",
+      "namePlaceholder": "Ayesha Khan",
+      "jobTitleLabel": "The job you want",
+      "jobTitlePlaceholder": "Registered Nurse",
+      "locationLabel": "Where you live (optional)",
+      "locationPlaceholder": "Lahore",
+      "noJobYet": "I haven't had a job yet",
+      "earlierJob": "Earlier job",
+      "roleTitleLabel": "Job title",
+      "roleTitlePlaceholder": "Staff Nurse",
+      "companyLabel": "Company or organisation",
+      "companyPlaceholder": "Shaukat Khanum Hospital",
+      "fromLabel": "From",
+      "fromPlaceholder": "2021",
+      "toLabel": "To (blank = still there)",
+      "toPlaceholder": "2024",
+      "addEarlierJob": "Add an earlier job",
+      "noExperienceNote": "No job yet — no problem. Skip ahead and we'll build your resume around your skills and education instead.",
+      "prompts": {
+        "daily": "What did you do day to day?",
+        "improved": "What did you improve or fix?",
+        "led": "Did you lead, train or manage anyone?",
+        "numbers": "Any numbers? People, money, volume, time saved"
+      },
+      "atCompany": "At {{name}}",
+      "whatYouDid": "What you did",
+      "highlightsPlaceholder": "I look after 30 patients a shift, trained 5 new nurses, and handle the ward roster.",
+      "addYourOwn": "Add your own",
+      "educationLabel": "Education or training",
+      "educationPlaceholder": "I have a BSc in Nursing from Punjab University, finished in 2021.",
+      "buildResume": "Build my resume",
+      "switchToFreeText": "I'd rather just write about myself",
+      "missing": {
+        "identity": "Add your name or the job you want first — we need something to put at the top.",
+        "substance": "Add a job, a skill or your education so there is something to build from."
+      }
+    },
+    "compose": {
+      "sentenceJoin": " ",
+      "listSeparator": ", ",
+      "listAnd": " and ",
+      "nameAndTitle": "My name is {{name}} and I'm a {{title}}.",
+      "nameOnly": "My name is {{name}}.",
+      "titleOnly": "I'm a {{title}}.",
+      "location": "I'm based in {{location}}.",
+      "noExperience": "I haven't worked a full-time job yet — I'm looking for my first role.",
+      "skills": "I'm strong in {{list}}.",
+      "dateRange": " from {{start}} to {{end}}",
+      "dateSince": " since {{start}}",
+      "dateUntil": " until {{end}}",
+      "role": {
+        "currentFull": "Right now I work as a {{title}} at {{company}}{{dates}}.",
+        "currentTitleOnly": "Right now I work as a {{title}}{{dates}}.",
+        "currentCompanyOnly": "Right now I work at {{company}}{{dates}}.",
+        "recentFull": "Most recently I worked as a {{title}} at {{company}}{{dates}}.",
+        "recentTitleOnly": "Most recently I worked as a {{title}}{{dates}}.",
+        "recentCompanyOnly": "Most recently I worked at {{company}}{{dates}}.",
+        "pastFull": "Before that I worked as a {{title}} at {{company}}{{dates}}.",
+        "pastTitleOnly": "Before that I worked as a {{title}}{{dates}}.",
+        "pastCompanyOnly": "Before that I worked at {{company}}{{dates}}."
+      }
+    },
+    "skills": {
+      "tech": [
+        "JavaScript",
+        "Python",
+        "React",
+        "SQL",
+        "Git",
+        "AWS",
+        "Docker",
+        "REST APIs",
+        "Node.js",
+        "Testing",
+        "Agile",
+        "Linux"
+      ],
+      "healthcare": [
+        "Patient care",
+        "Vital signs",
+        "Medication administration",
+        "Electronic health records",
+        "Wound care",
+        "Triage",
+        "Infection control",
+        "CPR",
+        "Care planning",
+        "Phlebotomy",
+        "Bedside manner",
+        "Medical terminology"
+      ],
+      "finance": [
+        "Excel",
+        "Financial modelling",
+        "Budgeting",
+        "Forecasting",
+        "Reconciliation",
+        "QuickBooks",
+        "Accounts payable",
+        "Audit support",
+        "IFRS",
+        "Variance analysis",
+        "SAP",
+        "Payroll"
+      ],
+      "marketing": [
+        "SEO",
+        "Google Analytics",
+        "Content writing",
+        "Email marketing",
+        "Social media",
+        "Paid ads",
+        "Copywriting",
+        "Canva",
+        "HubSpot",
+        "A/B testing",
+        "Campaign planning",
+        "Brand strategy"
+      ],
+      "education": [
+        "Lesson planning",
+        "Classroom management",
+        "Curriculum design",
+        "Assessment",
+        "Differentiated instruction",
+        "Google Classroom",
+        "Parent communication",
+        "Tutoring",
+        "Special needs support",
+        "Behaviour management",
+        "Grading",
+        "Student engagement"
+      ],
+      "engineering": [
+        "AutoCAD",
+        "SolidWorks",
+        "Project management",
+        "Quality control",
+        "Technical drawings",
+        "Site inspection",
+        "MATLAB",
+        "Lean manufacturing",
+        "Health and safety",
+        "Maintenance planning",
+        "Root cause analysis",
+        "Blueprint reading"
+      ],
+      "design": [
+        "Figma",
+        "Adobe Photoshop",
+        "Illustrator",
+        "Prototyping",
+        "Wireframing",
+        "Typography",
+        "Design systems",
+        "User research",
+        "Branding",
+        "InDesign",
+        "Motion graphics",
+        "Accessibility"
+      ],
+      "sales": [
+        "CRM",
+        "Salesforce",
+        "Lead generation",
+        "Cold calling",
+        "Negotiation",
+        "Account management",
+        "Pipeline management",
+        "Upselling",
+        "Client onboarding",
+        "Product demos",
+        "Forecasting",
+        "Territory planning"
+      ],
+      "other": [
+        "Customer service",
+        "Communication",
+        "Teamwork",
+        "Time management",
+        "Microsoft Office",
+        "Problem solving",
+        "Scheduling",
+        "Data entry",
+        "Inventory",
+        "Training others",
+        "Reporting",
+        "Attention to detail"
+      ]
+    }
+  },
+  "jobMatches": {
+    "title": "Jobs that match your resume",
+    "subtitle": "Scored against the resume you just built. Tap one to tailor it and apply.",
+    "searching": "Finding roles that fit…",
+    "percent": "{{score}}% match",
+    "emptyBody": "We didn't find a close match for this resume right now. New roles are posted every day.",
+    "errorBody": "We couldn't load jobs just now. Your resume is saved — try the job board.",
+    "browseAll": "Browse all jobs"
+  },
+  "applications": {
+    "title": "My applications",
+    "apply": "Apply",
+    "applied": "Applied",
+    "couldNotOpen": "Could not open the job posting",
+    "emptyTitle": "No applications yet",
+    "emptyBody": "When you apply to a job from the app, it lands here so you can track what you heard back.",
+    "findJobs": "Find jobs",
+    "statOpen": "Open",
+    "statFollowUp": "Need a nudge",
+    "statThisWeek": "This week",
+    "appliedDaysAgo": "Applied {{days}}d ago",
+    "chaseIt": "No reply in {{days}} days — worth a follow-up",
+    "viewPosting": "View posting",
+    "removeTitle": "Remove application?",
+    "removeBody": "This only removes it from your tracker. {{title}}",
+    "status": {
+      "applied": "Applied",
+      "interviewing": "Interviewing",
+      "offer": "Offer",
+      "rejected": "Rejected"
+    },
+    "dashboardNudge": "{{count}} waiting on a reply — worth chasing",
+    "dashboardOpen": "{{count}} applications in play",
+    "writeFollowUp": "Write a follow-up",
+    "prepareForInterview": "Prepare for the interview"
+  },
+  "followUp": {
+    "title": "Follow up",
+    "writing": "Writing your follow-up…",
+    "subject": "Subject",
+    "subjectPlaceholder": "Following up on my application",
+    "message": "Message",
+    "messagePlaceholder": "Your follow-up email",
+    "editHint": "Read it before you send — change anything that doesn't sound like you.",
+    "rewrite": "Write a different one",
+    "copy": "Copy",
+    "share": "Share",
+    "openMail": "Open in email",
+    "copied": "Copied to your clipboard",
+    "noMailApp": "No email app found on this device",
+    "error": "We couldn't write the follow-up. Try again.",
+    "missing": "That application is no longer in your tracker.",
+    "notificationTitle": "Time to follow up",
+    "notificationBody": "{{count}} application(s) haven't had a reply. A short nudge helps."
+  },
+  "interview": {
+    "title": "Interview prep",
+    "preparing": "Working through your CV and the role…",
+    "error": "We couldn't prepare this. Try again.",
+    "askThem": "Ask them",
+    "regenerate": "Regenerate",
+    "share": "Share",
+    "category": {
+      "role": "The role",
+      "experience": "Your experience",
+      "behavioral": "How you work",
+      "gap": "Likely to probe"
+    }
+  },
+  "jobAlerts": {
+    "offerTitle": "Tell me when more appear",
+    "offerBody": "A daily check for new roles matching this resume. No spam, one notification.",
+    "turnOn": "Turn on",
+    "onConfirmation": "Job alerts are on — we'll tell you when new roles match."
   }
 }

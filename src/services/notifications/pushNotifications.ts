@@ -12,6 +12,8 @@ const NOTIFICATION_PREFS_KEY = 'notification_preferences';
 
 export interface NotificationPreferences {
   enabled: boolean;
+  /** Reminders about the user's own applications that have gone quiet. */
+  followUpReminders: boolean;
   streakReminders: boolean;
   dailyBonusReminders: boolean;
   achievementAlerts: boolean;
@@ -20,8 +22,12 @@ export interface NotificationPreferences {
 
 const DEFAULT_PREFERENCES: NotificationPreferences = {
   enabled: true,
-  streakReminders: true,
-  dailyBonusReminders: true,
+  followUpReminders: true,
+  // Gamification pings default OFF now. A job hunt is not a streak, and
+  // "keep your streak going" is the wrong thing to say to someone who is
+  // out of work — see scheduleFollowUpReminder below for what replaced it.
+  streakReminders: false,
+  dailyBonusReminders: false,
   achievementAlerts: true,
   tipsAndUpdates: false,
 };
@@ -232,6 +238,52 @@ export async function sendLevelUpNotification(level: number, levelName: string):
 /**
  * Schedule all recurring notifications
  */
+/**
+ * Remind the user about applications that have gone quiet.
+ *
+ * Deliberately ONE notification, not one per application: a person with six
+ * stale applications does not want six pings, they want to be told once that
+ * there is something to do. Scheduled for 10am — following up is a working-
+ * hours task, and an evening reminder just creates anxiety at bedtime.
+ *
+ * Local only. No server, no push token, no network — everything it needs is
+ * already on the device.
+ */
+export async function scheduleFollowUpReminder(
+  count: number,
+  title: string,
+  body: string,
+): Promise<string | null> {
+  try {
+    await cancelNotificationsByTag('follow_up');
+    if (count <= 0) return null; // nothing to chase — say nothing
+
+    const prefs = await getPreferences();
+    if (!prefs.enabled || !prefs.followUpReminders) return null;
+
+    return await Notifications.scheduleNotificationAsync({
+      content: { title, body, data: { type: 'follow_up', count }, sound: true },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: 10,
+        minute: 0,
+      },
+    });
+  } catch (error) {
+    console.error('[Notifications] Failed to schedule follow-up reminder:', error);
+    return null;
+  }
+}
+
+/** Drop any pending follow-up reminder — e.g. the last one was answered. */
+export async function cancelFollowUpReminder(): Promise<void> {
+  try {
+    await cancelNotificationsByTag('follow_up');
+  } catch {
+    // best-effort
+  }
+}
+
 export async function scheduleAllNotifications(prefs?: NotificationPreferences): Promise<void> {
   const preferences = prefs || (await getPreferences());
 

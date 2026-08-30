@@ -1,0 +1,5 @@
+Correções para os novos recursos de busca de vagas:
+
+• O assistente guiado agora diz exatamente o que falta, em vez de um botão cinza.
+• A escrita com IA continua funcionando mesmo quando um provedor muda os requisitos.
+• As configurações de alertas de vagas mostram o estado real.

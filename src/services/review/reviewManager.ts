@@ -59,13 +59,36 @@ const DEFAULT_STATE: ReviewState = {
   hasDeclined: false,
 };
 
-/** Minimum signals before we even consider asking */
+/**
+ * Minimum signals before we even consider asking.
+ *
+ * These were originally "2 days installed + 2 sessions on different
+ * calendar days". Measured over 30 days that gate fired ZERO times:
+ * 73% of users open the app once and never return, so almost nobody
+ * ever reached a second day, and the app sat on 0 Play ratings.
+ *
+ * The gate now leans entirely on the strong-signal requirement instead
+ * of wall-clock time. That is safe because `tryPrompt()` is only ever
+ * called from the export screen after a *successful* export or share —
+ * i.e. the prompt structurally cannot appear before the user has
+ * finished a resume and shipped it. A user who did that in their first
+ * session has had the full value experience; making them wait two days
+ * just means never asking them at all.
+ *
+ * Quality is protected by the two-step modal, not by these numbers:
+ * anyone who is not enjoying the app taps "Not really" and is routed to
+ * email, so Google's ~3-native-prompts-per-year quota is never spent on
+ * a user about to leave 2★.
+ */
 export const ELIGIBILITY = {
-  /** Must have been installed at least this long */
-  minInstallAgeMs: 2 * 24 * 60 * 60 * 1000, // 2 days
-  /** At least this many sessions on different days */
-  minSessions: 2,
-  /** At least one strong positive moment */
+  /**
+   * Must have been installed at least this long. Zero by design — a
+   * completed export is the qualifier, not elapsed time.
+   */
+  minInstallAgeMs: 0,
+  /** At least this many sessions — the current one counts */
+  minSessions: 1,
+  /** At least one strong positive moment (export / import / 80+ score) */
   minStrongSignals: 1,
   /** Don't re-prompt for this long after a prior prompt */
   cooldownMs: 60 * 24 * 60 * 60 * 1000, // 60 days
@@ -152,10 +175,8 @@ export async function isEligible(): Promise<boolean> {
 
   // Hard blockers
   if (s.hasAccepted) return false; // already left a review
-  if (s.hasDeclined) {
-    // give one re-ask after a long cooldown
-    if (s.lastPromptAt && now - s.lastPromptAt < ELIGIBILITY.cooldownMs) return false;
-  }
+  // Covers decliners too: they get exactly one re-ask, once the same
+  // cooldown has elapsed.
   if (s.lastPromptAt && now - s.lastPromptAt < ELIGIBILITY.cooldownMs) return false;
 
   // Minimum bar

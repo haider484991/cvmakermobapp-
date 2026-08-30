@@ -77,10 +77,56 @@ async function getJson(url: string, signal?: AbortSignal, timeoutMs = 12_000): P
 /* Source adapters — each returns Job[] and never throws to the caller */
 /* ------------------------------------------------------------------ */
 
-async function fromMuse(query: string, location: string, signal?: AbortSignal): Promise<Job[]> {
-  const p = new URLSearchParams({ page: '1' });
-  if (location.trim()) p.set('location', location.trim());
-  const data = await getJson(`${MUSE_URL}?${p.toString()}`, signal);
+/**
+ * The Muse categories, keyed by the industry ids from onboarding.
+ *
+ * Names are EXACT strings from the live API — a near-miss silently returns
+ * zero results rather than erroring, so these were verified against the real
+ * endpoint. ("Marketing" and "Mechanical and Manufacturing Engineering" both
+ * look plausible and both return nothing; the real names are below.)
+ */
+const MUSE_CATEGORIES: Record<string, string> = {
+  tech: 'Software Engineering',
+  healthcare: 'Healthcare',
+  finance: 'Accounting and Finance',
+  marketing: 'Advertising and Marketing',
+  education: 'Education',
+  engineering: 'Science and Engineering',
+  design: 'Design and UX',
+  sales: 'Sales',
+};
+
+export function museCategoryFor(industry?: string): string | undefined {
+  return industry ? MUSE_CATEGORIES[industry] : undefined;
+}
+
+/** How many Muse pages to pull. Each page is 20 jobs. */
+const MUSE_PAGES = 4;
+
+/**
+ * The Muse has ~20,000 pages and NO keyword parameter, so we fetch a slice and
+ * filter client-side. One page (20 jobs) was far too small a sample: a search
+ * for "Registered Nurse" returned nothing at all, because page 1 of a general
+ * feed is almost entirely tech and corporate roles. Two changes fix that:
+ * pull several pages in parallel, and — when we know the user's industry —
+ * ask The Muse for that category so the sample is drawn from the right pool.
+ */
+async function fromMuse(
+  query: string,
+  location: string,
+  signal?: AbortSignal,
+  category?: string,
+): Promise<Job[]> {
+  const pages = await Promise.all(
+    Array.from({ length: MUSE_PAGES }, (_, i) => {
+      const p = new URLSearchParams({ page: String(i + 1) });
+      if (location.trim()) p.set('location', location.trim());
+      if (category) p.set('category', category);
+      // One bad page must not lose the others.
+      return getJson(`${MUSE_URL}?${p.toString()}`, signal).catch(() => ({ results: [] }));
+    }),
+  );
+  const data = { results: pages.flatMap((d: any) => d.results || []) };
   const q = query.trim().toLowerCase();
   return (data.results || [])
     // The Muse has no keyword param, so filter client-side. Require EVERY
@@ -179,6 +225,12 @@ export interface JobSearchOptions {
   location?: string;
   /** Only return remote-friendly roles. */
   remoteOnly?: boolean;
+  /**
+   * Onboarding industry id ('healthcare', 'tech', …). Narrows The Muse to the
+   * matching category, which is the difference between finding nursing roles
+   * and finding none — see `fromMuse`.
+   */
+  industry?: string;
   signal?: AbortSignal;
 }
 
@@ -187,12 +239,14 @@ export interface JobSearchOptions {
  * a partial feed beats an error screen.
  */
 export async function searchJobs(query: string, opts: JobSearchOptions = {}): Promise<JobSearchResult> {
-  const { location = '', remoteOnly = false, signal } = opts;
+  const { location = '', remoteOnly = false, industry, signal } = opts;
 
   // Skip location-less boards when the user is searching a specific city, and
   // skip The Muse when they explicitly want remote-only.
   const tasks: Promise<Job[]>[] = [
-    remoteOnly ? Promise.resolve([]) : fromMuse(query, location, signal).catch(() => []),
+    remoteOnly
+      ? Promise.resolve([])
+      : fromMuse(query, location, signal, museCategoryFor(industry)).catch(() => []),
     fromRemotive(query, signal).catch(() => []),
     fromJobicy(query, signal).catch(() => []),
   ];

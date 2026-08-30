@@ -222,6 +222,26 @@ export const ANALYTICS_EVENTS = {
   AI_BULLETS_ENHANCED: 'ai_bullets_enhanced',
   AI_SKILLS_SUGGESTED: 'ai_skills_suggested',
 
+  // AI wizard — the marquee feature, and until v1.14 the only one whose
+  // OUTCOME was untracked: handleGenerate fired _STARTED then swallowed the
+  // error in a bare catch, so a failed generation and a great one looked
+  // identical in the data. These close that hole.
+  AI_WIZARD_OPENED: 'ai_wizard_opened',
+  AI_WIZARD_GENERATE_STARTED: 'ai_wizard_generate_started',
+  AI_WIZARD_GENERATE_SUCCEEDED: 'ai_wizard_generate_succeeded',
+  AI_WIZARD_GENERATE_FAILED: 'ai_wizard_generate_failed',
+  AI_WIZARD_APPLY: 'ai_wizard_apply',
+  /** User tapped Generate while the box still held our own template. */
+  AI_WIZARD_BLOCKED_PLACEHOLDER: 'ai_wizard_blocked_placeholder',
+  AI_WIZARD_EXAMPLE_USED: 'ai_wizard_example_used',
+  /** Guided composer — instrumented from day one so its funnel is visible
+   *  immediately, rather than being reconstructed a year later. */
+  AI_WIZARD_MODE_SELECTED: 'ai_wizard_mode_selected',
+  AI_WIZARD_GUIDED_STEP_VIEWED: 'ai_wizard_guided_step_viewed',
+  AI_WIZARD_GUIDED_COMPLETED: 'ai_wizard_guided_completed',
+  /** Final step reached but the form isn't submittable — what's missing. */
+  AI_WIZARD_GUIDED_BLOCKED: 'ai_wizard_guided_blocked',
+
   // Live Job Feed (v1.11) — find → tailor → apply loop.
   JOBS_FEED_OPENED: 'jobs_feed_opened',
   JOBS_SEARCHED: 'jobs_searched',
@@ -229,6 +249,48 @@ export const ANALYTICS_EVENTS = {
   JOB_TAILOR_CLICKED: 'job_tailor_clicked',
   JOB_COVER_LETTER_CLICKED: 'job_cover_letter_clicked',
   JOB_APPLY_CLICKED: 'job_apply_clicked',
+
+  // Post-export job matches (v1.14). The export screen used to end the
+  // session — export, ad, nothing. These measure whether turning the app's
+  // highest-intent moment into a starting point actually brings people back.
+  // Job alerts (v1.14). The permission is asked for HERE, beside real
+  // matches — never at launch, because Android 13+ only asks once.
+  JOB_ALERTS_PROMPTED: 'job_alerts_prompted',
+  JOB_ALERTS_SUBSCRIBED: 'job_alerts_subscribed',
+  JOB_ALERTS_DECLINED: 'job_alerts_declined',
+  JOB_ALERTS_UPDATED: 'job_alerts_updated',
+  JOB_ALERTS_UNSUBSCRIBED: 'job_alerts_unsubscribed',
+  JOB_ALERTS_FAILED: 'job_alerts_failed',
+
+  JOB_MATCHES_SHOWN: 'job_matches_shown',
+  JOB_MATCHES_FAILED: 'job_matches_failed',
+  JOB_MATCH_OPENED: 'job_match_opened',
+  JOB_MATCHES_SEE_ALL: 'job_matches_see_all',
+
+  // Application tracker (v1.14) — the first thing in this app that changes
+  // while the user is away, and therefore the first real reason to return.
+  // STATUS_CHANGED is the retention metric to watch: it can only be fired by
+  // someone who came back.
+  APPLICATION_LOGGED: 'application_logged',
+  APPLICATION_STATUS_CHANGED: 'application_status_changed',
+  APPLICATION_OPENED: 'application_opened',
+  APPLICATION_REMOVED: 'application_removed',
+  APPLICATIONS_VIEWED: 'applications_viewed',
+
+  // Follow-up nudges (v1.14). FOLLOW_UP_SENT is the one that matters: it can
+  // only fire for someone who came back to an application days after making
+  // it, which is the deepest re-engagement this app has ever measured.
+  // Interview prep (v1.14). GENERATED firing at all means someone reached an
+  // interview through this app — the outcome the whole loop exists to produce.
+  INTERVIEW_PREP_OPENED: 'interview_prep_opened',
+  INTERVIEW_PREP_GENERATED: 'interview_prep_generated',
+  INTERVIEW_PREP_FAILED: 'interview_prep_failed',
+  INTERVIEW_PREP_SHARED: 'interview_prep_shared',
+
+  FOLLOW_UP_OPENED: 'follow_up_opened',
+  FOLLOW_UP_DRAFTED: 'follow_up_drafted',
+  FOLLOW_UP_FAILED: 'follow_up_failed',
+  FOLLOW_UP_SENT: 'follow_up_sent',
 
   // Job-outcome features (v1.10) — the premium tier's reason to exist.
   TAILOR_OPENED: 'tailor_opened',

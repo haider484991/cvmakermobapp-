@@ -23,16 +23,21 @@ import { useUIStore } from '@/stores/uiStore';
 import { useJobStore } from '@/stores/jobStore';
 import { useResumeStore } from '@/stores/resumeStore';
 import { jobAge } from '@/services/jobs/jobsApi';
+import { useTranslation } from 'react-i18next';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { useApplicationStore } from '@/stores/applicationStore';
 import { gradientColors } from '@/constants/theme';
 
 export default function JobDetail() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { colors } = useTheme();
   const { hapticEnabled } = useUIStore();
   const { activeJob: job, setPendingJob } = useJobStore();
   const { getAllResumes, activeResumeId, createResume, setActiveResume } = useResumeStore();
+  const { logApplication, hasApplied } = useApplicationStore();
   const [expanded, setExpanded] = useState(false);
+  const alreadyApplied = job ? hasApplied(job.id) : false;
 
   const handleBack = useCallback(() => {
     if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -85,12 +90,31 @@ export default function JobDetail() {
     if (!job) return;
     if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     track(ANALYTICS_EVENTS.JOB_APPLY_CLICKED, { title: job.title.slice(0, 60), company: job.company.slice(0, 40) });
+
+    // Opening the posting is the closest thing to a real "applied" signal we
+    // get — the actual form lives on someone else's site. Logging it here is
+    // what turns a one-off export into something that accrues, and the store
+    // dedupes on job id so tapping Apply twice is harmless. Wrapped because a
+    // tracker write must never stop the user reaching the job.
+    try {
+      const all = getAllResumes();
+      const used = all.find((r) => r.id === activeResumeId) ?? all[0];
+      const isNew = logApplication({
+        job,
+        resumeId: used?.id,
+        resumeName: used?.name,
+      });
+      if (isNew) track(ANALYTICS_EVENTS.APPLICATION_LOGGED, { source: 'job_detail', had_resume: Boolean(used) });
+    } catch {
+      // tracking is best-effort
+    }
+
     try {
       await Linking.openURL(job.url);
     } catch {
-      Alert.alert('Could not open the job posting', job.url);
+      Alert.alert(t('applications.couldNotOpen'), job.url);
     }
-  }, [job, hapticEnabled]);
+  }, [job, hapticEnabled, getAllResumes, activeResumeId, logApplication, t]);
 
   if (!job) {
     return (
@@ -200,17 +224,26 @@ export default function JobDetail() {
             onPress={handleApply}
             style={{ flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 14, alignItems: 'center' }}
           >
-            <ExternalLink size={20} color={colors.primary} />
-            <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text, marginTop: 6 }}>Apply</Text>
+            <ExternalLink size={20} color={alreadyApplied ? colors.success : colors.primary} />
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: '700',
+                color: alreadyApplied ? colors.success : colors.text,
+                marginTop: 6,
+              }}
+            >
+              {alreadyApplied ? t('applications.applied') : t('applications.apply')}
+            </Text>
           </Pressable>
         </Animated.View>
 
         {/* Tags */}
         {job.tags.length > 0 && (
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7, marginTop: 20 }}>
-            {job.tags.map((t) => (
-              <View key={t} style={{ backgroundColor: colors.primary + '12', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 }}>
-                <Text style={{ fontSize: 12, color: colors.primary, fontWeight: '600' }}>{t}</Text>
+            {job.tags.map((tag) => (
+              <View key={tag} style={{ backgroundColor: colors.primary + '12', borderRadius: 10, paddingHorizontal: 10, paddingVertical: 5 }}>
+                <Text style={{ fontSize: 12, color: colors.primary, fontWeight: '600' }}>{tag}</Text>
               </View>
             ))}
           </View>

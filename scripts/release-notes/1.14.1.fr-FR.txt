@@ -1,0 +1,5 @@
+Corrections pour les nouvelles fonctions de recherche d'emploi :
+
+• L'assistant guidé indique désormais exactement ce qui manque, au lieu d'un bouton grisé.
+• La rédaction par IA continue de fonctionner quand un fournisseur change ses exigences.
+• Les réglages des alertes emploi affichent leur véritable état.

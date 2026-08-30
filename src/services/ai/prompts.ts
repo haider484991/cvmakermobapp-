@@ -660,3 +660,125 @@ Rules:
 - Truthful to the resume — reframe, never fabricate.
 - If the posting names a company, address it. Otherwise use "your team".
 - Output PLAIN TEXT only: no JSON, no markdown, no subject line, no placeholder brackets. Start with "Dear Hiring Manager," (or the company's name) and end with "Sincerely,\n${resume.fullName || ''}".`;
+
+/**
+ * Follow-up email for an application that has gone quiet.
+ *
+ * The hard part here is tone, not content. A follow-up is sent from a position
+ * of no leverage, by someone who is anxious, to someone who may simply be
+ * busy — so the failure modes are grovelling ("I know you must be very busy,
+ * so sorry to bother you") and entitlement ("I haven't heard back and would
+ * appreciate a response"). Both read badly and neither gets a reply. What
+ * works is short, warm, specific, and easy to answer.
+ *
+ * Returns JSON because the caller needs the subject line separately — it goes
+ * into the mail composer's subject field.
+ */
+export const FOLLOW_UP_PROMPT = (input: {
+  fullName?: string;
+  jobTitle: string;
+  company: string;
+  daysSinceApplied: number;
+  topSkills: string[];
+  recentRole?: { title: string; company: string; bullets: string[] };
+}): string => `
+Write a short follow-up email for a candidate who applied for a job and has not heard back.
+
+CANDIDATE: ${input.fullName || 'The candidate'}
+APPLIED FOR: ${input.jobTitle} at ${input.company}
+DAYS SINCE APPLYING: ${input.daysSinceApplied}
+THEIR STRONGEST SKILLS: ${input.topSkills.slice(0, 8).join(', ') || '(none given)'}
+${
+  input.recentRole
+    ? `MOST RECENT ROLE: ${input.recentRole.title} at ${input.recentRole.company}${
+        input.recentRole.bullets.length ? ` — ${input.recentRole.bullets.slice(0, 2).join(' / ')}` : ''
+      }`
+    : ''
+}
+
+Rules:
+- 60-110 words in the body. Three or four sentences. Nothing longer gets read.
+- Tone: polite, warm, confident. NOT apologetic and NOT entitled. Never say "I know you're busy", "sorry to bother", "just checking in", "circling back", "I haven't heard back", or "at your earliest convenience".
+- Open with substance, not throat-clearing. Banned openers: "I am writing to", "I wanted to reach out", "I hope this email finds you well", "I am reaching out". Start with the interest or the reason they fit.
+- Reaffirm interest in ONE specific sentence, and add ONE concrete reason they'd be good at this role, drawn only from the skills and experience above. Never invent an achievement, a metric, or a conversation that did not happen.
+- Do not demand a decision. Close by making it easy to reply — offer to send anything else useful.
+- Do not mention the number of days.
+- Write in the same language the job title and company are written in.
+- NEVER leave a placeholder for the user to fill in. No square brackets, no "[Hiring Manager name]", no "[Company]". We do not know the recruiter's name, so open with "Dear Hiring Manager," or the company's name — an email sent with an unfilled bracket in it is worse than no email.
+- End with a sign-off on its own line followed by the candidate's name.
+
+Return ONLY a JSON object, no markdown fence:
+{
+  "subject": "Short, specific subject line naming the role",
+  "body": "The email body, starting with a greeting and ending with a sign-off on its own line"
+}`;
+
+/**
+ * Interview preparation for a specific application.
+ *
+ * What makes this worth generating rather than googling "common interview
+ * questions": it has the candidate's actual resume. A generic list tells you
+ * they might ask about teamwork; this can tell you they will probe the
+ * eighteen-month gap in 2023, and that the answer lives in the contract work
+ * already on the CV.
+ *
+ * The `gap` category is the point of the feature. Everything else is a better
+ * version of what is freely available; questions arising from what is MISSING
+ * are only knowable from the resume, and are the ones that ambush people.
+ */
+export const INTERVIEW_PREP_PROMPT = (input: {
+  fullName?: string;
+  jobTitle: string;
+  company: string;
+  candidateTitle?: string;
+  summary?: string;
+  skills: string[];
+  experience: Array<{ title: string; company: string; startDate?: string; endDate?: string | null; bullets: string[] }>;
+  education: string[];
+}): string => `
+Prepare this candidate for an interview.
+
+THE ROLE: ${input.jobTitle} at ${input.company}
+
+THE CANDIDATE:
+- Name: ${input.fullName || 'The candidate'}
+- Current title: ${input.candidateTitle || '(none given)'}
+- Summary: ${input.summary || '(none)'}
+- Skills: ${input.skills.slice(0, 20).join(', ') || '(none listed)'}
+- Experience:
+${
+  input.experience
+    .slice(0, 5)
+    .map(
+      (e) =>
+        `  ${e.title} at ${e.company} (${e.startDate || '?'}–${e.endDate || 'present'}): ${
+          e.bullets.slice(0, 3).join(' / ') || '(no detail given)'
+        }`,
+    )
+    .join('\n') || '  (no experience listed)'
+}
+- Education: ${input.education.join('; ') || '(none listed)'}
+
+Produce 8 questions this candidate is genuinely likely to face, mixed across these categories:
+- "role": about doing this specific job
+- "experience": drawn from something concrete on their CV
+- "behavioral": how they work with people and handle pressure
+- "gap": something an interviewer would probe BECAUSE the CV is thin, missing, or unexplained there — an employment gap, a skill the role needs that is absent, a short stint, a career change
+
+Rules:
+- Ground every "angle" in what the CV actually says. NEVER invent an achievement, a metric, an employer or a date. If the CV is thin on something, say so plainly and advise how to answer honestly — that is more useful than a fiction.
+- "why" is one sentence on what the interviewer is really testing.
+- "angle" is 1-2 sentences of concrete guidance naming what from THEIR background to use. Not a script to recite — this candidate has to sound like themselves.
+- Include at least one "gap" question. If the CV genuinely has no weak point, make it the hardest question for this role instead.
+- No clichés, no filler, no "be confident and smile".
+- Write in the same language the role and company are written in.
+
+Also list 4 questions the candidate should ask the interviewer — specific to this role, not generic ("what's the culture like" is banned).
+
+Return ONLY a JSON object, no markdown fence:
+{
+  "questions": [
+    { "category": "role|experience|behavioral|gap", "question": "...", "why": "...", "angle": "..." }
+  ],
+  "askThem": ["...", "...", "...", "..."]
+}`;

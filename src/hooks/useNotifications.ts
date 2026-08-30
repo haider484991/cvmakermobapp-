@@ -24,10 +24,13 @@ interface UseNotificationsReturn {
 
 export function useNotifications(): UseNotificationsReturn {
   const [isPermissionGranted, setIsPermissionGranted] = useState(false);
+  // Mirrors DEFAULT_PREFERENCES in the service: follow-ups on, gamification
+  // pings off. This is only the value shown before the stored prefs load.
   const [preferences, setPreferences] = useState<NotificationPreferences>({
     enabled: true,
-    streakReminders: true,
-    dailyBonusReminders: true,
+    followUpReminders: true,
+    streakReminders: false,
+    dailyBonusReminders: false,
     achievementAlerts: true,
     tipsAndUpdates: false,
   });

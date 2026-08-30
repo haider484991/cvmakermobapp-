@@ -50,3 +50,6 @@ play-store-credentials.json
 .gemini/
 store-assets/template-renders/
 scripts/.assets.cjs
+
+# Cloudflare Worker local state
+.wrangler/

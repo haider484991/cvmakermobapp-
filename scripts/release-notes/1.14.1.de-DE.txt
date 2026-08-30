@@ -1,0 +1,5 @@
+Korrekturen für die neuen Jobsuche-Funktionen:
+
+• Der geführte Assistent sagt jetzt genau, was noch fehlt — statt eines grauen Buttons.
+• KI-Texte funktionieren weiter, auch wenn ein Anbieter seine Anforderungen ändert.
+• Die Job-Alert-Einstellungen zeigen ihren echten Zustand.

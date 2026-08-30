@@ -1,0 +1,5 @@
+Perbaikan untuk fitur pencarian kerja baru:
+
+• Pembuat CV terpandu kini memberi tahu apa yang masih kurang, bukan sekadar tombol abu-abu.
+• Penulisan AI tetap bekerja saat penyedia mengubah persyaratannya.
+• Pengaturan notifikasi lowongan menampilkan status sebenarnya.

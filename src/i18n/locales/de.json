@@ -32,13 +32,132 @@
   },
   "onboarding": {
     "welcome": {
-      "headline": "Gestalte deine Karriere mit intelligentem Design",
-      "subhead": "KI-gestützter Lebenslauf-Editor. Für immer kostenlos.",
+      "tagline": "Erstelle deinen Traum-Lebenslauf kostenlos",
+      "badge": "100 % KOSTENLOS • KI-GESTÜTZT • ATS-TAUGLICH",
+      "whyChooseUs": "Warum wir",
+      "features": {
+        "ai": {
+          "title": "Texte mit KI",
+          "description": "Kluge Vorschläge, damit dein Lebenslauf auffällt"
+        },
+        "templates": {
+          "title": "26 Profi-Vorlagen",
+          "description": "Skill-Balken, Kontakt-Icons und ATS-taugliche Layouts"
+        },
+        "quick": {
+          "title": "Schnell und einfach",
+          "description": "In unter 5 Minuten zum professionellen Lebenslauf"
+        },
+        "export": {
+          "title": "PDF-Export",
+          "description": "Lade deinen Lebenslauf sofort herunter und teile ihn"
+        }
+      },
+      "valuePoints": {
+        "noCard": "Keine Kreditkarte nötig",
+        "freeEdit": "Erstellen und Bearbeiten kostenlos",
+        "readyMinutes": "In Minuten fertig"
+      },
       "getStarted": "Kostenlos starten",
-      "haveResume": "Ich habe bereits einen Lebenslauf",
-      "importing": "Lebenslauf wird gelesen…",
-      "importFailed": "Wir konnten die Datei nicht lesen. Versuche es mit einem PDF, Word-Dokument oder einem Foto deines Lebenslaufs.",
-      "trusted": "Vertraut von über 10.000 Jobsuchenden weltweit"
+      "haveResume": "Ich habe schon einen Lebenslauf",
+      "importing": "Dein Lebenslauf wird gelesen…",
+      "importFailedTitle": "Import fehlgeschlagen",
+      "importFailed": "Diese Datei konnten wir nicht lesen. Versuch es mit einem PDF, einem Word-Dokument oder einem Foto deines Lebenslaufs.",
+      "trustBadge": "ATS-taugliche Vorlagen, die Recruiter wirklich lesen können"
+    },
+    "goals": {
+      "title": "Lass uns deinen\nLebenslauf anpassen",
+      "subtitle": "Ein paar Angaben und wir stimmen Vorlagen, KI-Vorschläge und deinen Startpunkt darauf ab.",
+      "nameLabel": "Wie sollen wir dich nennen?",
+      "namePlaceholder": "Dein Vorname",
+      "goalLabel": "Was führt dich her?",
+      "roleLabel": "Welche Stelle strebst du an?",
+      "rolePlaceholder": "z. B. Softwareentwickler, Produktmanagerin",
+      "industryLabel": "Deine Branche",
+      "levelLabel": "Berufserfahrung"
+    },
+    "options": {
+      "goals": {
+        "new-job": "Eine neue Stelle finden",
+        "first-job": "Meinen ersten Job finden",
+        "career-switch": "Beruflich umsteigen",
+        "promotion": "Eine Beförderung anstreben",
+        "exploring": "Ich schaue mich nur um"
+      },
+      "industries": {
+        "tech": "Technologie",
+        "techInline": "in der Technologiebranche",
+        "healthcare": "Gesundheitswesen",
+        "healthcareInline": "im Gesundheitswesen",
+        "finance": "Finanzen",
+        "financeInline": "in der Finanzbranche",
+        "marketing": "Marketing",
+        "marketingInline": "im Marketing",
+        "education": "Bildung",
+        "educationInline": "im Bildungsbereich",
+        "engineering": "Ingenieurwesen",
+        "engineeringInline": "im Ingenieurwesen",
+        "design": "Design",
+        "designInline": "im Design",
+        "sales": "Vertrieb",
+        "salesInline": "im Vertrieb",
+        "other": "Sonstiges",
+        "otherInline": "in einer anderen Branche"
+      },
+      "levels": {
+        "entry": {
+          "label": "Einstiegsniveau",
+          "description": "0–2 Jahre",
+          "yearsHint": "etwa einem Jahr"
+        },
+        "mid": {
+          "label": "Mittleres Niveau",
+          "description": "3–5 Jahre",
+          "yearsHint": "rund 4 Jahren"
+        },
+        "senior": {
+          "label": "Senior",
+          "description": "6–10 Jahre",
+          "yearsHint": "etwa 8 Jahren"
+        },
+        "executive": {
+          "label": "Führungsebene",
+          "description": "Über 10 Jahre",
+          "yearsHint": "über zehn Jahren"
+        }
+      }
+    },
+    "complete": {
+      "greetingNamed": "Alles bereit, {{name}}! ",
+      "greeting": "Alles bereit! ",
+      "subtitle": "Wie möchtest du starten? Du kannst später alles ändern.",
+      "recommended": "EMPFOHLEN",
+      "pathAI": {
+        "title": "Mit KI erstellen",
+        "subtitle": "Beschreib dich in einem Satz — die KI schreibt deinen ersten Entwurf."
+      },
+      "pathImport": {
+        "title": "Ich habe schon einen Lebenslauf",
+        "subtitle": "Importiere ein PDF oder Word-Dokument und wir füllen alles aus."
+      },
+      "pathTemplate": {
+        "title": "Mit einer Vorlage starten",
+        "subtitle": "Wähle ein Design und fülle es selbst aus."
+      },
+      "footer": "Erstellen kostenlos • Keine Kreditkarte nötig",
+      "resumeNameWithRole": "Lebenslauf {{role}}",
+      "resumeName": "Mein Lebenslauf"
+    },
+    "seed": {
+      "join": " ",
+      "roleFallback": "Fachkraft",
+      "experienceFallback": "Berufserfahrung",
+      "yearsOfExperience": "{{years}} Berufserfahrung",
+      "inIndustry": " {{industry}}",
+      "line1": "Ich arbeite als {{role}} mit {{experience}}{{industry}}.",
+      "line2": "Zuletzt war ich [deine aktuelle oder letzte Position], wo ich [ein oder zwei Dinge, die du erreicht hast — nenne Zahlen, wenn möglich].",
+      "line3": "Davor war ich [frühere Position und was du dort gemacht hast].",
+      "line4": "Ich kann gut [deine wichtigsten Fähigkeiten oder Tools] und habe [deinen Abschluss oder eine relevante Zertifizierung]."
     }
   },
   "dashboard": {
@@ -191,5 +310,355 @@
     "createAccount": "Konto erstellen",
     "alreadyHave": "Du hast bereits ein Konto?",
     "dontHave": "Du hast noch kein Konto?"
+  },
+  "wizard": {
+    "title": "Mit KI erstellen",
+    "reviewTitle": "Prüfen",
+    "heroTitleWithRole": "Erstellen wir deinen Lebenslauf als {{role}}",
+    "heroTitle": "Erzähl mir von dir",
+    "heroSubtitleSeeded": "Wir haben aus deinen Antworten einen Entwurf begonnen. Ersetze die [Klammern] durch deine Angaben und generiere dann.",
+    "heroSubtitle": "Schreib oder füge ein bis zwei Absätze über deine Position, deine Erfahrung und deine Fähigkeiten ein. Die KI macht daraus einen strukturierten Lebenslauf, den du bearbeiten und herunterladen kannst.",
+    "examplesLabel": "Keine Idee? Lade ein Beispiel und ersetze es dann durch deine eigenen Angaben",
+    "inputPlaceholder": "Ich arbeite seit [n] Jahren als [Position]. Aktuell bin ich bei [Unternehmen] und mache [Hauptaufgabe]. Davor war ich [frühere Position]. Ich kann gut [Tools/Fähigkeiten]...",
+    "charsToGo": "noch {{count}} Zeichen",
+    "words": "{{count}} Wörter",
+    "readiness": {
+      "placeholder": "Immer noch unsere Vorlage",
+      "keepGoing": "Weiter so",
+      "strong": "Super — das wird gut funktionieren",
+      "ok": "Gut, etwas mehr würde helfen",
+      "thin": "Zu wenig — füge Details hinzu"
+    },
+    "blocked": {
+      "brackets": "Ersetze die Teile [in Klammern] durch deine eigenen Angaben — die KI schreibt über das, was im Feld steht.",
+      "template": "Das ist noch unser Beispiel. Trage deine eigenen Positionen, Unternehmen und Fähigkeiten ein, damit der Lebenslauf zu dir gehört."
+    },
+    "hintsTitle": "Ergänze das und der Lebenslauf wird deutlich besser",
+    "hint": {
+      "detail": "Schreib ein paar Sätze mehr — je mehr du lieferst, desto besser wird der Lebenslauf",
+      "employer": "Nenne die Unternehmen oder Organisationen, für die du gearbeitet hast",
+      "numbers": "Nenne eine Zahl — Teamgröße, Jahre, Budget, Wachstum, alles Messbare",
+      "skills": "Liste deine wichtigsten Fähigkeiten oder Tools auf",
+      "education": "Erwähne deinen Abschluss, deine Ausbildung oder Zertifikate"
+    },
+    "generate": "Meinen Lebenslauf erstellen",
+    "generateBlocked": "Mach ihn erst zu deinem",
+    "generating": "Dein Lebenslauf entsteht…",
+    "genericError": "Etwas ist schiefgelaufen. Versuch es noch einmal.",
+    "confidence": {
+      "high": "Hohe Zuverlässigkeit",
+      "moderate": "Mittlere Zuverlässigkeit",
+      "low": "Geringe Zuverlässigkeit — bitte genau prüfen"
+    },
+    "assumptions": "Diese Annahmen hat die KI getroffen",
+    "section": {
+      "personal": "Persönliche Daten",
+      "summary": "Kurzprofil",
+      "experience": "Berufserfahrung ({{count}})",
+      "skills": "Fähigkeiten ({{count}})",
+      "education": "Ausbildung"
+    },
+    "field": {
+      "name": "Name",
+      "title": "Position",
+      "location": "Ort"
+    },
+    "roleUnknown": "(Position unbekannt)",
+    "companyUnknown": "(Unternehmen unbekannt)",
+    "present": "Heute",
+    "weakResult": "Die KI hatte kaum Material, deshalb ist dieser Lebenslauf fast leer. Geh zurück und ergänze zwei Sätze — das ändert alles.",
+    "addMoreDetail": "Mehr Details ergänzen",
+    "useAnyway": "Trotzdem verwenden",
+    "tryAgain": "Erneut versuchen",
+    "createResume": "Lebenslauf erstellen",
+    "guided": {
+      "stepOf": "Schritt {{current}} von {{total}}",
+      "steps": {
+        "you": {
+          "title": "Wer bist du?",
+          "subtitle": "Nur das Wichtigste — das steht oben in deinem Lebenslauf."
+        },
+        "work": {
+          "title": "Wo arbeitest du?",
+          "subtitle": "Deine aktuellste Stelle. Frühere kannst du danach ergänzen."
+        },
+        "highlights": {
+          "title": "Was machst du dort?",
+          "subtitle": "Ein bis zwei Sätze reichen. Zahlen machen es deutlich stärker."
+        },
+        "skills": {
+          "title": "Worin bist du gut?",
+          "subtitle": "Tippe an, was zutrifft. Ergänze eigene, wenn etwas fehlt."
+        },
+        "education": {
+          "title": "Ausbildung oder Weiterbildung?",
+          "subtitle": "Optional — überspring es, wenn es nicht zutrifft."
+        }
+      },
+      "nameLabel": "Dein Name",
+      "namePlaceholder": "Ayesha Khan",
+      "jobTitleLabel": "Die Stelle, die du suchst",
+      "jobTitlePlaceholder": "Examinierte Pflegefachkraft",
+      "locationLabel": "Wohnort (optional)",
+      "locationPlaceholder": "Lahore",
+      "noJobYet": "Ich hatte noch keinen Job",
+      "earlierJob": "Frühere Stelle",
+      "roleTitleLabel": "Stellenbezeichnung",
+      "roleTitlePlaceholder": "Pflegefachkraft Station",
+      "companyLabel": "Unternehmen oder Organisation",
+      "companyPlaceholder": "Shaukat-Khanum-Krankenhaus",
+      "fromLabel": "Von",
+      "fromPlaceholder": "2021",
+      "toLabel": "Bis (leer = noch dort)",
+      "toPlaceholder": "2024",
+      "addEarlierJob": "Frühere Stelle hinzufügen",
+      "noExperienceNote": "Noch kein Job? Kein Problem. Geh weiter — wir bauen deinen Lebenslauf aus deinen Fähigkeiten und deiner Ausbildung auf.",
+      "prompts": {
+        "daily": "Was hast du täglich gemacht?",
+        "improved": "Was hast du verbessert oder gelöst?",
+        "led": "Hast du jemanden geführt, eingearbeitet oder betreut?",
+        "numbers": "Zahlen? Menschen, Geld, Menge, gesparte Zeit"
+      },
+      "atCompany": "Bei {{name}}",
+      "whatYouDid": "Was du gemacht hast",
+      "highlightsPlaceholder": "Ich betreue 30 Patientinnen und Patienten pro Schicht, habe 5 neue Pflegekräfte eingearbeitet und erstelle den Dienstplan der Station.",
+      "addYourOwn": "Eigene hinzufügen",
+      "educationLabel": "Ausbildung oder Weiterbildung",
+      "educationPlaceholder": "Ich habe einen Bachelor in Pflegewissenschaft der Universität Punjab, abgeschlossen 2021.",
+      "buildResume": "Meinen Lebenslauf erstellen",
+      "switchToFreeText": "Ich schreibe lieber selbst",
+      "missing": {
+        "identity": "Trag deinen Namen oder die gesuchte Stelle ein — oben muss etwas stehen.",
+        "substance": "Ergänze eine Stelle, eine Fähigkeit oder deine Ausbildung als Grundlage."
+      }
+    },
+    "compose": {
+      "sentenceJoin": " ",
+      "listSeparator": ", ",
+      "listAnd": " und ",
+      "nameAndTitle": "Ich heiße {{name}} und arbeite als {{title}}.",
+      "nameOnly": "Ich heiße {{name}}.",
+      "titleOnly": "Ich arbeite als {{title}}.",
+      "location": "Ich wohne in {{location}}.",
+      "noExperience": "Ich hatte noch keine Vollzeitstelle; ich suche meine erste Position.",
+      "skills": "Ich kann gut {{list}}.",
+      "dateRange": " von {{start}} bis {{end}}",
+      "dateSince": " seit {{start}}",
+      "dateUntil": " bis {{end}}",
+      "role": {
+        "currentFull": "Aktuell arbeite ich als {{title}} bei {{company}}{{dates}}.",
+        "currentTitleOnly": "Aktuell arbeite ich als {{title}}{{dates}}.",
+        "currentCompanyOnly": "Aktuell arbeite ich bei {{company}}{{dates}}.",
+        "recentFull": "Zuletzt habe ich als {{title}} bei {{company}}{{dates}} gearbeitet.",
+        "recentTitleOnly": "Zuletzt habe ich als {{title}}{{dates}} gearbeitet.",
+        "recentCompanyOnly": "Zuletzt habe ich bei {{company}}{{dates}} gearbeitet.",
+        "pastFull": "Davor habe ich als {{title}} bei {{company}}{{dates}} gearbeitet.",
+        "pastTitleOnly": "Davor habe ich als {{title}}{{dates}} gearbeitet.",
+        "pastCompanyOnly": "Davor habe ich bei {{company}}{{dates}} gearbeitet."
+      }
+    },
+    "skills": {
+      "tech": [
+        "JavaScript",
+        "Python",
+        "React",
+        "SQL",
+        "Git",
+        "AWS",
+        "Docker",
+        "REST-APIs",
+        "Node.js",
+        "Testing",
+        "Agile Methoden",
+        "Linux"
+      ],
+      "healthcare": [
+        "Patientenbetreuung",
+        "Vitalzeichen",
+        "Medikamentengabe",
+        "Elektronische Patientenakte",
+        "Wundversorgung",
+        "Triage",
+        "Infektionsschutz",
+        "Reanimation",
+        "Pflegeplanung",
+        "Blutentnahme",
+        "Umgang mit Patienten",
+        "Medizinische Fachsprache"
+      ],
+      "finance": [
+        "Excel",
+        "Finanzmodellierung",
+        "Budgetplanung",
+        "Forecasting",
+        "Kontenabstimmung",
+        "QuickBooks",
+        "Kreditorenbuchhaltung",
+        "Prüfungsunterstützung",
+        "IFRS",
+        "Abweichungsanalyse",
+        "SAP",
+        "Lohnbuchhaltung"
+      ],
+      "marketing": [
+        "SEO",
+        "Google Analytics",
+        "Content-Erstellung",
+        "E-Mail-Marketing",
+        "Social Media",
+        "Bezahlte Werbung",
+        "Copywriting",
+        "Canva",
+        "HubSpot",
+        "A/B-Tests",
+        "Kampagnenplanung",
+        "Markenstrategie"
+      ],
+      "education": [
+        "Unterrichtsplanung",
+        "Klassenführung",
+        "Lehrplanentwicklung",
+        "Leistungsbewertung",
+        "Differenzierter Unterricht",
+        "Google Classroom",
+        "Elternarbeit",
+        "Nachhilfe",
+        "Förderbedarf-Betreuung",
+        "Verhaltensmanagement",
+        "Korrektur",
+        "Motivation der Lernenden"
+      ],
+      "engineering": [
+        "AutoCAD",
+        "SolidWorks",
+        "Projektmanagement",
+        "Qualitätskontrolle",
+        "Technische Zeichnungen",
+        "Baustellenkontrolle",
+        "MATLAB",
+        "Lean Manufacturing",
+        "Arbeitssicherheit",
+        "Instandhaltungsplanung",
+        "Ursachenanalyse",
+        "Planlesen"
+      ],
+      "design": [
+        "Figma",
+        "Adobe Photoshop",
+        "Illustrator",
+        "Prototyping",
+        "Wireframes",
+        "Typografie",
+        "Designsysteme",
+        "Nutzerforschung",
+        "Branding",
+        "InDesign",
+        "Motion Graphics",
+        "Barrierefreiheit"
+      ],
+      "sales": [
+        "CRM",
+        "Salesforce",
+        "Leadgenerierung",
+        "Kaltakquise",
+        "Verhandlungsführung",
+        "Kundenbetreuung",
+        "Pipeline-Management",
+        "Upselling",
+        "Kunden-Onboarding",
+        "Produktdemos",
+        "Absatzprognose",
+        "Gebietsplanung"
+      ],
+      "other": [
+        "Kundenservice",
+        "Kommunikation",
+        "Teamarbeit",
+        "Zeitmanagement",
+        "Microsoft Office",
+        "Problemlösung",
+        "Terminplanung",
+        "Dateneingabe",
+        "Bestandsverwaltung",
+        "Einarbeitung von Kollegen",
+        "Berichtswesen",
+        "Sorgfalt"
+      ]
+    }
+  },
+  "jobMatches": {
+    "title": "Stellen, die zu deinem Lebenslauf passen",
+    "subtitle": "Bewertet anhand des Lebenslaufs, den du gerade erstellt hast. Tippe auf eine, um sie anzupassen und dich zu bewerben.",
+    "searching": "Passende Stellen werden gesucht…",
+    "percent": "{{score}} % Übereinstimmung",
+    "emptyBody": "Gerade haben wir keine gute Übereinstimmung für diesen Lebenslauf gefunden. Täglich kommen neue Stellen dazu.",
+    "errorBody": "Die Stellen konnten gerade nicht geladen werden. Dein Lebenslauf ist gespeichert — schau in der Stellenbörse.",
+    "browseAll": "Alle Stellen ansehen"
+  },
+  "applications": {
+    "title": "Meine Bewerbungen",
+    "apply": "Bewerben",
+    "applied": "Beworben",
+    "couldNotOpen": "Die Stellenanzeige konnte nicht geöffnet werden",
+    "emptyTitle": "Noch keine Bewerbungen",
+    "emptyBody": "Wenn du dich über die App auf eine Stelle bewirbst, landet sie hier — so behältst du die Rückmeldungen im Blick.",
+    "findJobs": "Stellen finden",
+    "statOpen": "Offen",
+    "statFollowUp": "Ohne Antwort",
+    "statThisWeek": "Diese Woche",
+    "appliedDaysAgo": "Vor {{days}} T beworben",
+    "chaseIt": "Seit {{days}} Tagen keine Antwort — nachhaken lohnt sich",
+    "viewPosting": "Anzeige ansehen",
+    "removeTitle": "Bewerbung entfernen?",
+    "removeBody": "Das entfernt sie nur aus deiner Übersicht. {{title}}",
+    "status": {
+      "applied": "Beworben",
+      "interviewing": "Im Gespräch",
+      "offer": "Angebot",
+      "rejected": "Absage"
+    },
+    "dashboardNudge": "{{count}} ohne Antwort — nachhaken lohnt sich",
+    "dashboardOpen": "{{count}} laufende Bewerbungen",
+    "writeFollowUp": "Nachricht schreiben",
+    "prepareForInterview": "Auf das Gespräch vorbereiten"
+  },
+  "followUp": {
+    "title": "Nachfassen",
+    "writing": "Deine Nachricht wird geschrieben…",
+    "subject": "Betreff",
+    "subjectPlaceholder": "Nachfrage zu meiner Bewerbung",
+    "message": "Nachricht",
+    "messagePlaceholder": "Deine Nachfass-E-Mail",
+    "editHint": "Lies sie vor dem Senden und ändere alles, was nicht nach dir klingt.",
+    "rewrite": "Eine andere schreiben",
+    "copy": "Kopieren",
+    "share": "Teilen",
+    "openMail": "In E-Mail öffnen",
+    "copied": "In die Zwischenablage kopiert",
+    "noMailApp": "Keine E-Mail-App auf diesem Gerät gefunden",
+    "error": "Wir konnten die Nachricht nicht schreiben. Versuch es erneut.",
+    "missing": "Diese Bewerbung ist nicht mehr in deiner Übersicht.",
+    "notificationTitle": "Zeit zum Nachfassen",
+    "notificationBody": "{{count}} Bewerbung(en) ohne Antwort. Eine kurze Nachricht hilft."
+  },
+  "interview": {
+    "title": "Interview-Vorbereitung",
+    "preparing": "Wir gehen deinen Lebenslauf und die Stelle durch…",
+    "error": "Das konnten wir nicht vorbereiten. Versuch es erneut.",
+    "askThem": "Deine Fragen",
+    "regenerate": "Neu erstellen",
+    "share": "Teilen",
+    "category": {
+      "role": "Die Stelle",
+      "experience": "Deine Erfahrung",
+      "behavioral": "Deine Arbeitsweise",
+      "gap": "Wird nachgefragt"
+    }
+  },
+  "jobAlerts": {
+    "offerTitle": "Sag mir Bescheid, wenn mehr kommen",
+    "offerBody": "Tägliche Suche nach neuen Stellen zu diesem Lebenslauf. Kein Spam, eine Benachrichtigung.",
+    "turnOn": "Aktivieren",
+    "onConfirmation": "Job-Alerts sind an — wir melden uns bei neuen Stellen."
   }
 }

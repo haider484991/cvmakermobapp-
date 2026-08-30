@@ -28,6 +28,7 @@ import { useResumeStore } from '@/stores/resumeStore';
 import { useResumeImport } from '@/hooks/useResumeImport';
 import { ImportReviewModal } from '@/components/features/import';
 import { Confetti, PageIndicator } from '@/components/ui';
+import { useTranslation } from 'react-i18next';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import { greetingName } from '@/services/onboarding/personalize';
 import * as Haptics from 'expo-haptics';
@@ -40,12 +41,14 @@ type PathCardProps = {
   onPress: () => void;
   colors: any;
   recommended?: boolean;
+  /** Already-translated badge text; PathCard sits above the t() call site. */
+  recommendedLabel?: string;
   loading?: boolean;
   delay: number;
   variant?: 'gradient' | 'surface';
 };
 
-function PathCard({ icon: Icon, title, subtitle, onPress, colors, recommended, loading, delay, variant = 'surface' }: PathCardProps) {
+function PathCard({ icon: Icon, title, subtitle, onPress, colors, recommended, recommendedLabel, loading, delay, variant = 'surface' }: PathCardProps) {
   const isGradient = variant === 'gradient';
   const body = (
     <View style={{ flexDirection: 'row', alignItems: 'center', padding: 18 }}>
@@ -71,7 +74,7 @@ function PathCard({ icon: Icon, title, subtitle, onPress, colors, recommended, l
           <Text style={{ fontSize: 16, fontWeight: '700', color: isGradient ? 'white' : colors.text }}>{title}</Text>
           {recommended && (
             <View style={{ marginLeft: 8, backgroundColor: isGradient ? 'rgba(255,255,255,0.25)' : colors.success + '20', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2 }}>
-              <Text style={{ fontSize: 10, fontWeight: '800', color: isGradient ? 'white' : colors.success, letterSpacing: 0.5 }}>RECOMMENDED</Text>
+              <Text style={{ fontSize: 10, fontWeight: '800', color: isGradient ? 'white' : colors.success, letterSpacing: 0.5 }}>{recommendedLabel}</Text>
             </View>
           )}
         </View>
@@ -99,6 +102,7 @@ function PathCard({ icon: Icon, title, subtitle, onPress, colors, recommended, l
 }
 
 export default function PathPicker() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { colors } = useTheme();
   const { setOnboardingCompleted, setOnboardingProfile, onboardingProfile } = useUIStore();
@@ -151,7 +155,9 @@ export default function PathPicker() {
     try {
       await selectAndParse();
     } catch {
-      Alert.alert('Import failed', "We couldn't read that file. Try a PDF, Word doc, or photo of your resume.", [{ text: 'OK' }]);
+      Alert.alert(t('onboarding.welcome.importFailedTitle'), t('onboarding.welcome.importFailed'), [
+        { text: t('common.ok') },
+      ]);
     }
   };
 
@@ -164,7 +170,9 @@ export default function PathPicker() {
   const handleTemplate = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const role = onboardingProfile.targetRole?.trim();
-    const id = createResume(role ? `${role} Resume` : 'My Resume');
+    const id = createResume(
+      role ? t('onboarding.complete.resumeNameWithRole', { role }) : t('onboarding.complete.resumeName'),
+    );
     // Pre-fill the header from onboarding so the very first thing they see is
     // their own name on the page — the difference between "a tool" and "my
     // resume". The default template was already chosen on the previous screen.
@@ -189,12 +197,15 @@ export default function PathPicker() {
         {/* Greeting */}
         <Animated.View entering={FadeInUp.delay(150).duration(600)} style={{ marginBottom: 8 }}>
           <Text style={{ fontSize: 32, fontWeight: '800', color: colors.text, letterSpacing: -0.5 }}>
-            {name ? `You're all set, ${name}! ` : "You're all set! "}🎉
+            {name
+              ? t('onboarding.complete.greetingNamed', { name })
+              : t('onboarding.complete.greeting')}
+            🎉
           </Text>
         </Animated.View>
         <Animated.View entering={FadeInUp.delay(250).duration(600)} style={{ marginBottom: 28 }}>
           <Text style={{ fontSize: 17, color: colors.textSecondary, lineHeight: 24 }}>
-            How do you want to start? You can change everything later.
+            {t('onboarding.complete.subtitle')}
           </Text>
         </Animated.View>
 
@@ -202,18 +213,23 @@ export default function PathPicker() {
         <View style={{ gap: 14 }}>
           <PathCard
             icon={Sparkles}
-            title="Build with AI"
-            subtitle="Describe yourself in a sentence — AI writes your first draft."
+            title={t('onboarding.complete.pathAI.title')}
+            subtitle={t('onboarding.complete.pathAI.subtitle')}
             onPress={handleAI}
             colors={colors}
             recommended
+            recommendedLabel={t('onboarding.complete.recommended')}
             variant="gradient"
             delay={350}
           />
           <PathCard
             icon={Upload}
-            title="I already have a resume"
-            subtitle={isImporting ? 'Reading your resume…' : 'Import a PDF or Word doc and we’ll fill it in.'}
+            title={t('onboarding.complete.pathImport.title')}
+            subtitle={
+              isImporting
+                ? t('onboarding.welcome.importing')
+                : t('onboarding.complete.pathImport.subtitle')
+            }
             onPress={handleImport}
             colors={colors}
             loading={isImporting}
@@ -221,8 +237,8 @@ export default function PathPicker() {
           />
           <PathCard
             icon={FileText}
-            title="Start from a template"
-            subtitle="Pick a design and fill it in yourself."
+            title={t('onboarding.complete.pathTemplate.title')}
+            subtitle={t('onboarding.complete.pathTemplate.subtitle')}
             onPress={handleTemplate}
             colors={colors}
             delay={510}
@@ -233,7 +249,7 @@ export default function PathPicker() {
           entering={FadeIn.delay(650).duration(500)}
           style={{ textAlign: 'center', marginTop: 24, fontSize: 13, color: colors.textMuted }}
         >
-          Free to build • No credit card needed
+          {t('onboarding.complete.footer')}
         </Animated.Text>
       </ScrollView>
 

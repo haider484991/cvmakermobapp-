@@ -32,13 +32,132 @@
   },
   "onboarding": {
     "welcome": {
-      "headline": "用智能设计打造职业生涯",
-      "subhead": "AI 驱动的简历构建工具，永久免费。",
+      "tagline": "免费打造你理想中的简历",
+      "badge": "100% 免费 • AI 驱动 • 兼容 ATS",
+      "whyChooseUs": "为什么选择我们",
+      "features": {
+        "ai": {
+          "title": "AI 智能撰写",
+          "description": "智能建议，让你的简历脱颖而出"
+        },
+        "templates": {
+          "title": "26 款专业模板",
+          "description": "技能条、联系方式图标，以及兼容 ATS 的排版"
+        },
+        "quick": {
+          "title": "快速又简单",
+          "description": "5 分钟内做出一份专业简历"
+        },
+        "export": {
+          "title": "导出 PDF",
+          "description": "即刻下载并分享你的简历"
+        }
+      },
+      "valuePoints": {
+        "noCard": "无需信用卡",
+        "freeEdit": "创建和编辑均免费",
+        "readyMinutes": "几分钟就搞定"
+      },
       "getStarted": "免费开始",
-      "haveResume": "我已有简历",
-      "importing": "正在读取简历…",
-      "importFailed": "无法读取该文件。请尝试 PDF、Word 文档或简历照片。",
-      "trusted": "全球 10,000+ 求职者信赖"
+      "haveResume": "我已经有简历了",
+      "importing": "正在读取你的简历…",
+      "importFailedTitle": "导入失败",
+      "importFailed": "无法读取该文件。请试试 PDF、Word 文档，或简历的照片。",
+      "trustBadge": "招聘方真正能读懂的 ATS 友好模板"
+    },
+    "goals": {
+      "title": "来定制\n你的简历",
+      "subtitle": "轻点几下，我们就为你调整模板、AI 建议和起始内容。",
+      "nameLabel": "怎么称呼你？",
+      "namePlaceholder": "你的名字",
+      "goalLabel": "你来这里是为了什么？",
+      "roleLabel": "你想应聘什么岗位？",
+      "rolePlaceholder": "例如：软件工程师、产品经理",
+      "industryLabel": "你的行业",
+      "levelLabel": "经验水平"
+    },
+    "options": {
+      "goals": {
+        "new-job": "找一份新工作",
+        "first-job": "找到第一份工作",
+        "career-switch": "转行",
+        "promotion": "争取升职",
+        "exploring": "先看看"
+      },
+      "industries": {
+        "tech": "科技",
+        "techInline": "科技行业",
+        "healthcare": "医疗健康",
+        "healthcareInline": "医疗行业",
+        "finance": "金融",
+        "financeInline": "金融行业",
+        "marketing": "市场营销",
+        "marketingInline": "市场营销行业",
+        "education": "教育",
+        "educationInline": "教育行业",
+        "engineering": "工程",
+        "engineeringInline": "工程行业",
+        "design": "设计",
+        "designInline": "设计行业",
+        "sales": "销售",
+        "salesInline": "销售行业",
+        "other": "其他",
+        "otherInline": "其他行业"
+      },
+      "levels": {
+        "entry": {
+          "label": "初级",
+          "description": "0–2 年",
+          "yearsHint": "约一年"
+        },
+        "mid": {
+          "label": "中级",
+          "description": "3–5 年",
+          "yearsHint": "约 4 年"
+        },
+        "senior": {
+          "label": "高级",
+          "description": "6–10 年",
+          "yearsHint": "约 8 年"
+        },
+        "executive": {
+          "label": "管理层",
+          "description": "10 年以上",
+          "yearsHint": "十年以上"
+        }
+      }
+    },
+    "complete": {
+      "greetingNamed": "都准备好了，{{name}}！ ",
+      "greeting": "都准备好了！ ",
+      "subtitle": "想从哪里开始？之后都可以随时修改。",
+      "recommended": "推荐",
+      "pathAI": {
+        "title": "用 AI 生成",
+        "subtitle": "一句话介绍你自己，AI 来写第一版初稿。"
+      },
+      "pathImport": {
+        "title": "我已经有简历了",
+        "subtitle": "导入 PDF 或 Word，我们帮你填好。"
+      },
+      "pathTemplate": {
+        "title": "从模板开始",
+        "subtitle": "挑一个设计，自己动手填写。"
+      },
+      "footer": "创建免费 • 无需信用卡",
+      "resumeNameWithRole": "{{role}}简历",
+      "resumeName": "我的简历"
+    },
+    "seed": {
+      "join": "",
+      "roleFallback": "职场人士",
+      "experienceFallback": "工作经验",
+      "yearsOfExperience": "{{years}}的工作经验",
+      "inIndustry": "{{industry}}",
+      "line1": "我是一名{{role}}，在{{industry}}有{{experience}}。",
+      "line2": "最近我担任［你目前或最近的岗位］，在那里［一两件你做成的事，尽量写上数字］。",
+      "line3": "在那之前我是［上一份岗位以及你负责的工作］。",
+      "line4": "我擅长［你最拿手的技能或工具］，并且拥有［你的学位或相关证书］。"
     }
   },
   "dashboard": {
@@ -191,5 +310,355 @@
     "createAccount": "创建账户",
     "alreadyHave": "已有账户？",
     "dontHave": "还没有账户？"
+  },
+  "wizard": {
+    "title": "用 AI 生成",
+    "reviewTitle": "确认",
+    "heroTitleWithRole": "一起来做你的{{role}}简历",
+    "heroTitle": "介绍一下你自己",
+    "heroSubtitleSeeded": "我们根据你的回答起了个草稿。把[方括号]里的内容换成你自己的信息，然后生成。",
+    "heroSubtitle": "写下或粘贴一两段关于你的岗位、经历和技能的描述。AI 会把它整理成一份可以编辑和下载的结构化简历。",
+    "examplesLabel": "没有头绪？先载入一个示例，再换成你自己的信息",
+    "inputPlaceholder": "我做[岗位]已经[n]年了。目前在[公司]负责[主要工作]。此前我是[上一份岗位]。我擅长[工具/技能]……",
+    "charsToGo": "还差 {{count}} 个字",
+    "words": "{{count}} 个词",
+    "readiness": {
+      "placeholder": "这还是我们的模板",
+      "keepGoing": "继续写",
+      "strong": "很好 — 这样效果会不错",
+      "ok": "还可以，再补充一点会更好",
+      "thin": "内容偏少 — 请补充细节"
+    },
+    "blocked": {
+      "brackets": "把[方括号]里的部分换成你自己的信息 — AI 会完全按照输入框里的内容来写。",
+      "template": "这还是我们的示例。换成你自己的岗位、公司和技能，简历才真正属于你。"
+    },
+    "hintsTitle": "补上这些，简历会明显更好",
+    "hint": {
+      "detail": "再多写几句 — 你提供得越多，简历就越好",
+      "employer": "写出你工作过的公司或机构名称",
+      "numbers": "加一个数字 — 团队规模、年限、预算、增长，任何可量化的内容",
+      "skills": "列出你最擅长的技能或工具",
+      "education": "提一下你的学历、培训或证书"
+    },
+    "generate": "生成我的简历",
+    "generateBlocked": "先改成你自己的",
+    "generating": "正在生成你的简历…",
+    "genericError": "出了点问题，请重试。",
+    "confidence": {
+      "high": "可信度高",
+      "moderate": "可信度中等",
+      "low": "可信度低 — 请仔细核对"
+    },
+    "assumptions": "AI 做了这些推断",
+    "section": {
+      "personal": "个人信息",
+      "summary": "个人简介",
+      "experience": "工作经历（{{count}}）",
+      "skills": "技能（{{count}}）",
+      "education": "教育背景"
+    },
+    "field": {
+      "name": "姓名",
+      "title": "岗位",
+      "location": "所在地"
+    },
+    "roleUnknown": "（岗位未知）",
+    "companyUnknown": "（公司未知）",
+    "present": "至今",
+    "weakResult": "AI 能用的信息太少，所以这份简历几乎是空的。返回去补上两句话，结果会完全不同。",
+    "addMoreDetail": "补充细节",
+    "useAnyway": "仍然使用",
+    "tryAgain": "重试",
+    "createResume": "生成简历",
+    "guided": {
+      "stepOf": "第 {{current}} 步，共 {{total}} 步",
+      "steps": {
+        "you": {
+          "title": "你是谁？",
+          "subtitle": "只要基本信息 — 这些会放在简历最上方。"
+        },
+        "work": {
+          "title": "你在哪里工作？",
+          "subtitle": "最近的一份工作。更早的可以稍后添加。"
+        },
+        "highlights": {
+          "title": "你在那里做什么？",
+          "subtitle": "一两句话就够了。加上数字会强很多。"
+        },
+        "skills": {
+          "title": "你擅长什么？",
+          "subtitle": "点选符合的项。没有的可以自己添加。"
+        },
+        "education": {
+          "title": "教育或培训经历？",
+          "subtitle": "选填 — 不适用可以跳过。"
+        }
+      },
+      "nameLabel": "你的姓名",
+      "namePlaceholder": "Ayesha Khan",
+      "jobTitleLabel": "你想应聘的岗位",
+      "jobTitlePlaceholder": "注册护士",
+      "locationLabel": "所在城市（选填）",
+      "locationPlaceholder": "拉合尔",
+      "noJobYet": "我还没有工作经历",
+      "earlierJob": "更早的工作",
+      "roleTitleLabel": "职位名称",
+      "roleTitlePlaceholder": "病房护士",
+      "companyLabel": "公司或机构",
+      "companyPlaceholder": "肖卡特·哈努姆医院",
+      "fromLabel": "开始",
+      "fromPlaceholder": "2021",
+      "toLabel": "结束（留空表示至今）",
+      "toPlaceholder": "2024",
+      "addEarlierJob": "添加更早的工作",
+      "noExperienceNote": "还没有工作经历也没关系。继续往下走，我们会根据你的技能和教育背景来写简历。",
+      "prompts": {
+        "daily": "你每天都做些什么？",
+        "improved": "你改进或解决了什么？",
+        "led": "你有没有带过人、培训过人或做过管理？",
+        "numbers": "有数字吗？人数、金额、业务量、节省的时间"
+      },
+      "atCompany": "在{{name}}",
+      "whatYouDid": "你做的工作",
+      "highlightsPlaceholder": "我每班负责 30 位病人，培训了 5 名新护士，并负责排班表。",
+      "addYourOwn": "自己添加",
+      "educationLabel": "教育或培训",
+      "educationPlaceholder": "我在旁遮普大学取得护理学学士学位，2021 年毕业。",
+      "buildResume": "生成我的简历",
+      "switchToFreeText": "我想自己写",
+      "missing": {
+        "identity": "先填写姓名或想应聘的岗位 — 简历顶部需要有内容。",
+        "substance": "添加一份工作、一项技能或教育背景，才有内容可以生成。"
+      }
+    },
+    "compose": {
+      "sentenceJoin": "",
+      "listSeparator": "、",
+      "listAnd": "、",
+      "nameAndTitle": "我叫{{name}}，是一名{{title}}。",
+      "nameOnly": "我叫{{name}}。",
+      "titleOnly": "我是一名{{title}}。",
+      "location": "我住在{{location}}。",
+      "noExperience": "我还没有做过全职工作，正在找第一份工作。",
+      "skills": "我擅长{{list}}。",
+      "dateRange": "{{start}}年至{{end}}年",
+      "dateSince": "{{start}}年至今",
+      "dateUntil": "至{{end}}年",
+      "role": {
+        "currentFull": "目前我在{{company}}担任{{title}}，{{dates}}。",
+        "currentTitleOnly": "目前我担任{{title}}，{{dates}}。",
+        "currentCompanyOnly": "目前我在{{company}}工作，{{dates}}。",
+        "recentFull": "最近一份工作是在{{company}}担任{{title}}，{{dates}}。",
+        "recentTitleOnly": "最近一份工作是担任{{title}}，{{dates}}。",
+        "recentCompanyOnly": "最近一份工作是在{{company}}，{{dates}}。",
+        "pastFull": "在那之前，我在{{company}}担任{{title}}，{{dates}}。",
+        "pastTitleOnly": "在那之前，我担任{{title}}，{{dates}}。",
+        "pastCompanyOnly": "在那之前，我在{{company}}工作，{{dates}}。"
+      }
+    },
+    "skills": {
+      "tech": [
+        "JavaScript",
+        "Python",
+        "React",
+        "SQL",
+        "Git",
+        "AWS",
+        "Docker",
+        "REST API",
+        "Node.js",
+        "测试",
+        "敏捷开发",
+        "Linux"
+      ],
+      "healthcare": [
+        "病患护理",
+        "生命体征监测",
+        "给药",
+        "电子病历",
+        "伤口护理",
+        "分诊",
+        "感染控制",
+        "心肺复苏",
+        "护理计划",
+        "静脉采血",
+        "医患沟通",
+        "医学术语"
+      ],
+      "finance": [
+        "Excel",
+        "财务建模",
+        "预算编制",
+        "财务预测",
+        "对账",
+        "QuickBooks",
+        "应付账款",
+        "审计支持",
+        "国际财务报告准则",
+        "差异分析",
+        "SAP",
+        "薪资核算"
+      ],
+      "marketing": [
+        "搜索引擎优化",
+        "Google Analytics",
+        "内容撰写",
+        "邮件营销",
+        "社交媒体运营",
+        "付费广告",
+        "文案撰写",
+        "Canva",
+        "HubSpot",
+        "A/B 测试",
+        "活动策划",
+        "品牌策略"
+      ],
+      "education": [
+        "备课",
+        "课堂管理",
+        "课程设计",
+        "学业评估",
+        "分层教学",
+        "Google Classroom",
+        "家校沟通",
+        "课业辅导",
+        "特殊需求支持",
+        "行为管理",
+        "批改作业",
+        "调动学生积极性"
+      ],
+      "engineering": [
+        "AutoCAD",
+        "SolidWorks",
+        "项目管理",
+        "质量控制",
+        "技术图纸",
+        "现场检查",
+        "MATLAB",
+        "精益生产",
+        "职业健康与安全",
+        "维护计划",
+        "根本原因分析",
+        "识图"
+      ],
+      "design": [
+        "Figma",
+        "Adobe Photoshop",
+        "Illustrator",
+        "原型设计",
+        "线框图",
+        "字体排印",
+        "设计系统",
+        "用户研究",
+        "品牌设计",
+        "InDesign",
+        "动态图形",
+        "无障碍设计"
+      ],
+      "sales": [
+        "客户关系管理",
+        "Salesforce",
+        "线索开发",
+        "陌生拜访",
+        "商务谈判",
+        "客户维护",
+        "销售漏斗管理",
+        "增值销售",
+        "客户导入",
+        "产品演示",
+        "销售预测",
+        "区域规划"
+      ],
+      "other": [
+        "客户服务",
+        "沟通能力",
+        "团队协作",
+        "时间管理",
+        "Microsoft Office",
+        "问题解决",
+        "日程安排",
+        "数据录入",
+        "库存管理",
+        "培训新人",
+        "报表撰写",
+        "注重细节"
+      ]
+    }
+  },
+  "jobMatches": {
+    "title": "与你简历匹配的职位",
+    "subtitle": "根据你刚做好的简历评分。点一个即可针对性调整并投递。",
+    "searching": "正在寻找合适的职位…",
+    "percent": "匹配度 {{score}}%",
+    "emptyBody": "暂时没有找到与这份简历高度匹配的职位。每天都有新职位发布。",
+    "errorBody": "暂时无法加载职位。你的简历已保存 — 去职位列表看看。",
+    "browseAll": "浏览全部职位"
+  },
+  "applications": {
+    "title": "我的投递",
+    "apply": "去投递",
+    "applied": "已投递",
+    "couldNotOpen": "无法打开职位页面",
+    "emptyTitle": "还没有投递记录",
+    "emptyBody": "在应用里投递职位后，会出现在这里，方便你追踪回复情况。",
+    "findJobs": "找职位",
+    "statOpen": "进行中",
+    "statFollowUp": "未回复",
+    "statThisWeek": "本周",
+    "appliedDaysAgo": "{{days}} 天前投递",
+    "chaseIt": "已 {{days}} 天没有回复 — 可以跟进一下",
+    "viewPosting": "查看职位",
+    "removeTitle": "删除这条记录？",
+    "removeBody": "只会从你的追踪列表中移除。{{title}}",
+    "status": {
+      "applied": "已投递",
+      "interviewing": "面试中",
+      "offer": "已录用",
+      "rejected": "未通过"
+    },
+    "dashboardNudge": "{{count}} 条还没回复 — 可以跟进",
+    "dashboardOpen": "{{count}} 条投递进行中",
+    "writeFollowUp": "写跟进邮件",
+    "prepareForInterview": "准备面试"
+  },
+  "followUp": {
+    "title": "跟进",
+    "writing": "正在写你的邮件…",
+    "subject": "主题",
+    "subjectPlaceholder": "关于我投递的职位",
+    "message": "正文",
+    "messagePlaceholder": "你的跟进邮件",
+    "editHint": "发送前先读一遍，把不像你说话的地方改掉。",
+    "rewrite": "换一个写法",
+    "copy": "复制",
+    "share": "分享",
+    "openMail": "在邮件中打开",
+    "copied": "已复制到剪贴板",
+    "noMailApp": "这台设备上没有找到邮件应用",
+    "error": "暂时写不出这封邮件，请重试。",
+    "missing": "这条投递已不在你的列表中。",
+    "notificationTitle": "该跟进了",
+    "notificationBody": "有 {{count}} 条投递还没回复，简短跟进一下会有帮助。"
+  },
+  "interview": {
+    "title": "面试准备",
+    "preparing": "正在分析你的简历和这个职位…",
+    "error": "暂时没能准备好，请重试。",
+    "askThem": "你可以反问",
+    "regenerate": "重新生成",
+    "share": "分享",
+    "category": {
+      "role": "关于职位",
+      "experience": "你的经历",
+      "behavioral": "你的工作方式",
+      "gap": "可能被追问"
+    }
+  },
+  "jobAlerts": {
+    "offerTitle": "有新的就通知我",
+    "offerBody": "每天为这份简历检查一次新职位。不打扰，只发一条通知。",
+    "turnOn": "开启",
+    "onConfirmation": "职位提醒已开启，有新职位会通知你。"
   }
 }

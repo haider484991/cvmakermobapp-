@@ -32,13 +32,132 @@
   },
   "onboarding": {
     "welcome": {
-      "headline": "インテリジェントなデザインでキャリアを築く",
-      "subhead": "AI搭載の履歴書ビルダー。永遠に無料。",
-      "getStarted": "無料で始める",
-      "haveResume": "すでに履歴書をお持ちの方",
-      "importing": "履歴書を読み込んでいます…",
-      "importFailed": "ファイルを読み込めませんでした。PDF、Word、または履歴書の写真をお試しください。",
-      "trusted": "世界中の10,000人以上の求職者に信頼されています"
+      "tagline": "理想の職務経歴書を無料で作成",
+      "badge": "完全無料 • AI搭載 • ATS対応",
+      "whyChooseUs": "選ばれる理由",
+      "features": {
+        "ai": {
+          "title": "AIによる文章作成",
+          "description": "あなたの経歴が引き立つ的確な提案"
+        },
+        "templates": {
+          "title": "26種のプロ向けテンプレート",
+          "description": "スキルバー、連絡先アイコン、ATS対応レイアウト"
+        },
+        "quick": {
+          "title": "かんたん・すぐできる",
+          "description": "5分もかからずプロ品質の職務経歴書が完成"
+        },
+        "export": {
+          "title": "PDF出力",
+          "description": "その場でダウンロードして共有できます"
+        }
+      },
+      "valuePoints": {
+        "noCard": "クレジットカード不要",
+        "freeEdit": "作成も編集も無料",
+        "readyMinutes": "数分で完成"
+      },
+      "getStarted": "無料ではじめる",
+      "haveResume": "すでに職務経歴書があります",
+      "importing": "職務経歴書を読み込んでいます…",
+      "importFailedTitle": "読み込みに失敗しました",
+      "importFailed": "そのファイルは読み込めませんでした。PDF、Word文書、または職務経歴書の写真をお試しください。",
+      "trustBadge": "採用担当者がきちんと読めるATS対応テンプレート"
+    },
+    "goals": {
+      "title": "あなたに合わせて\n設定しましょう",
+      "subtitle": "いくつか選ぶだけで、テンプレート・AIの提案・出発点をあなた向けに整えます。",
+      "nameLabel": "お名前は何とお呼びしますか？",
+      "namePlaceholder": "下の名前",
+      "goalLabel": "今回の目的は？",
+      "roleLabel": "希望する職種は？",
+      "rolePlaceholder": "例：ソフトウェアエンジニア、プロダクトマネージャー",
+      "industryLabel": "業種",
+      "levelLabel": "経験年数"
+    },
+    "options": {
+      "goals": {
+        "new-job": "転職したい",
+        "first-job": "はじめての就職",
+        "career-switch": "キャリアチェンジ",
+        "promotion": "昇進を目指す",
+        "exploring": "とりあえず見てみる"
+      },
+      "industries": {
+        "tech": "IT・テクノロジー",
+        "techInline": "IT業界",
+        "healthcare": "医療・ヘルスケア",
+        "healthcareInline": "医療業界",
+        "finance": "金融",
+        "financeInline": "金融業界",
+        "marketing": "マーケティング",
+        "marketingInline": "マーケティング業界",
+        "education": "教育",
+        "educationInline": "教育業界",
+        "engineering": "エンジニアリング",
+        "engineeringInline": "エンジニアリング業界",
+        "design": "デザイン",
+        "designInline": "デザイン業界",
+        "sales": "営業",
+        "salesInline": "営業職",
+        "other": "その他",
+        "otherInline": "その他の業界"
+      },
+      "levels": {
+        "entry": {
+          "label": "初級",
+          "description": "0〜2年",
+          "yearsHint": "約1年"
+        },
+        "mid": {
+          "label": "中級",
+          "description": "3〜5年",
+          "yearsHint": "約4年"
+        },
+        "senior": {
+          "label": "シニア",
+          "description": "6〜10年",
+          "yearsHint": "約8年"
+        },
+        "executive": {
+          "label": "エグゼクティブ",
+          "description": "10年以上",
+          "yearsHint": "10年以上"
+        }
+      }
+    },
+    "complete": {
+      "greetingNamed": "準備完了です、{{name}}さん！ ",
+      "greeting": "準備完了です！ ",
+      "subtitle": "どこから始めますか？あとからいくらでも変更できます。",
+      "recommended": "おすすめ",
+      "pathAI": {
+        "title": "AIで作成",
+        "subtitle": "一文で自己紹介すれば、AIが最初の下書きを書きます。"
+      },
+      "pathImport": {
+        "title": "すでに職務経歴書があります",
+        "subtitle": "PDFやWordを読み込めば、こちらで入力します。"
+      },
+      "pathTemplate": {
+        "title": "テンプレートから作る",
+        "subtitle": "デザインを選んで自分で入力します。"
+      },
+      "footer": "作成は無料 • クレジットカード不要",
+      "resumeNameWithRole": "{{role}}の職務経歴書",
+      "resumeName": "私の職務経歴書"
+    },
+    "seed": {
+      "join": "",
+      "roleFallback": "社会人",
+      "experienceFallback": "経験",
+      "yearsOfExperience": "{{years}}の経験",
+      "inIndustry": "{{industry}}での",
+      "line1": "私は{{industry}}{{experience}}を持つ{{role}}です。",
+      "line2": "直近では［現在または直近の役職］として、［達成したことを1〜2点。可能なら数字を入れてください］。",
+      "line3": "その前は［以前の役職と担当していた業務］。",
+      "line4": "［得意なスキルやツール］が得意で、［学位または関連資格］を持っています。"
     }
   },
   "dashboard": {
@@ -191,5 +310,355 @@
     "createAccount": "アカウントを作成",
     "alreadyHave": "すでにアカウントをお持ちですか？",
     "dontHave": "アカウントをお持ちでないですか？"
+  },
+  "wizard": {
+    "title": "AIで作成",
+    "reviewTitle": "確認",
+    "heroTitleWithRole": "{{role}}の職務経歴書を作りましょう",
+    "heroTitle": "あなたについて教えてください",
+    "heroSubtitleSeeded": "回答をもとに下書きを用意しました。[かっこ]の部分をご自身の情報に置き換えてから作成してください。",
+    "heroSubtitle": "職種・経験・スキルについて1〜2段落で入力または貼り付けてください。AIが編集・ダウンロードできる職務経歴書に整えます。",
+    "examplesLabel": "迷ったら例を読み込み、ご自身の内容に書き換えてください",
+    "inputPlaceholder": "[職種]として[n]年働いています。現在は[会社名]で[主な業務]を担当しています。その前は[前職]でした。[ツール・スキル]が得意です...",
+    "charsToGo": "あと{{count}}文字",
+    "words": "{{count}}語",
+    "readiness": {
+      "placeholder": "まだサンプルのままです",
+      "keepGoing": "その調子です",
+      "strong": "十分です — 良い内容になります",
+      "ok": "良い感じです。もう少し足すとさらに良くなります",
+      "thin": "情報が少なめです — 詳細を足してください"
+    },
+    "blocked": {
+      "brackets": "[かっこ]の部分をご自身の情報に置き換えてください。AIは入力欄の内容をそのまま元に書きます。",
+      "template": "これはまだ当アプリの例文です。ご自身の職種・会社・スキルに書き換えると、あなたの職務経歴書になります。"
+    },
+    "hintsTitle": "これを足すと内容が大きく良くなります",
+    "hint": {
+      "detail": "もう少し文章を足してください。情報が多いほど良い職務経歴書になります",
+      "employer": "勤務した会社名や団体名を書いてください",
+      "numbers": "数字を入れてください。人数・年数・予算・成長率など測れるものなら何でも",
+      "skills": "得意なスキルやツールを挙げてください",
+      "education": "学歴・研修・資格に触れてください"
+    },
+    "generate": "職務経歴書を作成",
+    "generateBlocked": "まずご自身の内容に",
+    "generating": "作成しています…",
+    "genericError": "問題が発生しました。もう一度お試しください。",
+    "confidence": {
+      "high": "確度：高",
+      "moderate": "確度：中",
+      "low": "確度：低 — よくご確認ください"
+    },
+    "assumptions": "AIは次のように判断しました",
+    "section": {
+      "personal": "基本情報",
+      "summary": "概要",
+      "experience": "職務経歴（{{count}}件）",
+      "skills": "スキル（{{count}}件）",
+      "education": "学歴"
+    },
+    "field": {
+      "name": "氏名",
+      "title": "職種",
+      "location": "所在地"
+    },
+    "roleUnknown": "（職種不明）",
+    "companyUnknown": "（会社名不明）",
+    "present": "現在",
+    "weakResult": "AIが使える情報が少なかったため、この職務経歴書はほぼ空の状態です。戻って2文ほど足すだけで大きく変わります。",
+    "addMoreDetail": "詳細を追加",
+    "useAnyway": "このまま使う",
+    "tryAgain": "やり直す",
+    "createResume": "職務経歴書を作成",
+    "guided": {
+      "stepOf": "ステップ {{current}} / {{total}}",
+      "steps": {
+        "you": {
+          "title": "あなたについて",
+          "subtitle": "基本情報だけで大丈夫です。職務経歴書の冒頭に入ります。"
+        },
+        "work": {
+          "title": "現在の勤務先は？",
+          "subtitle": "直近のお仕事です。以前の職歴は後から追加できます。"
+        },
+        "highlights": {
+          "title": "そこでの業務内容は？",
+          "subtitle": "1〜2文で十分です。数字を入れると説得力が大きく上がります。"
+        },
+        "skills": {
+          "title": "得意なことは？",
+          "subtitle": "当てはまるものをタップしてください。足りなければ自由に追加できます。"
+        },
+        "education": {
+          "title": "学歴や研修は？",
+          "subtitle": "任意です。該当しない場合はスキップしてください。"
+        }
+      },
+      "nameLabel": "お名前",
+      "namePlaceholder": "アイシャ・カーン",
+      "jobTitleLabel": "希望する職種",
+      "jobTitlePlaceholder": "正看護師",
+      "locationLabel": "お住まいの地域（任意）",
+      "locationPlaceholder": "ラホール",
+      "noJobYet": "まだ就業経験がありません",
+      "earlierJob": "以前の職歴",
+      "roleTitleLabel": "役職名",
+      "roleTitlePlaceholder": "病棟看護師",
+      "companyLabel": "会社・団体名",
+      "companyPlaceholder": "シャウカット・カーヌム病院",
+      "fromLabel": "開始",
+      "fromPlaceholder": "2021",
+      "toLabel": "終了（空欄＝在職中）",
+      "toPlaceholder": "2024",
+      "addEarlierJob": "以前の職歴を追加",
+      "noExperienceNote": "就業経験がなくても問題ありません。このまま進めば、スキルと学歴をもとに職務経歴書を作成します。",
+      "prompts": {
+        "daily": "日々どんな業務をしていましたか？",
+        "improved": "何を改善・解決しましたか？",
+        "led": "人を指導・育成・管理しましたか？",
+        "numbers": "数字はありますか？人数・金額・件数・短縮した時間など"
+      },
+      "atCompany": "{{name}}での業務",
+      "whatYouDid": "担当した業務",
+      "highlightsPlaceholder": "1勤務あたり30名の患者を担当し、新人看護師5名を指導、病棟の勤務表作成も担当しています。",
+      "addYourOwn": "自分で追加",
+      "educationLabel": "学歴・研修",
+      "educationPlaceholder": "パンジャブ大学で看護学の学士号を取得し、2021年に卒業しました。",
+      "buildResume": "職務経歴書を作成",
+      "switchToFreeText": "自分で文章を書きたい",
+      "missing": {
+        "identity": "まずお名前か希望職種を入力してください。冒頭に載せる情報が必要です。",
+        "substance": "職歴・スキル・学歴のいずれかを追加してください。土台になる情報が必要です。"
+      }
+    },
+    "compose": {
+      "sentenceJoin": "",
+      "listSeparator": "、",
+      "listAnd": "、",
+      "nameAndTitle": "私の名前は{{name}}で、{{title}}として働いています。",
+      "nameOnly": "私の名前は{{name}}です。",
+      "titleOnly": "私は{{title}}として働いています。",
+      "location": "{{location}}に住んでいます。",
+      "noExperience": "まだ正社員として働いた経験はなく、最初の仕事を探しています。",
+      "skills": "{{list}}が得意です。",
+      "dateRange": "{{start}}年から{{end}}年まで",
+      "dateSince": "{{start}}年から",
+      "dateUntil": "{{end}}年まで",
+      "role": {
+        "currentFull": "現在、{{company}}で{{title}}として{{dates}}働いています。",
+        "currentTitleOnly": "現在、{{title}}として{{dates}}働いています。",
+        "currentCompanyOnly": "現在、{{company}}で{{dates}}働いています。",
+        "recentFull": "直近では、{{company}}で{{title}}として{{dates}}働いていました。",
+        "recentTitleOnly": "直近では、{{title}}として{{dates}}働いていました。",
+        "recentCompanyOnly": "直近では、{{company}}で{{dates}}働いていました。",
+        "pastFull": "その前は、{{company}}で{{title}}として{{dates}}働いていました。",
+        "pastTitleOnly": "その前は、{{title}}として{{dates}}働いていました。",
+        "pastCompanyOnly": "その前は、{{company}}で{{dates}}働いていました。"
+      }
+    },
+    "skills": {
+      "tech": [
+        "JavaScript",
+        "Python",
+        "React",
+        "SQL",
+        "Git",
+        "AWS",
+        "Docker",
+        "REST API",
+        "Node.js",
+        "テスト",
+        "アジャイル開発",
+        "Linux"
+      ],
+      "healthcare": [
+        "患者ケア",
+        "バイタルサイン測定",
+        "与薬",
+        "電子カルテ",
+        "創傷ケア",
+        "トリアージ",
+        "感染対策",
+        "心肺蘇生",
+        "看護計画",
+        "採血",
+        "患者対応",
+        "医療用語"
+      ],
+      "finance": [
+        "Excel",
+        "財務モデリング",
+        "予算策定",
+        "業績予測",
+        "勘定照合",
+        "QuickBooks",
+        "買掛金管理",
+        "監査対応",
+        "IFRS",
+        "差異分析",
+        "SAP",
+        "給与計算"
+      ],
+      "marketing": [
+        "SEO",
+        "Google Analytics",
+        "コンテンツ制作",
+        "メールマーケティング",
+        "SNS運用",
+        "広告運用",
+        "コピーライティング",
+        "Canva",
+        "HubSpot",
+        "A/Bテスト",
+        "キャンペーン設計",
+        "ブランド戦略"
+      ],
+      "education": [
+        "授業計画",
+        "学級運営",
+        "カリキュラム設計",
+        "学習評価",
+        "個別最適な指導",
+        "Google Classroom",
+        "保護者対応",
+        "個別指導",
+        "特別支援",
+        "行動指導",
+        "採点",
+        "生徒の動機づけ"
+      ],
+      "engineering": [
+        "AutoCAD",
+        "SolidWorks",
+        "プロジェクト管理",
+        "品質管理",
+        "図面作成",
+        "現場検査",
+        "MATLAB",
+        "リーン生産方式",
+        "労働安全衛生",
+        "保全計画",
+        "根本原因分析",
+        "図面読解"
+      ],
+      "design": [
+        "Figma",
+        "Adobe Photoshop",
+        "Illustrator",
+        "プロトタイピング",
+        "ワイヤーフレーム",
+        "タイポグラフィ",
+        "デザインシステム",
+        "ユーザーリサーチ",
+        "ブランディング",
+        "InDesign",
+        "モーショングラフィックス",
+        "アクセシビリティ"
+      ],
+      "sales": [
+        "CRM",
+        "Salesforce",
+        "リード獲得",
+        "新規開拓",
+        "交渉",
+        "顧客管理",
+        "パイプライン管理",
+        "アップセル",
+        "顧客導入支援",
+        "製品デモ",
+        "売上予測",
+        "担当エリア戦略"
+      ],
+      "other": [
+        "顧客対応",
+        "コミュニケーション",
+        "チームワーク",
+        "時間管理",
+        "Microsoft Office",
+        "課題解決",
+        "スケジュール調整",
+        "データ入力",
+        "在庫管理",
+        "後輩の指導",
+        "報告書作成",
+        "細部への注意"
+      ]
+    }
+  },
+  "jobMatches": {
+    "title": "あなたの職務経歴書に合う求人",
+    "subtitle": "今つくった職務経歴書をもとに評価しました。タップすると内容を調整して応募できます。",
+    "searching": "条件の合う求人を探しています…",
+    "percent": "マッチ度 {{score}}%",
+    "emptyBody": "現時点ではこの職務経歴書に近い求人が見つかりませんでした。求人は毎日追加されています。",
+    "errorBody": "いま求人を読み込めませんでした。職務経歴書は保存済みです — 求人一覧をご覧ください。",
+    "browseAll": "すべての求人を見る"
+  },
+  "applications": {
+    "title": "応募状況",
+    "apply": "応募する",
+    "applied": "応募済み",
+    "couldNotOpen": "求人ページを開けませんでした",
+    "emptyTitle": "まだ応募はありません",
+    "emptyBody": "アプリから求人に応募すると、ここに記録され、返信の有無を管理できます。",
+    "findJobs": "求人を探す",
+    "statOpen": "進行中",
+    "statFollowUp": "返信なし",
+    "statThisWeek": "今週",
+    "appliedDaysAgo": "{{days}}日前に応募",
+    "chaseIt": "{{days}}日間返信なし — 一度確認してみましょう",
+    "viewPosting": "求人を見る",
+    "removeTitle": "応募記録を削除しますか？",
+    "removeBody": "記録から消えるだけです。{{title}}",
+    "status": {
+      "applied": "応募済み",
+      "interviewing": "選考中",
+      "offer": "内定",
+      "rejected": "不採用"
+    },
+    "dashboardNudge": "{{count}} 件が返信待ち — 確認しましょう",
+    "dashboardOpen": "{{count}} 件が進行中",
+    "writeFollowUp": "フォローアップを書く",
+    "prepareForInterview": "面接対策を見る"
+  },
+  "followUp": {
+    "title": "フォローアップ",
+    "writing": "メールを作成しています…",
+    "subject": "件名",
+    "subjectPlaceholder": "応募の件でご連絡",
+    "message": "本文",
+    "messagePlaceholder": "フォローアップのメール",
+    "editHint": "送る前に読み、自分の言葉に合わないところは直してください。",
+    "rewrite": "別の文面にする",
+    "copy": "コピー",
+    "share": "共有",
+    "openMail": "メールで開く",
+    "copied": "クリップボードにコピーしました",
+    "noMailApp": "この端末にメールアプリが見つかりません",
+    "error": "メールを作成できませんでした。もう一度お試しください。",
+    "missing": "この応募は記録に残っていません。",
+    "notificationTitle": "フォローアップの時期です",
+    "notificationBody": "{{count}} 件が返信待ちです。短い連絡が効果的です。"
+  },
+  "interview": {
+    "title": "面接対策",
+    "preparing": "職務経歴書と求人を読み込んでいます…",
+    "error": "準備できませんでした。もう一度お試しください。",
+    "askThem": "こちらから聞くこと",
+    "regenerate": "作り直す",
+    "share": "共有",
+    "category": {
+      "role": "仕事について",
+      "experience": "これまでの経験",
+      "behavioral": "働き方",
+      "gap": "突っ込まれやすい点"
+    }
+  },
+  "jobAlerts": {
+    "offerTitle": "新着があれば知らせて",
+    "offerBody": "この職務経歴書に合う新着求人を毎日チェックします。通知は1件だけ、しつこくしません。",
+    "turnOn": "オンにする",
+    "onConfirmation": "求人通知はオンです。新着が出たらお知らせします。"
   }
 }

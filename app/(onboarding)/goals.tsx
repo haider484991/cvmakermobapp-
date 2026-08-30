@@ -30,11 +30,16 @@ import { useUIStore, type OnboardingProfile } from '@/stores/uiStore';
 import { useTemplateStore } from '@/stores/templateStore';
 import { PageIndicator } from '@/components/ui';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
+import { useTranslation } from 'react-i18next';
 import {
   ONBOARDING_GOALS,
   ONBOARDING_INDUSTRIES,
   ONBOARDING_LEVELS,
   defaultTemplateForProfile,
+  goalLabelKey,
+  industryLabelKey,
+  levelLabelKey,
+  levelDescriptionKey,
   type Option,
 } from '@/services/onboarding/personalize';
 import * as Haptics from 'expo-haptics';
@@ -43,12 +48,14 @@ import * as Haptics from 'expo-haptics';
 // both are simple emoji + label options.
 function OptionChip({
   option,
+  label,
   isSelected,
   onSelect,
   index,
   colors,
 }: {
   option: Option;
+  label: string;
   isSelected: boolean;
   onSelect: () => void;
   index: number;
@@ -88,7 +95,7 @@ function OptionChip({
         >
           <Text style={{ fontSize: 16 }}>{option.emoji}</Text>
           <Text style={{ fontSize: 15, fontWeight: '500', color: isSelected ? '#FFFFFF' : colors.text }}>
-            {option.label}
+            {label}
           </Text>
         </Animated.View>
       </Pressable>
@@ -99,12 +106,16 @@ function OptionChip({
 // Animated card for experience level selection
 function ExperienceCard({
   level,
+  label,
+  description,
   isSelected,
   onSelect,
   index,
   colors,
 }: {
   level: (typeof ONBOARDING_LEVELS)[0];
+  label: string;
+  description: string;
   isSelected: boolean;
   onSelect: () => void;
   index: number;
@@ -141,8 +152,8 @@ function ExperienceCard({
         >
           <Text style={{ fontSize: 28, marginRight: 12 }}>{level.emoji}</Text>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 17, fontWeight: '600', color: colors.text }}>{level.label}</Text>
-            <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 2 }}>{level.description}</Text>
+            <Text style={{ fontSize: 17, fontWeight: '600', color: colors.text }}>{label}</Text>
+            <Text style={{ fontSize: 14, color: colors.textSecondary, marginTop: 2 }}>{description}</Text>
           </View>
           <Animated.View
             style={[
@@ -167,6 +178,7 @@ function SectionLabel({ children, colors }: { children: string; colors: any }) {
 }
 
 export default function Goals() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { colors } = useTheme();
   const { setOnboardingProfile, onboardingProfile } = useUIStore();
@@ -235,31 +247,31 @@ export default function Goals() {
           >
             <Pressable onPress={handleBack} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingRight: 16 }}>
               <ChevronLeft size={24} color={colors.primary} strokeWidth={2} />
-              <Text style={{ color: colors.primary, fontSize: 16, marginLeft: 4 }}>Back</Text>
+              <Text style={{ color: colors.primary, fontSize: 16, marginLeft: 4 }}>{t('common.back')}</Text>
             </Pressable>
             <PageIndicator totalPages={3} currentPage={1} />
             <Pressable onPress={handleSkip} hitSlop={8} style={{ paddingVertical: 8, paddingLeft: 16 }}>
-              <Text style={{ color: colors.textSecondary, fontSize: 15 }}>Skip</Text>
+              <Text style={{ color: colors.textSecondary, fontSize: 15 }}>{t('common.skip')}</Text>
             </Pressable>
           </Animated.View>
 
           {/* Title */}
           <Animated.View entering={FadeInUp.delay(150).duration(500)}>
             <Text style={{ fontSize: 30, fontWeight: '700', color: colors.text, marginBottom: 8, letterSpacing: -0.5 }}>
-              Let's personalize{'\n'}your resume
+              {t('onboarding.goals.title')}
             </Text>
             <Text style={{ fontSize: 16, color: colors.textSecondary, marginBottom: 28, lineHeight: 24 }}>
-              A few quick taps and we'll tailor your templates, AI suggestions, and starting point.
+              {t('onboarding.goals.subtitle')}
             </Text>
           </Animated.View>
 
           {/* Name */}
           <Animated.View entering={FadeInUp.delay(200).duration(500)} style={{ marginBottom: 28 }}>
-            <SectionLabel colors={colors}>What should we call you?</SectionLabel>
+            <SectionLabel colors={colors}>{t('onboarding.goals.nameLabel')}</SectionLabel>
             <TextInput
               value={firstName}
               onChangeText={setFirstName}
-              placeholder="Your first name"
+              placeholder={t('onboarding.goals.namePlaceholder')}
               placeholderTextColor={colors.textMuted}
               autoCapitalize="words"
               returnKeyType="done"
@@ -277,12 +289,13 @@ export default function Goals() {
 
           {/* Goal */}
           <Animated.View entering={FadeInUp.delay(250).duration(500)} style={{ marginBottom: 28 }}>
-            <SectionLabel colors={colors}>What brings you here?</SectionLabel>
+            <SectionLabel colors={colors}>{t('onboarding.goals.goalLabel')}</SectionLabel>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {ONBOARDING_GOALS.map((goal, index) => (
                 <OptionChip
                   key={goal.id}
                   option={goal}
+                  label={t(goalLabelKey(goal.id))}
                   isSelected={selectedGoal === goal.id}
                   onSelect={() => setSelectedGoal(goal.id)}
                   index={index}
@@ -294,11 +307,11 @@ export default function Goals() {
 
           {/* Target role */}
           <Animated.View entering={FadeInUp.delay(300).duration(500)} style={{ marginBottom: 28 }}>
-            <SectionLabel colors={colors}>What role are you targeting?</SectionLabel>
+            <SectionLabel colors={colors}>{t('onboarding.goals.roleLabel')}</SectionLabel>
             <TextInput
               value={jobTitle}
               onChangeText={setJobTitle}
-              placeholder="e.g. Software Engineer, Product Manager"
+              placeholder={t('onboarding.goals.rolePlaceholder')}
               placeholderTextColor={colors.textMuted}
               autoCapitalize="words"
               style={{
@@ -315,12 +328,13 @@ export default function Goals() {
 
           {/* Industry */}
           <Animated.View entering={FadeInUp.delay(350).duration(500)} style={{ marginBottom: 28 }}>
-            <SectionLabel colors={colors}>Your industry</SectionLabel>
+            <SectionLabel colors={colors}>{t('onboarding.goals.industryLabel')}</SectionLabel>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {ONBOARDING_INDUSTRIES.map((industry, index) => (
                 <OptionChip
                   key={industry.id}
                   option={industry}
+                  label={t(industryLabelKey(industry.id))}
                   isSelected={selectedIndustry === industry.id}
                   onSelect={() => setSelectedIndustry(industry.id)}
                   index={index}
@@ -332,12 +346,14 @@ export default function Goals() {
 
           {/* Experience level */}
           <Animated.View entering={FadeInUp.delay(400).duration(500)}>
-            <SectionLabel colors={colors}>Experience level</SectionLabel>
+            <SectionLabel colors={colors}>{t('onboarding.goals.levelLabel')}</SectionLabel>
             <View style={{ gap: 12 }}>
               {ONBOARDING_LEVELS.map((level, index) => (
                 <ExperienceCard
                   key={level.id}
                   level={level}
+                  label={t(levelLabelKey(level.id))}
+                  description={t(levelDescriptionKey(level.id))}
                   isSelected={selectedLevel === level.id}
                   onSelect={() => setSelectedLevel(level.id)}
                   index={index}
@@ -368,7 +384,7 @@ export default function Goals() {
               elevation: 6,
             }}
           >
-            <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '600' }}>Continue</Text>
+            <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '600' }}>{t('common.continue')}</Text>
           </Pressable>
         </Animated.View>
       </View>

@@ -1,4 +1,5 @@
 import type { AIError, AIErrorCode } from '@/types/ai';
+import { isReasoningMandatoryError } from "./openrouterErrors";
 
 /**
  * OpenRouter base URL for API requests
@@ -152,11 +153,32 @@ export async function chatCompletion(
   const apiKey = getApiKey();
 
   try {
-    const response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
+    let response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: openRouterHeaders(apiKey),
       body: JSON.stringify(buildRequestBody(options)),
     });
+
+    // Some endpoints REQUIRE reasoning and hard-400 when we try to switch it
+    // off. Seen live from users on 2026-08-27 (three failures in three
+    // minutes, one person retrying): OpenRouter's `models` fallback array had
+    // rolled the request onto openai/gpt-5-mini, which rejects
+    // `reasoning:{enabled:false}` outright.
+    //
+    // We cannot predict this per-model, because with a fallback array
+    // OpenRouter picks the model server-side after we've sent the body. So
+    // recover instead: drop the flag and retry once. Future models that adopt
+    // the same rule are covered without a code change.
+    if (response.status === 400 && !options.allowReasoning) {
+      const peek = await response.clone().json().catch(() => null);
+      if (isReasoningMandatoryError(peek?.error?.message)) {
+        response = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
+          method: 'POST',
+          headers: openRouterHeaders(apiKey),
+          body: JSON.stringify(buildRequestBody({ ...options, allowReasoning: true })),
+        });
+      }
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -321,3 +343,5 @@ export async function streamingChatCompletion(
     throw aiError;
   }
 }
+
+export { isReasoningMandatoryError };

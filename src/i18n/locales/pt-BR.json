@@ -32,13 +32,132 @@
   },
   "onboarding": {
     "welcome": {
-      "headline": "Construa sua carreira com design inteligente",
-      "subhead": "Criador de currículos com IA. Grátis para sempre.",
-      "getStarted": "Começar Grátis",
+      "tagline": "Monte o currículo dos seus sonhos de graça",
+      "badge": "100% GRÁTIS • COM IA • PRONTO PARA ATS",
+      "whyChooseUs": "Por que escolher a gente",
+      "features": {
+        "ai": {
+          "title": "Escrita com IA",
+          "description": "Sugestões inteligentes para o seu currículo se destacar"
+        },
+        "templates": {
+          "title": "26 modelos profissionais",
+          "description": "Barras de habilidades, ícones de contato e layouts prontos para ATS"
+        },
+        "quick": {
+          "title": "Rápido e fácil",
+          "description": "Crie um currículo profissional em menos de 5 minutos"
+        },
+        "export": {
+          "title": "Exportar em PDF",
+          "description": "Baixe e compartilhe seu currículo na hora"
+        }
+      },
+      "valuePoints": {
+        "noCard": "Sem cartão de crédito",
+        "freeEdit": "Criar e editar é grátis",
+        "readyMinutes": "Pronto em minutos"
+      },
+      "getStarted": "Começar grátis",
       "haveResume": "Já tenho um currículo",
       "importing": "Lendo seu currículo…",
-      "importFailed": "Não foi possível ler este arquivo. Tente um PDF, documento Word ou foto do seu currículo.",
-      "trusted": "Confiado por mais de 10.000 profissionais em todo o mundo"
+      "importFailedTitle": "Falha na importação",
+      "importFailed": "Não conseguimos ler esse arquivo. Tente um PDF, um documento do Word ou uma foto do seu currículo.",
+      "trustBadge": "Modelos compatíveis com ATS que os recrutadores conseguem ler"
+    },
+    "goals": {
+      "title": "Vamos personalizar\nseu currículo",
+      "subtitle": "Alguns toques rápidos e ajustamos seus modelos, as sugestões da IA e o seu ponto de partida.",
+      "nameLabel": "Como podemos te chamar?",
+      "namePlaceholder": "Seu primeiro nome",
+      "goalLabel": "O que trouxe você aqui?",
+      "roleLabel": "Qual vaga você quer?",
+      "rolePlaceholder": "ex.: Engenheiro de Software, Product Manager",
+      "industryLabel": "Sua área",
+      "levelLabel": "Nível de experiência"
+    },
+    "options": {
+      "goals": {
+        "new-job": "Conseguir um novo emprego",
+        "first-job": "Conseguir meu primeiro emprego",
+        "career-switch": "Mudar de carreira",
+        "promotion": "Buscar uma promoção",
+        "exploring": "Só dando uma olhada"
+      },
+      "industries": {
+        "tech": "Tecnologia",
+        "techInline": "tecnologia",
+        "healthcare": "Saúde",
+        "healthcareInline": "saúde",
+        "finance": "Finanças",
+        "financeInline": "finanças",
+        "marketing": "Marketing",
+        "marketingInline": "marketing",
+        "education": "Educação",
+        "educationInline": "educação",
+        "engineering": "Engenharia",
+        "engineeringInline": "engenharia",
+        "design": "Design",
+        "designInline": "design",
+        "sales": "Vendas",
+        "salesInline": "vendas",
+        "other": "Outra",
+        "otherInline": "outra área"
+      },
+      "levels": {
+        "entry": {
+          "label": "Início de carreira",
+          "description": "0–2 anos",
+          "yearsHint": "cerca de um ano"
+        },
+        "mid": {
+          "label": "Nível intermediário",
+          "description": "3–5 anos",
+          "yearsHint": "cerca de 4 anos"
+        },
+        "senior": {
+          "label": "Sênior",
+          "description": "6–10 anos",
+          "yearsHint": "cerca de 8 anos"
+        },
+        "executive": {
+          "label": "Executivo",
+          "description": "Mais de 10 anos",
+          "yearsHint": "mais de uma década"
+        }
+      }
+    },
+    "complete": {
+      "greetingNamed": "Tudo pronto, {{name}}! ",
+      "greeting": "Tudo pronto! ",
+      "subtitle": "Como você quer começar? Dá para mudar tudo depois.",
+      "recommended": "RECOMENDADO",
+      "pathAI": {
+        "title": "Criar com IA",
+        "subtitle": "Descreva-se em uma frase e a IA escreve seu primeiro rascunho."
+      },
+      "pathImport": {
+        "title": "Já tenho um currículo",
+        "subtitle": "Importe um PDF ou Word e preenchemos para você."
+      },
+      "pathTemplate": {
+        "title": "Começar por um modelo",
+        "subtitle": "Escolha um design e preencha do seu jeito."
+      },
+      "footer": "Criar é grátis • Sem cartão de crédito",
+      "resumeNameWithRole": "Currículo de {{role}}",
+      "resumeName": "Meu currículo"
+    },
+    "seed": {
+      "join": " ",
+      "roleFallback": "profissional",
+      "experienceFallback": "experiência",
+      "yearsOfExperience": "{{years}} de experiência",
+      "inIndustry": " em {{industry}}",
+      "line1": "Sou {{role}} com {{experience}}{{industry}}.",
+      "line2": "Mais recentemente fui [seu cargo atual ou mais recente], onde [uma ou duas coisas que você conquistou — inclua números se puder].",
+      "line3": "Antes disso fui [cargo anterior e o que você fazia].",
+      "line4": "Domino [suas principais habilidades ou ferramentas] e tenho [sua formação ou certificação relevante]."
     }
   },
   "dashboard": {
@@ -191,5 +310,355 @@
     "createAccount": "Criar Conta",
     "alreadyHave": "Já tem uma conta?",
     "dontHave": "Não tem uma conta?"
+  },
+  "wizard": {
+    "title": "Criar com IA",
+    "reviewTitle": "Revisar",
+    "heroTitleWithRole": "Vamos criar seu currículo de {{role}}",
+    "heroTitle": "Fale sobre você",
+    "heroSubtitleSeeded": "Começamos um rascunho com suas respostas. Substitua os [colchetes] pelos seus dados e gere.",
+    "heroSubtitle": "Escreva ou cole um ou dois parágrafos sobre seu cargo, sua experiência e suas habilidades. A IA vai transformar isso em um currículo estruturado que você pode editar e baixar.",
+    "examplesLabel": "Travou? Carregue um exemplo e depois coloque seus próprios dados",
+    "inputPlaceholder": "Trabalho como [cargo] há [n] anos. Atualmente estou na [empresa] fazendo [trabalho principal]. Antes disso fui [cargo anterior]. Domino [ferramentas/habilidades]...",
+    "charsToGo": "mais {{count}} caracteres",
+    "words": "{{count}} palavras",
+    "readiness": {
+      "placeholder": "Ainda é o nosso modelo",
+      "keepGoing": "Continue",
+      "strong": "Ótimo — isso vai funcionar bem",
+      "ok": "Bom, um pouco mais ajudaria",
+      "thin": "Pouco conteúdo — adicione detalhes"
+    },
+    "blocked": {
+      "brackets": "Substitua as partes [entre colchetes] pelos seus próprios dados — a IA vai escrever sobre o que estiver na caixa.",
+      "template": "Isso ainda é o nosso exemplo. Coloque seus próprios cargos, empresas e habilidades para o currículo ficar seu."
+    },
+    "hintsTitle": "Adicione isto e o currículo melhora bastante",
+    "hint": {
+      "detail": "Escreva mais algumas frases — quanto mais você der, melhor fica o currículo",
+      "employer": "Cite as empresas ou organizações onde você trabalhou",
+      "numbers": "Inclua um número — tamanho da equipe, anos, orçamento, crescimento, qualquer coisa mensurável",
+      "skills": "Liste suas principais habilidades ou ferramentas",
+      "education": "Mencione sua formação, cursos ou certificações"
+    },
+    "generate": "Gerar meu currículo",
+    "generateBlocked": "Deixe do seu jeito primeiro",
+    "generating": "Criando seu currículo…",
+    "genericError": "Algo deu errado. Tente novamente.",
+    "confidence": {
+      "high": "Confiança alta",
+      "moderate": "Confiança média",
+      "low": "Confiança baixa — revise com atenção"
+    },
+    "assumptions": "A IA fez estas suposições",
+    "section": {
+      "personal": "Dados pessoais",
+      "summary": "Resumo",
+      "experience": "Experiência ({{count}})",
+      "skills": "Habilidades ({{count}})",
+      "education": "Formação"
+    },
+    "field": {
+      "name": "Nome",
+      "title": "Cargo",
+      "location": "Localização"
+    },
+    "roleUnknown": "(cargo desconhecido)",
+    "companyUnknown": "(empresa desconhecida)",
+    "present": "Atual",
+    "weakResult": "A IA teve pouca informação para trabalhar, então este currículo está quase vazio. Voltar e adicionar duas frases muda tudo.",
+    "addMoreDetail": "Adicionar mais detalhes",
+    "useAnyway": "Usar mesmo assim",
+    "tryAgain": "Tentar de novo",
+    "createResume": "Criar currículo",
+    "guided": {
+      "stepOf": "Etapa {{current}} de {{total}}",
+      "steps": {
+        "you": {
+          "title": "Quem é você?",
+          "subtitle": "Só o básico — isso vai no topo do seu currículo."
+        },
+        "work": {
+          "title": "Onde você trabalha?",
+          "subtitle": "Seu emprego mais recente. Depois você pode adicionar os anteriores."
+        },
+        "highlights": {
+          "title": "O que você faz lá?",
+          "subtitle": "Uma ou duas frases bastam. Números deixam tudo mais forte."
+        },
+        "skills": {
+          "title": "No que você é bom?",
+          "subtitle": "Toque nas que se aplicam. Adicione as suas se faltou alguma."
+        },
+        "education": {
+          "title": "Formação ou cursos?",
+          "subtitle": "Opcional — pule se não se aplica a você."
+        }
+      },
+      "nameLabel": "Seu nome",
+      "namePlaceholder": "Ayesha Khan",
+      "jobTitleLabel": "A vaga que você quer",
+      "jobTitlePlaceholder": "Enfermeira",
+      "locationLabel": "Onde você mora (opcional)",
+      "locationPlaceholder": "Lahore",
+      "noJobYet": "Ainda não tive emprego",
+      "earlierJob": "Emprego anterior",
+      "roleTitleLabel": "Cargo",
+      "roleTitlePlaceholder": "Enfermeira assistencial",
+      "companyLabel": "Empresa ou organização",
+      "companyPlaceholder": "Hospital Shaukat Khanum",
+      "fromLabel": "De",
+      "fromPlaceholder": "2021",
+      "toLabel": "Até (vazio = ainda estou lá)",
+      "toPlaceholder": "2024",
+      "addEarlierJob": "Adicionar um emprego anterior",
+      "noExperienceNote": "Ainda sem emprego? Tudo bem. Siga em frente e vamos montar seu currículo com base nas suas habilidades e formação.",
+      "prompts": {
+        "daily": "O que você fazia no dia a dia?",
+        "improved": "O que você melhorou ou resolveu?",
+        "led": "Você liderou, treinou ou gerenciou alguém?",
+        "numbers": "Algum número? Pessoas, dinheiro, volume, tempo economizado"
+      },
+      "atCompany": "Na {{name}}",
+      "whatYouDid": "O que você fazia",
+      "highlightsPlaceholder": "Atendo 30 pacientes por plantão, treinei 5 enfermeiras novas e organizo a escala da ala.",
+      "addYourOwn": "Adicione a sua",
+      "educationLabel": "Formação ou cursos",
+      "educationPlaceholder": "Tenho bacharelado em Enfermagem pela Universidade de Punjab, concluído em 2021.",
+      "buildResume": "Criar meu currículo",
+      "switchToFreeText": "Prefiro escrever eu mesmo",
+      "missing": {
+        "identity": "Adicione seu nome ou a vaga que você quer — precisamos de algo para colocar no topo.",
+        "substance": "Adicione um emprego, uma habilidade ou sua formação para termos base."
+      }
+    },
+    "compose": {
+      "sentenceJoin": " ",
+      "listSeparator": ", ",
+      "listAnd": " e ",
+      "nameAndTitle": "Meu nome é {{name}} e sou {{title}}.",
+      "nameOnly": "Meu nome é {{name}}.",
+      "titleOnly": "Sou {{title}}.",
+      "location": "Moro em {{location}}.",
+      "noExperience": "Ainda não tive um emprego em tempo integral; estou buscando minha primeira vaga.",
+      "skills": "Domino {{list}}.",
+      "dateRange": " de {{start}} a {{end}}",
+      "dateSince": " desde {{start}}",
+      "dateUntil": " até {{end}}",
+      "role": {
+        "currentFull": "Atualmente trabalho como {{title}} na {{company}}{{dates}}.",
+        "currentTitleOnly": "Atualmente trabalho como {{title}}{{dates}}.",
+        "currentCompanyOnly": "Atualmente trabalho na {{company}}{{dates}}.",
+        "recentFull": "Meu cargo mais recente foi {{title}} na {{company}}{{dates}}.",
+        "recentTitleOnly": "Meu cargo mais recente foi {{title}}{{dates}}.",
+        "recentCompanyOnly": "Mais recentemente trabalhei na {{company}}{{dates}}.",
+        "pastFull": "Antes disso trabalhei como {{title}} na {{company}}{{dates}}.",
+        "pastTitleOnly": "Antes disso trabalhei como {{title}}{{dates}}.",
+        "pastCompanyOnly": "Antes disso trabalhei na {{company}}{{dates}}."
+      }
+    },
+    "skills": {
+      "tech": [
+        "JavaScript",
+        "Python",
+        "React",
+        "SQL",
+        "Git",
+        "AWS",
+        "Docker",
+        "APIs REST",
+        "Node.js",
+        "Testes",
+        "Agile",
+        "Linux"
+      ],
+      "healthcare": [
+        "Cuidado ao paciente",
+        "Sinais vitais",
+        "Administração de medicamentos",
+        "Prontuário eletrônico",
+        "Curativos",
+        "Triagem",
+        "Controle de infecção",
+        "RCP",
+        "Plano de cuidados",
+        "Coleta de sangue",
+        "Acolhimento ao paciente",
+        "Terminologia médica"
+      ],
+      "finance": [
+        "Excel",
+        "Modelagem financeira",
+        "Orçamento",
+        "Previsão financeira",
+        "Conciliação",
+        "QuickBooks",
+        "Contas a pagar",
+        "Apoio a auditoria",
+        "IFRS",
+        "Análise de variação",
+        "SAP",
+        "Folha de pagamento"
+      ],
+      "marketing": [
+        "SEO",
+        "Google Analytics",
+        "Produção de conteúdo",
+        "E-mail marketing",
+        "Redes sociais",
+        "Mídia paga",
+        "Copywriting",
+        "Canva",
+        "HubSpot",
+        "Testes A/B",
+        "Planejamento de campanhas",
+        "Estratégia de marca"
+      ],
+      "education": [
+        "Planejamento de aulas",
+        "Gestão de sala de aula",
+        "Desenho curricular",
+        "Avaliação",
+        "Ensino diferenciado",
+        "Google Classroom",
+        "Comunicação com as famílias",
+        "Reforço escolar",
+        "Apoio a necessidades especiais",
+        "Manejo de comportamento",
+        "Correção de provas",
+        "Engajamento dos alunos"
+      ],
+      "engineering": [
+        "AutoCAD",
+        "SolidWorks",
+        "Gestão de projetos",
+        "Controle de qualidade",
+        "Desenhos técnicos",
+        "Inspeção de obra",
+        "MATLAB",
+        "Manufatura enxuta",
+        "Saúde e segurança",
+        "Planejamento de manutenção",
+        "Análise de causa raiz",
+        "Leitura de plantas"
+      ],
+      "design": [
+        "Figma",
+        "Adobe Photoshop",
+        "Illustrator",
+        "Prototipagem",
+        "Wireframes",
+        "Tipografia",
+        "Design systems",
+        "Pesquisa com usuários",
+        "Branding",
+        "InDesign",
+        "Motion graphics",
+        "Acessibilidade"
+      ],
+      "sales": [
+        "CRM",
+        "Salesforce",
+        "Geração de leads",
+        "Prospecção ativa",
+        "Negociação",
+        "Gestão de contas",
+        "Gestão de funil",
+        "Upsell",
+        "Onboarding de clientes",
+        "Demonstração de produto",
+        "Previsão de vendas",
+        "Planejamento de território"
+      ],
+      "other": [
+        "Atendimento ao cliente",
+        "Comunicação",
+        "Trabalho em equipe",
+        "Gestão do tempo",
+        "Microsoft Office",
+        "Resolução de problemas",
+        "Organização de agenda",
+        "Digitação de dados",
+        "Controle de estoque",
+        "Treinamento de equipe",
+        "Elaboração de relatórios",
+        "Atenção aos detalhes"
+      ]
+    }
+  },
+  "jobMatches": {
+    "title": "Vagas que combinam com seu currículo",
+    "subtitle": "Avaliadas com base no currículo que você acabou de criar. Toque em uma para adaptar e se candidatar.",
+    "searching": "Procurando vagas que combinam…",
+    "percent": "{{score}}% de compatibilidade",
+    "emptyBody": "No momento não encontramos uma vaga bem alinhada com este currículo. Novas vagas são publicadas todo dia.",
+    "errorBody": "Não conseguimos carregar as vagas agora. Seu currículo está salvo — tente o quadro de vagas.",
+    "browseAll": "Ver todas as vagas"
+  },
+  "applications": {
+    "title": "Minhas candidaturas",
+    "apply": "Candidatar-se",
+    "applied": "Enviada",
+    "couldNotOpen": "Não foi possível abrir a vaga",
+    "emptyTitle": "Nenhuma candidatura ainda",
+    "emptyBody": "Quando você se candidatar a uma vaga pelo app, ela aparece aqui para você acompanhar as respostas.",
+    "findJobs": "Buscar vagas",
+    "statOpen": "Em aberto",
+    "statFollowUp": "Sem retorno",
+    "statThisWeek": "Esta semana",
+    "appliedDaysAgo": "Enviada há {{days}} d",
+    "chaseIt": "Sem resposta há {{days}} dias — vale um follow-up",
+    "viewPosting": "Ver vaga",
+    "removeTitle": "Remover candidatura?",
+    "removeBody": "Isso só remove do seu acompanhamento. {{title}}",
+    "status": {
+      "applied": "Enviada",
+      "interviewing": "Entrevista",
+      "offer": "Proposta",
+      "rejected": "Recusada"
+    },
+    "dashboardNudge": "{{count}} sem retorno — vale cobrar",
+    "dashboardOpen": "{{count}} candidaturas em aberto",
+    "writeFollowUp": "Escrever follow-up",
+    "prepareForInterview": "Preparar entrevista"
+  },
+  "followUp": {
+    "title": "Fazer follow-up",
+    "writing": "Escrevendo sua mensagem…",
+    "subject": "Assunto",
+    "subjectPlaceholder": "Follow-up da minha candidatura",
+    "message": "Mensagem",
+    "messagePlaceholder": "Seu e-mail de follow-up",
+    "editHint": "Leia antes de enviar e mude o que não parecer com você.",
+    "rewrite": "Escrever outro",
+    "copy": "Copiar",
+    "share": "Compartilhar",
+    "openMail": "Abrir no e-mail",
+    "copied": "Copiado para a área de transferência",
+    "noMailApp": "Nenhum app de e-mail encontrado neste aparelho",
+    "error": "Não conseguimos escrever o follow-up. Tente de novo.",
+    "missing": "Essa candidatura não está mais no seu acompanhamento.",
+    "notificationTitle": "Hora do follow-up",
+    "notificationBody": "{{count}} candidatura(s) sem resposta. Uma mensagem curta ajuda."
+  },
+  "interview": {
+    "title": "Preparação para entrevista",
+    "preparing": "Analisando seu currículo e a vaga…",
+    "error": "Não conseguimos preparar. Tente de novo.",
+    "askThem": "Pergunte a eles",
+    "regenerate": "Gerar de novo",
+    "share": "Compartilhar",
+    "category": {
+      "role": "A vaga",
+      "experience": "Sua experiência",
+      "behavioral": "Como você trabalha",
+      "gap": "Pontos que vão explorar"
+    }
+  },
+  "jobAlerts": {
+    "offerTitle": "Me avise quando surgirem mais",
+    "offerBody": "Uma checagem diária de vagas novas para este currículo. Sem spam, uma notificação.",
+    "turnOn": "Ativar",
+    "onConfirmation": "Alertas ativados — avisamos quando surgirem vagas novas."
   }
 }

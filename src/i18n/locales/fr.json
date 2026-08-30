@@ -32,13 +32,132 @@
   },
   "onboarding": {
     "welcome": {
-      "headline": "Construisez votre carrière avec un design intelligent",
-      "subhead": "Créateur de CV optimisé par l'IA. Gratuit pour toujours.",
+      "tagline": "Créez gratuitement le CV de vos rêves",
+      "badge": "100 % GRATUIT • IA • COMPATIBLE ATS",
+      "whyChooseUs": "Pourquoi nous choisir",
+      "features": {
+        "ai": {
+          "title": "Rédaction assistée par IA",
+          "description": "Des suggestions intelligentes pour faire ressortir votre CV"
+        },
+        "templates": {
+          "title": "26 modèles professionnels",
+          "description": "Barres de compétences, icônes de contact et mises en page compatibles ATS"
+        },
+        "quick": {
+          "title": "Simple et rapide",
+          "description": "Créez un CV professionnel en moins de 5 minutes"
+        },
+        "export": {
+          "title": "Export PDF",
+          "description": "Téléchargez et partagez votre CV en un instant"
+        }
+      },
+      "valuePoints": {
+        "noCard": "Sans carte bancaire",
+        "freeEdit": "Création et modification gratuites",
+        "readyMinutes": "Prêt en quelques minutes"
+      },
       "getStarted": "Commencer gratuitement",
       "haveResume": "J'ai déjà un CV",
       "importing": "Lecture de votre CV…",
-      "importFailed": "Impossible de lire ce fichier. Essayez un PDF, un document Word ou une photo de votre CV.",
-      "trusted": "Approuvé par plus de 10 000 chercheurs d'emploi dans le monde"
+      "importFailedTitle": "Échec de l'import",
+      "importFailed": "Nous n'avons pas pu lire ce fichier. Essayez un PDF, un document Word ou une photo de votre CV.",
+      "trustBadge": "Des modèles compatibles ATS que les recruteurs peuvent vraiment lire"
+    },
+    "goals": {
+      "title": "Personnalisons\nvotre CV",
+      "subtitle": "Quelques réglages rapides et nous adaptons vos modèles, les suggestions de l'IA et votre point de départ.",
+      "nameLabel": "Comment doit-on vous appeler ?",
+      "namePlaceholder": "Votre prénom",
+      "goalLabel": "Qu'est-ce qui vous amène ?",
+      "roleLabel": "Quel poste visez-vous ?",
+      "rolePlaceholder": "ex. Ingénieur logiciel, Chef de produit",
+      "industryLabel": "Votre secteur",
+      "levelLabel": "Niveau d'expérience"
+    },
+    "options": {
+      "goals": {
+        "new-job": "Trouver un nouvel emploi",
+        "first-job": "Décrocher mon premier emploi",
+        "career-switch": "Changer de métier",
+        "promotion": "Viser une promotion",
+        "exploring": "Je regarde simplement"
+      },
+      "industries": {
+        "tech": "Technologie",
+        "techInline": "la technologie",
+        "healthcare": "Santé",
+        "healthcareInline": "la santé",
+        "finance": "Finance",
+        "financeInline": "la finance",
+        "marketing": "Marketing",
+        "marketingInline": "le marketing",
+        "education": "Éducation",
+        "educationInline": "l'éducation",
+        "engineering": "Ingénierie",
+        "engineeringInline": "l'ingénierie",
+        "design": "Design",
+        "designInline": "le design",
+        "sales": "Vente",
+        "salesInline": "la vente",
+        "other": "Autre",
+        "otherInline": "un autre secteur"
+      },
+      "levels": {
+        "entry": {
+          "label": "Débutant",
+          "description": "0 à 2 ans",
+          "yearsHint": "environ un an"
+        },
+        "mid": {
+          "label": "Confirmé",
+          "description": "3 à 5 ans",
+          "yearsHint": "environ 4 ans"
+        },
+        "senior": {
+          "label": "Senior",
+          "description": "6 à 10 ans",
+          "yearsHint": "environ 8 ans"
+        },
+        "executive": {
+          "label": "Cadre dirigeant",
+          "description": "Plus de 10 ans",
+          "yearsHint": "plus de dix ans"
+        }
+      }
+    },
+    "complete": {
+      "greetingNamed": "C'est tout bon, {{name}} ! ",
+      "greeting": "C'est tout bon ! ",
+      "subtitle": "Par où voulez-vous commencer ? Vous pourrez tout modifier plus tard.",
+      "recommended": "RECOMMANDÉ",
+      "pathAI": {
+        "title": "Créer avec l'IA",
+        "subtitle": "Décrivez-vous en une phrase et l'IA rédige votre premier brouillon."
+      },
+      "pathImport": {
+        "title": "J'ai déjà un CV",
+        "subtitle": "Importez un PDF ou un Word et nous le remplissons pour vous."
+      },
+      "pathTemplate": {
+        "title": "Partir d'un modèle",
+        "subtitle": "Choisissez une mise en page et remplissez-la vous-même."
+      },
+      "footer": "Création gratuite • Sans carte bancaire",
+      "resumeNameWithRole": "CV {{role}}",
+      "resumeName": "Mon CV"
+    },
+    "seed": {
+      "join": " ",
+      "roleFallback": "professionnel",
+      "experienceFallback": "de l'expérience",
+      "yearsOfExperience": "{{years}} d'expérience",
+      "inIndustry": " dans {{industry}}",
+      "line1": "Je suis {{role}} avec {{experience}}{{industry}}.",
+      "line2": "Plus récemment j'ai été [votre poste actuel ou le plus récent], où j'ai [une ou deux choses que vous avez accomplies — ajoutez des chiffres si possible].",
+      "line3": "Avant cela j'étais [poste précédent et ce que vous y faisiez].",
+      "line4": "Je maîtrise [vos principales compétences ou outils] et j'ai [votre diplôme ou certification pertinente]."
     }
   },
   "dashboard": {
@@ -191,5 +310,355 @@
     "createAccount": "Créer un compte",
     "alreadyHave": "Vous avez déjà un compte ?",
     "dontHave": "Vous n'avez pas de compte ?"
+  },
+  "wizard": {
+    "title": "Créer avec l'IA",
+    "reviewTitle": "Vérifier",
+    "heroTitleWithRole": "Créons votre CV de {{role}}",
+    "heroTitle": "Parlez-moi de vous",
+    "heroSubtitleSeeded": "Nous avons commencé un brouillon à partir de vos réponses. Remplacez les [crochets] par vos informations, puis générez.",
+    "heroSubtitle": "Écrivez ou collez un ou deux paragraphes sur votre poste, votre expérience et vos compétences. L'IA les transformera en un CV structuré que vous pourrez modifier et télécharger.",
+    "examplesLabel": "Bloqué ? Chargez un exemple, puis mettez vos propres informations",
+    "inputPlaceholder": "Je suis [poste] depuis [n] ans. Actuellement chez [entreprise], je m'occupe de [mission principale]. Avant, j'étais [poste précédent]. Je maîtrise [outils/compétences]...",
+    "charsToGo": "{{count}} caractères de plus",
+    "words": "{{count}} mots",
+    "readiness": {
+      "placeholder": "C'est encore notre modèle",
+      "keepGoing": "Continuez",
+      "strong": "Parfait — ça va très bien marcher",
+      "ok": "Bien, un peu plus aiderait",
+      "thin": "Trop court — ajoutez des détails"
+    },
+    "blocked": {
+      "brackets": "Remplacez les parties [entre crochets] par vos propres informations — l'IA écrira à partir de ce qui se trouve dans le champ.",
+      "template": "C'est encore notre exemple. Mettez vos propres postes, entreprises et compétences pour que le CV soit le vôtre."
+    },
+    "hintsTitle": "Ajoutez ceci et le CV s'améliore nettement",
+    "hint": {
+      "detail": "Écrivez quelques phrases de plus — plus vous en donnez, meilleur sera le CV",
+      "employer": "Citez les entreprises ou organisations où vous avez travaillé",
+      "numbers": "Ajoutez un chiffre — taille d'équipe, années, budget, croissance, tout ce qui est mesurable",
+      "skills": "Listez vos principales compétences ou outils",
+      "education": "Mentionnez votre diplôme, votre formation ou vos certifications"
+    },
+    "generate": "Générer mon CV",
+    "generateBlocked": "Personnalisez-le d'abord",
+    "generating": "Création de votre CV…",
+    "genericError": "Une erreur est survenue. Réessayez.",
+    "confidence": {
+      "high": "Confiance élevée",
+      "moderate": "Confiance moyenne",
+      "low": "Confiance faible — relisez attentivement"
+    },
+    "assumptions": "L'IA a fait ces hypothèses",
+    "section": {
+      "personal": "Informations personnelles",
+      "summary": "Résumé",
+      "experience": "Expérience ({{count}})",
+      "skills": "Compétences ({{count}})",
+      "education": "Formation"
+    },
+    "field": {
+      "name": "Nom",
+      "title": "Poste",
+      "location": "Lieu"
+    },
+    "roleUnknown": "(poste inconnu)",
+    "companyUnknown": "(entreprise inconnue)",
+    "present": "Aujourd'hui",
+    "weakResult": "L'IA avait peu d'éléments à exploiter, donc ce CV est presque vide. Revenir en arrière et ajouter deux phrases changera tout.",
+    "addMoreDetail": "Ajouter des détails",
+    "useAnyway": "Utiliser quand même",
+    "tryAgain": "Réessayer",
+    "createResume": "Créer le CV",
+    "guided": {
+      "stepOf": "Étape {{current}} sur {{total}}",
+      "steps": {
+        "you": {
+          "title": "Qui êtes-vous ?",
+          "subtitle": "Juste l'essentiel — cela figurera en haut de votre CV."
+        },
+        "work": {
+          "title": "Où travaillez-vous ?",
+          "subtitle": "Votre poste le plus récent. Vous pourrez ajouter les précédents ensuite."
+        },
+        "highlights": {
+          "title": "Qu'y faites-vous ?",
+          "subtitle": "Une ou deux phrases suffisent. Les chiffres renforcent beaucoup le propos."
+        },
+        "skills": {
+          "title": "Quels sont vos points forts ?",
+          "subtitle": "Touchez celles qui vous correspondent. Ajoutez les vôtres s'il en manque."
+        },
+        "education": {
+          "title": "Formation ou diplômes ?",
+          "subtitle": "Facultatif — passez si cela ne s'applique pas à vous."
+        }
+      },
+      "nameLabel": "Votre nom",
+      "namePlaceholder": "Ayesha Khan",
+      "jobTitleLabel": "Le poste que vous visez",
+      "jobTitlePlaceholder": "Infirmière diplômée",
+      "locationLabel": "Où vous habitez (facultatif)",
+      "locationPlaceholder": "Lahore",
+      "noJobYet": "Je n'ai pas encore travaillé",
+      "earlierJob": "Poste précédent",
+      "roleTitleLabel": "Intitulé du poste",
+      "roleTitlePlaceholder": "Infirmière de service",
+      "companyLabel": "Entreprise ou organisation",
+      "companyPlaceholder": "Hôpital Shaukat Khanum",
+      "fromLabel": "De",
+      "fromPlaceholder": "2021",
+      "toLabel": "À (vide = toujours en poste)",
+      "toPlaceholder": "2024",
+      "addEarlierJob": "Ajouter un poste précédent",
+      "noExperienceNote": "Pas encore d'emploi ? Aucun problème. Continuez : nous construirons votre CV autour de vos compétences et de votre formation.",
+      "prompts": {
+        "daily": "Que faisiez-vous au quotidien ?",
+        "improved": "Qu'avez-vous amélioré ou corrigé ?",
+        "led": "Avez-vous encadré, formé ou managé quelqu'un ?",
+        "numbers": "Des chiffres ? Personnes, budget, volume, temps gagné"
+      },
+      "atCompany": "Chez {{name}}",
+      "whatYouDid": "Ce que vous faisiez",
+      "highlightsPlaceholder": "Je m'occupe de 30 patients par garde, j'ai formé 5 nouvelles infirmières et je gère le planning du service.",
+      "addYourOwn": "Ajoutez la vôtre",
+      "educationLabel": "Formation ou diplômes",
+      "educationPlaceholder": "J'ai une licence en soins infirmiers de l'Université du Pendjab, obtenue en 2021.",
+      "buildResume": "Créer mon CV",
+      "switchToFreeText": "Je préfère écrire moi-même",
+      "missing": {
+        "identity": "Ajoutez votre nom ou le poste visé : il nous faut quelque chose à mettre en haut.",
+        "substance": "Ajoutez un poste, une compétence ou votre formation pour avoir une base."
+      }
+    },
+    "compose": {
+      "sentenceJoin": " ",
+      "listSeparator": ", ",
+      "listAnd": " et ",
+      "nameAndTitle": "Je m'appelle {{name}} et je suis {{title}}.",
+      "nameOnly": "Je m'appelle {{name}}.",
+      "titleOnly": "Je suis {{title}}.",
+      "location": "J'habite à {{location}}.",
+      "noExperience": "Je n'ai pas encore occupé de poste à temps plein ; je cherche mon premier emploi.",
+      "skills": "Je maîtrise {{list}}.",
+      "dateRange": " de {{start}} à {{end}}",
+      "dateSince": " depuis {{start}}",
+      "dateUntil": " jusqu'en {{end}}",
+      "role": {
+        "currentFull": "Actuellement je travaille comme {{title}} chez {{company}}{{dates}}.",
+        "currentTitleOnly": "Actuellement je travaille comme {{title}}{{dates}}.",
+        "currentCompanyOnly": "Actuellement je travaille chez {{company}}{{dates}}.",
+        "recentFull": "Mon poste le plus récent était {{title}} chez {{company}}{{dates}}.",
+        "recentTitleOnly": "Mon poste le plus récent était {{title}}{{dates}}.",
+        "recentCompanyOnly": "J'ai travaillé en dernier lieu chez {{company}}{{dates}}.",
+        "pastFull": "Avant cela j'ai travaillé comme {{title}} chez {{company}}{{dates}}.",
+        "pastTitleOnly": "Avant cela j'ai travaillé comme {{title}}{{dates}}.",
+        "pastCompanyOnly": "Avant cela j'ai travaillé chez {{company}}{{dates}}."
+      }
+    },
+    "skills": {
+      "tech": [
+        "JavaScript",
+        "Python",
+        "React",
+        "SQL",
+        "Git",
+        "AWS",
+        "Docker",
+        "API REST",
+        "Node.js",
+        "Tests",
+        "Agile",
+        "Linux"
+      ],
+      "healthcare": [
+        "Soins aux patients",
+        "Constantes vitales",
+        "Administration des médicaments",
+        "Dossier patient informatisé",
+        "Soins des plaies",
+        "Triage",
+        "Prévention des infections",
+        "Réanimation cardio-pulmonaire",
+        "Plan de soins",
+        "Prélèvement sanguin",
+        "Relation patient",
+        "Terminologie médicale"
+      ],
+      "finance": [
+        "Excel",
+        "Modélisation financière",
+        "Budgétisation",
+        "Prévisions",
+        "Rapprochement bancaire",
+        "QuickBooks",
+        "Comptabilité fournisseurs",
+        "Support d'audit",
+        "Normes IFRS",
+        "Analyse des écarts",
+        "SAP",
+        "Paie"
+      ],
+      "marketing": [
+        "SEO",
+        "Google Analytics",
+        "Rédaction de contenu",
+        "Email marketing",
+        "Réseaux sociaux",
+        "Publicité payante",
+        "Copywriting",
+        "Canva",
+        "HubSpot",
+        "Tests A/B",
+        "Planification de campagnes",
+        "Stratégie de marque"
+      ],
+      "education": [
+        "Préparation des cours",
+        "Gestion de classe",
+        "Conception de programmes",
+        "Évaluation",
+        "Pédagogie différenciée",
+        "Google Classroom",
+        "Communication avec les familles",
+        "Soutien scolaire",
+        "Accompagnement des élèves à besoins particuliers",
+        "Gestion du comportement",
+        "Correction",
+        "Engagement des élèves"
+      ],
+      "engineering": [
+        "AutoCAD",
+        "SolidWorks",
+        "Gestion de projet",
+        "Contrôle qualité",
+        "Plans techniques",
+        "Inspection de chantier",
+        "MATLAB",
+        "Lean manufacturing",
+        "Hygiène et sécurité",
+        "Planification de la maintenance",
+        "Analyse des causes racines",
+        "Lecture de plans"
+      ],
+      "design": [
+        "Figma",
+        "Adobe Photoshop",
+        "Illustrator",
+        "Prototypage",
+        "Wireframes",
+        "Typographie",
+        "Design systems",
+        "Recherche utilisateur",
+        "Identité de marque",
+        "InDesign",
+        "Motion design",
+        "Accessibilité"
+      ],
+      "sales": [
+        "CRM",
+        "Salesforce",
+        "Génération de leads",
+        "Prospection téléphonique",
+        "Négociation",
+        "Gestion de comptes",
+        "Gestion du pipeline",
+        "Vente additionnelle",
+        "Intégration client",
+        "Démonstrations produit",
+        "Prévisions de vente",
+        "Gestion de secteur"
+      ],
+      "other": [
+        "Service client",
+        "Communication",
+        "Travail en équipe",
+        "Gestion du temps",
+        "Microsoft Office",
+        "Résolution de problèmes",
+        "Planification",
+        "Saisie de données",
+        "Gestion des stocks",
+        "Formation d'équipe",
+        "Reporting",
+        "Souci du détail"
+      ]
+    }
+  },
+  "jobMatches": {
+    "title": "Des offres qui correspondent à votre CV",
+    "subtitle": "Évaluées à partir du CV que vous venez de créer. Touchez-en une pour l’adapter et postuler.",
+    "searching": "Recherche de postes correspondants…",
+    "percent": "{{score}} % de correspondance",
+    "emptyBody": "Nous n'avons pas trouvé de correspondance proche pour ce CV pour l'instant. De nouvelles offres paraissent chaque jour.",
+    "errorBody": "Impossible de charger les offres pour le moment. Votre CV est enregistré — essayez le tableau des offres.",
+    "browseAll": "Voir toutes les offres"
+  },
+  "applications": {
+    "title": "Mes candidatures",
+    "apply": "Postuler",
+    "applied": "Envoyée",
+    "couldNotOpen": "Impossible d'ouvrir l'offre",
+    "emptyTitle": "Aucune candidature pour le moment",
+    "emptyBody": "Quand vous postulez à une offre depuis l'app, elle apparaît ici pour suivre les réponses.",
+    "findJobs": "Trouver des offres",
+    "statOpen": "En cours",
+    "statFollowUp": "Sans réponse",
+    "statThisWeek": "Cette semaine",
+    "appliedDaysAgo": "Envoyée il y a {{days}} j",
+    "chaseIt": "Aucune réponse depuis {{days}} jours — une relance s’impose",
+    "viewPosting": "Voir l'offre",
+    "removeTitle": "Supprimer la candidature ?",
+    "removeBody": "Cela la retire seulement de votre suivi. {{title}}",
+    "status": {
+      "applied": "Envoyée",
+      "interviewing": "Entretien",
+      "offer": "Offre",
+      "rejected": "Refusée"
+    },
+    "dashboardNudge": "{{count}} sans réponse — à relancer",
+    "dashboardOpen": "{{count}} candidatures en cours",
+    "writeFollowUp": "Écrire une relance",
+    "prepareForInterview": "Préparer l'entretien"
+  },
+  "followUp": {
+    "title": "Relancer",
+    "writing": "Rédaction de votre relance…",
+    "subject": "Objet",
+    "subjectPlaceholder": "Relance concernant ma candidature",
+    "message": "Message",
+    "messagePlaceholder": "Votre e-mail de relance",
+    "editHint": "Relisez-le avant d'envoyer et modifiez ce qui ne vous ressemble pas.",
+    "rewrite": "En écrire un autre",
+    "copy": "Copier",
+    "share": "Partager",
+    "openMail": "Ouvrir dans l'e-mail",
+    "copied": "Copié dans le presse-papiers",
+    "noMailApp": "Aucune application e-mail trouvée sur cet appareil",
+    "error": "Nous n'avons pas pu rédiger la relance. Réessayez.",
+    "missing": "Cette candidature n'est plus dans votre suivi.",
+    "notificationTitle": "Il est temps de relancer",
+    "notificationBody": "{{count}} candidature(s) sans réponse. Un petit mot suffit."
+  },
+  "interview": {
+    "title": "Préparer l'entretien",
+    "preparing": "Analyse de votre CV et du poste…",
+    "error": "Nous n'avons pas pu préparer cela. Réessayez.",
+    "askThem": "Vos questions à poser",
+    "regenerate": "Regénérer",
+    "share": "Partager",
+    "category": {
+      "role": "Le poste",
+      "experience": "Votre parcours",
+      "behavioral": "Votre façon de travailler",
+      "gap": "Points à creuser"
+    }
+  },
+  "jobAlerts": {
+    "offerTitle": "Prévenez-moi s'il y en a d'autres",
+    "offerBody": "Une vérification quotidienne des nouvelles offres pour ce CV. Pas de spam, une seule notification.",
+    "turnOn": "Activer",
+    "onConfirmation": "Alertes activées — nous vous préviendrons des nouvelles offres."
   }
 }

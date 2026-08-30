@@ -15,6 +15,8 @@ import {
   NARRATIVE_TO_RESUME_PROMPT,
   TAILOR_PROMPT,
   COVER_LETTER_PROMPT,
+  FOLLOW_UP_PROMPT,
+  INTERVIEW_PREP_PROMPT,
 } from './prompts';
 import type { ParsedResumeData } from '@/types/resumeImport';
 import { normalizeParsedData } from '@/services/fileImport/resumeMapper';
@@ -670,6 +672,204 @@ export async function generateCoverLetter(
   return { letter, model: response.model, tokensUsed: response.tokensUsed };
 }
 
+/* ----------------------------------------------------------------------------
+ * v1.14 — follow-up email for an application that has gone quiet
+ * -------------------------------------------------------------------------- */
+
+export interface FollowUpEmail {
+  subject: string;
+  body: string;
+  model: string;
+  tokensUsed: number;
+}
+
+/**
+ * Draft a follow-up for an application with no reply.
+ *
+ * Cheap on purpose: this runs on the 'summary' chain with a small token
+ * budget, because the output is ~100 words and the user may draft several in
+ * one sitting as their tracker fills up. Nothing about the job posting is
+ * needed — by follow-up time the posting may be gone, and the email should be
+ * about the candidate and the role title, not a re-pitch.
+ */
+export async function generateFollowUpEmail(
+  input: {
+    jobTitle: string;
+    company: string;
+    daysSinceApplied: number;
+  },
+  resume: Resume | null,
+  options?: AIRequestOptions,
+): Promise<FollowUpEmail> {
+  const jobTitle = input.jobTitle?.trim();
+  const company = input.company?.trim();
+  if (!jobTitle || !company) {
+    throw createAIError('PARSE_ERROR', 'We need the role and company to write a follow-up.');
+  }
+
+  const { model, models } = await resolveFeatureModels('summary', options);
+  const recent = resume?.experience?.[0];
+
+  const response = await chatCompletion({
+    model,
+    models,
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      {
+        role: 'user',
+        content: FOLLOW_UP_PROMPT({
+          fullName: resume?.header?.fullName,
+          jobTitle,
+          company,
+          daysSinceApplied: input.daysSinceApplied,
+          topSkills: (resume?.skills ?? []).map((sk) => sk.name).filter(Boolean),
+          recentRole: recent
+            ? { title: recent.title, company: recent.company, bullets: recent.bullets ?? [] }
+            : undefined,
+        }),
+      },
+    ],
+    temperature: 0.6,
+    maxTokens: 700,
+    responseFormat: 'json_object',
+  });
+
+  const parsed = parseJSONResponse<{ subject?: string; body?: string }>(response.content);
+  const subject = (parsed?.subject ?? '').trim();
+  const body = (parsed?.body ?? '').trim();
+  if (!body || body.length < 40) {
+    throw createAIError('PARSE_ERROR', 'The AI returned an unusually short email. Try again.');
+  }
+
+  // The prompt forbids placeholders, but the model is not deterministic and
+  // this output goes to a real employer. Sending "Dear [Hiring Manager name],"
+  // is an irreversible embarrassment, so a slip is treated as a failed
+  // generation — the UI offers a rewrite, which costs one cheap retry.
+  // Rejecting is preferred to patching because we cannot repair a greeting
+  // without knowing which language the email came back in.
+  if (/\[[^\]]{2,}\]|［[^］]{2,}］/.test(body)) {
+    throw createAIError('PARSE_ERROR', 'The draft came back with a blank to fill in. Try again.');
+  }
+
+  return {
+    // Fall back to something sensible rather than an empty subject line.
+    subject: subject || `Following up — ${jobTitle}`,
+    body,
+    model: response.model,
+    tokensUsed: response.tokensUsed,
+  };
+}
+
+/* ----------------------------------------------------------------------------
+ * v1.14 — interview preparation
+ * -------------------------------------------------------------------------- */
+
+export type InterviewCategory = 'role' | 'experience' | 'behavioral' | 'gap';
+
+export interface InterviewQuestion {
+  category: InterviewCategory;
+  question: string;
+  /** What the interviewer is actually testing. */
+  why: string;
+  /** What from THIS candidate's background to lean on. Never a script. */
+  angle: string;
+}
+
+export interface InterviewPrep {
+  questions: InterviewQuestion[];
+  /** Questions for the candidate to ask back. */
+  askThem: string[];
+  model: string;
+  tokensUsed: number;
+}
+
+const VALID_CATEGORIES: InterviewCategory[] = ['role', 'experience', 'behavioral', 'gap'];
+
+/**
+ * Prepare the candidate for a specific interview.
+ *
+ * Uses the 'quality' chain and a larger budget than the other features: this
+ * is the highest-stakes thing the app produces — someone reads it an hour
+ * before an interview — and it is generated once per application and cached,
+ * so the extra cost is paid at most once rather than per browse.
+ */
+export async function generateInterviewPrep(
+  input: { jobTitle: string; company: string },
+  resume: Resume | null,
+  options?: AIRequestOptions,
+): Promise<InterviewPrep> {
+  const jobTitle = input.jobTitle?.trim();
+  const company = input.company?.trim();
+  if (!jobTitle || !company) {
+    throw createAIError('PARSE_ERROR', 'We need the role and company to prepare you.');
+  }
+
+  // 'score' maps to the text-quality chain — this is the highest-stakes
+  // output the app produces, read an hour before an interview.
+  const { model, models } = await resolveFeatureModels('score', options);
+
+  const response = await chatCompletion({
+    model,
+    models,
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      {
+        role: 'user',
+        content: INTERVIEW_PREP_PROMPT({
+          fullName: resume?.header?.fullName,
+          jobTitle,
+          company,
+          candidateTitle: resume?.header?.jobTitle,
+          summary: resume?.summary,
+          skills: (resume?.skills ?? []).map((sk) => sk.name).filter(Boolean),
+          experience: (resume?.experience ?? []).map((e) => ({
+            title: e.title,
+            company: e.company,
+            startDate: e.startDate,
+            endDate: e.endDate,
+            bullets: e.bullets ?? [],
+          })),
+          education: (resume?.education ?? []).map((e) =>
+            [e.degree, e.field, e.institution].filter(Boolean).join(' '),
+          ),
+        }),
+      },
+    ],
+    temperature: 0.5,
+    maxTokens: 4096,
+    responseFormat: 'json_object',
+  });
+
+  const parsed = parseJSONResponse<{
+    questions?: Array<Partial<InterviewQuestion>>;
+    askThem?: string[];
+  }>(response.content);
+
+  // Keep only entries that are actually usable: a question with no guidance is
+  // worse than one fewer question, because the whole value here is the angle.
+  const questions: InterviewQuestion[] = (parsed?.questions ?? [])
+    .filter((q) => q?.question?.trim() && q?.angle?.trim())
+    .map((q) => ({
+      category: VALID_CATEGORIES.includes(q.category as InterviewCategory)
+        ? (q.category as InterviewCategory)
+        : 'role',
+      question: q.question!.trim(),
+      why: (q.why ?? '').trim(),
+      angle: q.angle!.trim(),
+    }));
+
+  if (questions.length < 3) {
+    throw createAIError('PARSE_ERROR', 'The AI returned too little to prepare you. Try again.');
+  }
+
+  return {
+    questions,
+    askThem: (parsed?.askThem ?? []).map((q) => String(q).trim()).filter(Boolean).slice(0, 6),
+    model: response.model,
+    tokensUsed: response.tokensUsed,
+  };
+}
+
 /**
  * Export all AI service functions
  */
@@ -686,6 +886,8 @@ export const resumeAIService = {
   streamTextGeneration,
   tailorToJob,
   generateCoverLetter,
+  generateFollowUpEmail,
+  generateInterviewPrep,
 };
 
 export default resumeAIService;

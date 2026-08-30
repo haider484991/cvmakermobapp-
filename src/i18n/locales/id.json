@@ -32,13 +32,132 @@
   },
   "onboarding": {
     "welcome": {
-      "headline": "Bangun karirmu dengan desain cerdas",
-      "subhead": "Pembuat resume berbasis AI. Gratis selamanya.",
-      "getStarted": "Mulai Gratis",
-      "haveResume": "Saya sudah punya resume",
-      "importing": "Membaca resume Anda…",
-      "importFailed": "Kami tidak bisa membaca file itu. Coba PDF, dokumen Word, atau foto resume Anda.",
-      "trusted": "Dipercaya lebih dari 10.000 pencari kerja di seluruh dunia"
+      "tagline": "Buat CV impianmu secara gratis",
+      "badge": "100% GRATIS • BERBASIS AI • SIAP ATS",
+      "whyChooseUs": "Kenapa pilih kami",
+      "features": {
+        "ai": {
+          "title": "Penulisan dengan AI",
+          "description": "Saran cerdas supaya CV kamu menonjol"
+        },
+        "templates": {
+          "title": "26 template profesional",
+          "description": "Bar keahlian, ikon kontak, dan desain siap ATS"
+        },
+        "quick": {
+          "title": "Cepat dan mudah",
+          "description": "Buat CV profesional dalam waktu kurang dari 5 menit"
+        },
+        "export": {
+          "title": "Ekspor PDF",
+          "description": "Unduh dan bagikan CV kamu seketika"
+        }
+      },
+      "valuePoints": {
+        "noCard": "Tanpa kartu kredit",
+        "freeEdit": "Membuat dan mengedit gratis",
+        "readyMinutes": "Siap dalam hitungan menit"
+      },
+      "getStarted": "Mulai gratis",
+      "haveResume": "Saya sudah punya CV",
+      "importing": "Membaca CV kamu…",
+      "importFailedTitle": "Impor gagal",
+      "importFailed": "Kami tidak bisa membaca file itu. Coba PDF, dokumen Word, atau foto CV kamu.",
+      "trustBadge": "Template ramah ATS yang benar-benar bisa dibaca perekrut"
+    },
+    "goals": {
+      "title": "Mari sesuaikan\nCV kamu",
+      "subtitle": "Beberapa ketukan saja dan kami akan menyesuaikan template, saran AI, serta titik awalmu.",
+      "nameLabel": "Kami panggil kamu siapa?",
+      "namePlaceholder": "Nama depan kamu",
+      "goalLabel": "Apa tujuanmu di sini?",
+      "roleLabel": "Posisi apa yang kamu incar?",
+      "rolePlaceholder": "mis. Software Engineer, Product Manager",
+      "industryLabel": "Bidang kamu",
+      "levelLabel": "Tingkat pengalaman"
+    },
+    "options": {
+      "goals": {
+        "new-job": "Mendapat pekerjaan baru",
+        "first-job": "Mendapat pekerjaan pertama",
+        "career-switch": "Pindah jalur karier",
+        "promotion": "Mengejar promosi",
+        "exploring": "Sekadar melihat-lihat"
+      },
+      "industries": {
+        "tech": "Teknologi",
+        "techInline": "bidang teknologi",
+        "healthcare": "Kesehatan",
+        "healthcareInline": "bidang kesehatan",
+        "finance": "Keuangan",
+        "financeInline": "bidang keuangan",
+        "marketing": "Marketing",
+        "marketingInline": "bidang marketing",
+        "education": "Pendidikan",
+        "educationInline": "bidang pendidikan",
+        "engineering": "Teknik",
+        "engineeringInline": "bidang teknik",
+        "design": "Desain",
+        "designInline": "bidang desain",
+        "sales": "Penjualan",
+        "salesInline": "bidang penjualan",
+        "other": "Lainnya",
+        "otherInline": "bidang lain"
+      },
+      "levels": {
+        "entry": {
+          "label": "Pemula",
+          "description": "0–2 tahun",
+          "yearsHint": "sekitar satu tahun"
+        },
+        "mid": {
+          "label": "Menengah",
+          "description": "3–5 tahun",
+          "yearsHint": "sekitar 4 tahun"
+        },
+        "senior": {
+          "label": "Senior",
+          "description": "6–10 tahun",
+          "yearsHint": "sekitar 8 tahun"
+        },
+        "executive": {
+          "label": "Eksekutif",
+          "description": "Lebih dari 10 tahun",
+          "yearsHint": "lebih dari satu dekade"
+        }
+      }
+    },
+    "complete": {
+      "greetingNamed": "Semua siap, {{name}}! ",
+      "greeting": "Semua siap! ",
+      "subtitle": "Mau mulai dari mana? Semuanya bisa diubah nanti.",
+      "recommended": "DIREKOMENDASIKAN",
+      "pathAI": {
+        "title": "Buat dengan AI",
+        "subtitle": "Ceritakan dirimu dalam satu kalimat — AI menulis draf pertamamu."
+      },
+      "pathImport": {
+        "title": "Saya sudah punya CV",
+        "subtitle": "Impor file PDF atau Word dan kami isikan untukmu."
+      },
+      "pathTemplate": {
+        "title": "Mulai dari template",
+        "subtitle": "Pilih desain lalu isi sendiri."
+      },
+      "footer": "Membuat gratis • Tanpa kartu kredit",
+      "resumeNameWithRole": "CV {{role}}",
+      "resumeName": "CV Saya"
+    },
+    "seed": {
+      "join": " ",
+      "roleFallback": "profesional",
+      "experienceFallback": "pengalaman",
+      "yearsOfExperience": "pengalaman {{years}}",
+      "inIndustry": " di {{industry}}",
+      "line1": "Saya seorang {{role}} dengan {{experience}}{{industry}}.",
+      "line2": "Terakhir saya menjabat [posisi kamu saat ini atau yang terakhir], di sana saya [satu atau dua hal yang kamu capai — tambahkan angka kalau bisa].",
+      "line3": "Sebelumnya saya [posisi sebelumnya dan apa yang kamu kerjakan].",
+      "line4": "Saya menguasai [keahlian atau tools utama kamu], dan saya punya [gelar atau sertifikat yang relevan]."
     }
   },
   "dashboard": {
@@ -191,5 +310,355 @@
     "createAccount": "Buat Akun",
     "alreadyHave": "Sudah punya akun?",
     "dontHave": "Belum punya akun?"
+  },
+  "wizard": {
+    "title": "Buat dengan AI",
+    "reviewTitle": "Tinjau",
+    "heroTitleWithRole": "Mari buat CV {{role}} kamu",
+    "heroTitle": "Ceritakan tentang dirimu",
+    "heroSubtitleSeeded": "Kami sudah membuat draf dari jawabanmu. Ganti bagian dalam [kurung siku] dengan datamu, lalu buat CV-nya.",
+    "heroSubtitle": "Tulis atau tempel satu sampai dua paragraf tentang posisi, pengalaman, dan keahlianmu. AI akan mengubahnya menjadi CV terstruktur yang bisa kamu edit dan unduh.",
+    "examplesLabel": "Bingung? Muat contoh, lalu ganti dengan datamu sendiri",
+    "inputPlaceholder": "Saya sudah [n] tahun bekerja sebagai [posisi]. Saat ini di [perusahaan] mengerjakan [pekerjaan utama]. Sebelumnya saya [posisi sebelumnya]. Saya menguasai [tools/keahlian]...",
+    "charsToGo": "{{count}} karakter lagi",
+    "words": "{{count}} kata",
+    "readiness": {
+      "placeholder": "Ini masih template kami",
+      "keepGoing": "Lanjutkan",
+      "strong": "Bagus — ini akan menghasilkan CV yang baik",
+      "ok": "Sudah cukup, sedikit lagi akan lebih baik",
+      "thin": "Masih sedikit — tambahkan detail"
+    },
+    "blocked": {
+      "brackets": "Ganti bagian [dalam kurung siku] dengan datamu sendiri — AI akan menulis berdasarkan apa pun yang ada di kotak ini.",
+      "template": "Ini masih contoh dari kami. Isi dengan posisi, perusahaan, dan keahlianmu sendiri supaya CV-nya benar-benar milikmu."
+    },
+    "hintsTitle": "Tambahkan ini dan CV-nya akan jauh lebih baik",
+    "hint": {
+      "detail": "Tulis beberapa kalimat lagi — makin banyak yang kamu berikan, makin bagus CV-nya",
+      "employer": "Sebutkan perusahaan atau organisasi tempat kamu bekerja",
+      "numbers": "Tambahkan angka — jumlah tim, tahun, anggaran, pertumbuhan, apa pun yang terukur",
+      "skills": "Sebutkan keahlian atau tools utamamu",
+      "education": "Sebutkan pendidikan, pelatihan, atau sertifikatmu"
+    },
+    "generate": "Buat CV saya",
+    "generateBlocked": "Jadikan milikmu dulu",
+    "generating": "Sedang membuat CV kamu…",
+    "genericError": "Terjadi kesalahan. Coba lagi.",
+    "confidence": {
+      "high": "Keyakinan tinggi",
+      "moderate": "Keyakinan sedang",
+      "low": "Keyakinan rendah — periksa dengan teliti"
+    },
+    "assumptions": "AI membuat asumsi berikut",
+    "section": {
+      "personal": "Data pribadi",
+      "summary": "Ringkasan",
+      "experience": "Pengalaman ({{count}})",
+      "skills": "Keahlian ({{count}})",
+      "education": "Pendidikan"
+    },
+    "field": {
+      "name": "Nama",
+      "title": "Posisi",
+      "location": "Lokasi"
+    },
+    "roleUnknown": "(posisi tidak diketahui)",
+    "companyUnknown": "(perusahaan tidak diketahui)",
+    "present": "Sekarang",
+    "weakResult": "AI hanya punya sedikit informasi, jadi CV ini hampir kosong. Kembali dan tambahkan dua kalimat saja akan mengubah hasilnya sepenuhnya.",
+    "addMoreDetail": "Tambah detail",
+    "useAnyway": "Tetap pakai",
+    "tryAgain": "Coba lagi",
+    "createResume": "Buat CV",
+    "guided": {
+      "stepOf": "Langkah {{current}} dari {{total}}",
+      "steps": {
+        "you": {
+          "title": "Siapa kamu?",
+          "subtitle": "Cukup yang dasar — ini akan muncul di bagian atas CV kamu."
+        },
+        "work": {
+          "title": "Di mana kamu bekerja?",
+          "subtitle": "Pekerjaan terakhirmu. Yang lebih lama bisa ditambahkan setelah ini."
+        },
+        "highlights": {
+          "title": "Apa yang kamu kerjakan di sana?",
+          "subtitle": "Satu atau dua kalimat sudah cukup. Angka membuatnya jauh lebih kuat."
+        },
+        "skills": {
+          "title": "Apa keahlianmu?",
+          "subtitle": "Ketuk yang sesuai. Tambahkan sendiri kalau ada yang belum ada."
+        },
+        "education": {
+          "title": "Pendidikan atau pelatihan?",
+          "subtitle": "Opsional — lewati kalau tidak relevan buat kamu."
+        }
+      },
+      "nameLabel": "Nama kamu",
+      "namePlaceholder": "Ayesha Khan",
+      "jobTitleLabel": "Pekerjaan yang kamu incar",
+      "jobTitlePlaceholder": "Perawat",
+      "locationLabel": "Domisili (opsional)",
+      "locationPlaceholder": "Lahore",
+      "noJobYet": "Saya belum pernah bekerja",
+      "earlierJob": "Pekerjaan sebelumnya",
+      "roleTitleLabel": "Nama posisi",
+      "roleTitlePlaceholder": "Perawat Ruangan",
+      "companyLabel": "Perusahaan atau organisasi",
+      "companyPlaceholder": "Rumah Sakit Shaukat Khanum",
+      "fromLabel": "Dari",
+      "fromPlaceholder": "2021",
+      "toLabel": "Sampai (kosong = masih bekerja)",
+      "toPlaceholder": "2024",
+      "addEarlierJob": "Tambah pekerjaan sebelumnya",
+      "noExperienceNote": "Belum pernah bekerja? Tidak masalah. Lanjut saja — kami akan menyusun CV kamu dari keahlian dan pendidikanmu.",
+      "prompts": {
+        "daily": "Apa yang kamu kerjakan sehari-hari?",
+        "improved": "Apa yang kamu perbaiki atau tingkatkan?",
+        "led": "Apakah kamu memimpin, melatih, atau mengelola orang?",
+        "numbers": "Ada angka? Jumlah orang, uang, volume, waktu yang dihemat"
+      },
+      "atCompany": "Di {{name}}",
+      "whatYouDid": "Apa yang kamu kerjakan",
+      "highlightsPlaceholder": "Saya menangani 30 pasien setiap shift, melatih 5 perawat baru, dan mengatur jadwal jaga ruangan.",
+      "addYourOwn": "Tambahkan sendiri",
+      "educationLabel": "Pendidikan atau pelatihan",
+      "educationPlaceholder": "Saya lulusan S1 Keperawatan Universitas Punjab, lulus tahun 2021.",
+      "buildResume": "Buat CV saya",
+      "switchToFreeText": "Saya lebih suka menulis sendiri",
+      "missing": {
+        "identity": "Isi nama atau posisi yang kamu incar dulu — bagian atas CV butuh isi.",
+        "substance": "Tambahkan pekerjaan, keahlian, atau pendidikan sebagai bahan dasarnya."
+      }
+    },
+    "compose": {
+      "sentenceJoin": " ",
+      "listSeparator": ", ",
+      "listAnd": " dan ",
+      "nameAndTitle": "Nama saya {{name}} dan saya seorang {{title}}.",
+      "nameOnly": "Nama saya {{name}}.",
+      "titleOnly": "Saya seorang {{title}}.",
+      "location": "Saya tinggal di {{location}}.",
+      "noExperience": "Saya belum pernah bekerja penuh waktu; saya sedang mencari pekerjaan pertama saya.",
+      "skills": "Saya menguasai {{list}}.",
+      "dateRange": " dari {{start}} sampai {{end}}",
+      "dateSince": " sejak {{start}}",
+      "dateUntil": " sampai {{end}}",
+      "role": {
+        "currentFull": "Saat ini saya bekerja sebagai {{title}} di {{company}}{{dates}}.",
+        "currentTitleOnly": "Saat ini saya bekerja sebagai {{title}}{{dates}}.",
+        "currentCompanyOnly": "Saat ini saya bekerja di {{company}}{{dates}}.",
+        "recentFull": "Terakhir saya bekerja sebagai {{title}} di {{company}}{{dates}}.",
+        "recentTitleOnly": "Terakhir saya bekerja sebagai {{title}}{{dates}}.",
+        "recentCompanyOnly": "Terakhir saya bekerja di {{company}}{{dates}}.",
+        "pastFull": "Sebelumnya saya bekerja sebagai {{title}} di {{company}}{{dates}}.",
+        "pastTitleOnly": "Sebelumnya saya bekerja sebagai {{title}}{{dates}}.",
+        "pastCompanyOnly": "Sebelumnya saya bekerja di {{company}}{{dates}}."
+      }
+    },
+    "skills": {
+      "tech": [
+        "JavaScript",
+        "Python",
+        "React",
+        "SQL",
+        "Git",
+        "AWS",
+        "Docker",
+        "REST API",
+        "Node.js",
+        "Testing",
+        "Agile",
+        "Linux"
+      ],
+      "healthcare": [
+        "Perawatan pasien",
+        "Pemeriksaan tanda vital",
+        "Pemberian obat",
+        "Rekam medis elektronik",
+        "Perawatan luka",
+        "Triase",
+        "Pengendalian infeksi",
+        "CPR",
+        "Rencana asuhan",
+        "Pengambilan darah",
+        "Komunikasi dengan pasien",
+        "Terminologi medis"
+      ],
+      "finance": [
+        "Excel",
+        "Pemodelan keuangan",
+        "Penyusunan anggaran",
+        "Proyeksi keuangan",
+        "Rekonsiliasi",
+        "QuickBooks",
+        "Utang usaha",
+        "Dukungan audit",
+        "IFRS",
+        "Analisis selisih",
+        "SAP",
+        "Penggajian"
+      ],
+      "marketing": [
+        "SEO",
+        "Google Analytics",
+        "Penulisan konten",
+        "Email marketing",
+        "Media sosial",
+        "Iklan berbayar",
+        "Copywriting",
+        "Canva",
+        "HubSpot",
+        "Uji A/B",
+        "Perencanaan kampanye",
+        "Strategi merek"
+      ],
+      "education": [
+        "Perencanaan pembelajaran",
+        "Manajemen kelas",
+        "Penyusunan kurikulum",
+        "Penilaian",
+        "Pembelajaran berdiferensiasi",
+        "Google Classroom",
+        "Komunikasi dengan orang tua",
+        "Bimbingan belajar",
+        "Pendampingan kebutuhan khusus",
+        "Manajemen perilaku",
+        "Pemeriksaan tugas",
+        "Keterlibatan siswa"
+      ],
+      "engineering": [
+        "AutoCAD",
+        "SolidWorks",
+        "Manajemen proyek",
+        "Kendali mutu",
+        "Gambar teknik",
+        "Inspeksi lapangan",
+        "MATLAB",
+        "Lean manufacturing",
+        "Kesehatan dan keselamatan kerja",
+        "Perencanaan perawatan",
+        "Analisis akar masalah",
+        "Membaca gambar kerja"
+      ],
+      "design": [
+        "Figma",
+        "Adobe Photoshop",
+        "Illustrator",
+        "Pembuatan prototipe",
+        "Wireframe",
+        "Tipografi",
+        "Design system",
+        "Riset pengguna",
+        "Branding",
+        "InDesign",
+        "Motion graphics",
+        "Aksesibilitas"
+      ],
+      "sales": [
+        "CRM",
+        "Salesforce",
+        "Pencarian prospek",
+        "Panggilan dingin",
+        "Negosiasi",
+        "Pengelolaan akun",
+        "Manajemen pipeline",
+        "Upselling",
+        "Onboarding klien",
+        "Demo produk",
+        "Proyeksi penjualan",
+        "Perencanaan wilayah"
+      ],
+      "other": [
+        "Layanan pelanggan",
+        "Komunikasi",
+        "Kerja sama tim",
+        "Manajemen waktu",
+        "Microsoft Office",
+        "Pemecahan masalah",
+        "Penjadwalan",
+        "Entri data",
+        "Pengelolaan stok",
+        "Melatih rekan kerja",
+        "Pelaporan",
+        "Ketelitian"
+      ]
+    }
+  },
+  "jobMatches": {
+    "title": "Lowongan yang cocok dengan CV kamu",
+    "subtitle": "Dinilai berdasarkan CV yang baru kamu buat. Ketuk salah satu untuk menyesuaikan dan melamar.",
+    "searching": "Mencari posisi yang cocok…",
+    "percent": "kecocokan {{score}}%",
+    "emptyBody": "Saat ini kami belum menemukan lowongan yang benar-benar cocok dengan CV ini. Lowongan baru muncul setiap hari.",
+    "errorBody": "Lowongan tidak bisa dimuat sekarang. CV kamu sudah tersimpan — coba buka papan lowongan.",
+    "browseAll": "Lihat semua lowongan"
+  },
+  "applications": {
+    "title": "Lamaran saya",
+    "apply": "Lamar",
+    "applied": "Sudah dilamar",
+    "couldNotOpen": "Tidak bisa membuka lowongan",
+    "emptyTitle": "Belum ada lamaran",
+    "emptyBody": "Saat kamu melamar lewat aplikasi, lowongannya muncul di sini supaya kamu bisa memantau balasannya.",
+    "findJobs": "Cari lowongan",
+    "statOpen": "Berjalan",
+    "statFollowUp": "Belum dibalas",
+    "statThisWeek": "Minggu ini",
+    "appliedDaysAgo": "Dilamar {{days}} hr lalu",
+    "chaseIt": "Belum ada balasan {{days}} hari — coba tanyakan lagi",
+    "viewPosting": "Lihat lowongan",
+    "removeTitle": "Hapus lamaran?",
+    "removeBody": "Ini hanya menghapusnya dari daftar kamu. {{title}}",
+    "status": {
+      "applied": "Dilamar",
+      "interviewing": "Wawancara",
+      "offer": "Penawaran",
+      "rejected": "Ditolak"
+    },
+    "dashboardNudge": "{{count}} belum dibalas — coba tanyakan",
+    "dashboardOpen": "{{count}} lamaran sedang berjalan",
+    "writeFollowUp": "Tulis tindak lanjut",
+    "prepareForInterview": "Siapkan wawancara"
+  },
+  "followUp": {
+    "title": "Tindak lanjut",
+    "writing": "Menulis pesanmu…",
+    "subject": "Subjek",
+    "subjectPlaceholder": "Menanyakan lamaran saya",
+    "message": "Pesan",
+    "messagePlaceholder": "Email tindak lanjut kamu",
+    "editHint": "Baca dulu sebelum dikirim — ubah bagian yang tidak terdengar seperti kamu.",
+    "rewrite": "Tulis versi lain",
+    "copy": "Salin",
+    "share": "Bagikan",
+    "openMail": "Buka di email",
+    "copied": "Disalin ke papan klip",
+    "noMailApp": "Tidak ada aplikasi email di perangkat ini",
+    "error": "Kami tidak bisa menulis pesannya. Coba lagi.",
+    "missing": "Lamaran itu sudah tidak ada di daftar kamu.",
+    "notificationTitle": "Waktunya menindaklanjuti",
+    "notificationBody": "{{count}} lamaran belum dibalas. Pesan singkat bisa membantu."
+  },
+  "interview": {
+    "title": "Persiapan wawancara",
+    "preparing": "Menelaah CV dan posisinya…",
+    "error": "Kami belum bisa menyiapkannya. Coba lagi.",
+    "askThem": "Pertanyaan untuk mereka",
+    "regenerate": "Buat ulang",
+    "share": "Bagikan",
+    "category": {
+      "role": "Posisinya",
+      "experience": "Pengalaman kamu",
+      "behavioral": "Cara kamu bekerja",
+      "gap": "Kemungkinan digali"
+    }
+  },
+  "jobAlerts": {
+    "offerTitle": "Kabari kalau ada lagi",
+    "offerBody": "Pengecekan harian untuk lowongan baru yang cocok dengan CV ini. Tanpa spam, satu notifikasi.",
+    "turnOn": "Aktifkan",
+    "onConfirmation": "Notifikasi aktif — kami kabari kalau ada lowongan baru."
   }
 }

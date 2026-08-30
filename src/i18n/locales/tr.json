@@ -32,13 +32,132 @@
   },
   "onboarding": {
     "welcome": {
-      "headline": "Kariyerinizi akıllı tasarımla oluşturun",
-      "subhead": "AI destekli özgeçmiş oluşturucu. Sonsuza kadar ücretsiz.",
-      "getStarted": "Ücretsiz Başla",
+      "tagline": "Hayalindeki özgeçmişi ücretsiz oluştur",
+      "badge": "%100 ÜCRETSİZ • YAPAY ZEKÂ • ATS UYUMLU",
+      "whyChooseUs": "Neden biz",
+      "features": {
+        "ai": {
+          "title": "Yapay zekâ ile yazım",
+          "description": "Özgeçmişini öne çıkaracak akıllı öneriler"
+        },
+        "templates": {
+          "title": "26 profesyonel şablon",
+          "description": "Beceri çubukları, iletişim ikonları ve ATS uyumlu tasarımlar"
+        },
+        "quick": {
+          "title": "Hızlı ve kolay",
+          "description": "5 dakikadan kısa sürede profesyonel bir özgeçmiş"
+        },
+        "export": {
+          "title": "PDF olarak dışa aktar",
+          "description": "Özgeçmişini anında indir ve paylaş"
+        }
+      },
+      "valuePoints": {
+        "noCard": "Kredi kartı gerekmez",
+        "freeEdit": "Oluşturmak ve düzenlemek ücretsiz",
+        "readyMinutes": "Dakikalar içinde hazır"
+      },
+      "getStarted": "Ücretsiz başla",
       "haveResume": "Zaten bir özgeçmişim var",
-      "importing": "Özgeçmişiniz okunuyor…",
-      "importFailed": "Bu dosyayı okuyamadık. PDF, Word belgesi veya özgeçmişinizin fotoğrafını deneyin.",
-      "trusted": "Dünya çapında 10.000'den fazla iş arayan tarafından güveniliyor"
+      "importing": "Özgeçmişin okunuyor…",
+      "importFailedTitle": "İçe aktarma başarısız",
+      "importFailed": "Bu dosyayı okuyamadık. PDF, Word belgesi ya da özgeçmişinin fotoğrafını dene.",
+      "trustBadge": "İşe alım uzmanlarının gerçekten okuyabildiği ATS uyumlu şablonlar"
+    },
+    "goals": {
+      "title": "Özgeçmişini\nkişiselleştirelim",
+      "subtitle": "Birkaç hızlı dokunuşla şablonlarını, yapay zekâ önerilerini ve başlangıç noktanı sana göre ayarlayalım.",
+      "nameLabel": "Sana nasıl hitap edelim?",
+      "namePlaceholder": "Adın",
+      "goalLabel": "Seni buraya ne getirdi?",
+      "roleLabel": "Hangi pozisyonu hedefliyorsun?",
+      "rolePlaceholder": "ör. Yazılım Mühendisi, Ürün Müdürü",
+      "industryLabel": "Sektörün",
+      "levelLabel": "Deneyim düzeyi"
+    },
+    "options": {
+      "goals": {
+        "new-job": "Yeni bir iş bulmak",
+        "first-job": "İlk işimi bulmak",
+        "career-switch": "Kariyer değiştirmek",
+        "promotion": "Terfi almak",
+        "exploring": "Sadece bakıyorum"
+      },
+      "industries": {
+        "tech": "Teknoloji",
+        "techInline": "teknoloji alanında",
+        "healthcare": "Sağlık",
+        "healthcareInline": "sağlık alanında",
+        "finance": "Finans",
+        "financeInline": "finans alanında",
+        "marketing": "Pazarlama",
+        "marketingInline": "pazarlama alanında",
+        "education": "Eğitim",
+        "educationInline": "eğitim alanında",
+        "engineering": "Mühendislik",
+        "engineeringInline": "mühendislik alanında",
+        "design": "Tasarım",
+        "designInline": "tasarım alanında",
+        "sales": "Satış",
+        "salesInline": "satış alanında",
+        "other": "Diğer",
+        "otherInline": "başka bir alanda"
+      },
+      "levels": {
+        "entry": {
+          "label": "Başlangıç",
+          "description": "0–2 yıl",
+          "yearsHint": "yaklaşık bir yıllık"
+        },
+        "mid": {
+          "label": "Orta düzey",
+          "description": "3–5 yıl",
+          "yearsHint": "yaklaşık 4 yıllık"
+        },
+        "senior": {
+          "label": "Kıdemli",
+          "description": "6–10 yıl",
+          "yearsHint": "yaklaşık 8 yıllık"
+        },
+        "executive": {
+          "label": "Yönetici",
+          "description": "10+ yıl",
+          "yearsHint": "on yılı aşkın"
+        }
+      }
+    },
+    "complete": {
+      "greetingNamed": "Her şey hazır, {{name}}! ",
+      "greeting": "Her şey hazır! ",
+      "subtitle": "Nereden başlamak istersin? Her şeyi sonradan değiştirebilirsin.",
+      "recommended": "ÖNERİLEN",
+      "pathAI": {
+        "title": "Yapay zekâ ile oluştur",
+        "subtitle": "Kendini bir cümleyle anlat — ilk taslağını yapay zekâ yazsın."
+      },
+      "pathImport": {
+        "title": "Zaten bir özgeçmişim var",
+        "subtitle": "PDF ya da Word dosyanı yükle, gerisini biz dolduralım."
+      },
+      "pathTemplate": {
+        "title": "Şablonla başla",
+        "subtitle": "Bir tasarım seç ve kendin doldur."
+      },
+      "footer": "Oluşturmak ücretsiz • Kredi kartı gerekmez",
+      "resumeNameWithRole": "{{role}} Özgeçmişi",
+      "resumeName": "Özgeçmişim"
+    },
+    "seed": {
+      "join": " ",
+      "roleFallback": "profesyonel",
+      "experienceFallback": "deneyime",
+      "yearsOfExperience": "{{years}} deneyime",
+      "inIndustry": " {{industry}}",
+      "line1": "{{role}} olarak{{industry}} {{experience}} sahibim.",
+      "line2": "En son [mevcut ya da son pozisyonun] olarak çalıştım, orada [başardığın bir iki şey — mümkünse sayı ekle].",
+      "line3": "Ondan önce [önceki pozisyonun ve orada ne yaptığın].",
+      "line4": "[En güçlü becerilerin veya araçların] konusunda iyiyim ve [diploman ya da ilgili sertifikan] var."
     }
   },
   "dashboard": {
@@ -191,5 +310,355 @@
     "createAccount": "Hesap Oluştur",
     "alreadyHave": "Zaten bir hesabınız var mı?",
     "dontHave": "Hesabınız yok mu?"
+  },
+  "wizard": {
+    "title": "Yapay zekâ ile oluştur",
+    "reviewTitle": "Gözden geçir",
+    "heroTitleWithRole": "{{role}} özgeçmişini birlikte hazırlayalım",
+    "heroTitle": "Bana kendinden bahset",
+    "heroSubtitleSeeded": "Cevaplarından bir taslak oluşturduk. [Köşeli parantez] içindeki yerleri kendi bilgilerinle değiştir, sonra oluştur.",
+    "heroSubtitle": "Görevin, deneyimin ve becerilerin hakkında bir iki paragraf yaz ya da yapıştır. Yapay zekâ bunu düzenleyip indirebileceğin yapılandırılmış bir özgeçmişe dönüştürecek.",
+    "examplesLabel": "Takıldın mı? Bir örnek yükle, sonra kendi bilgilerinle değiştir",
+    "inputPlaceholder": "[n] yıldır [pozisyon] olarak çalışıyorum. Şu anda [şirket] bünyesinde [ana işim] yapıyorum. Öncesinde [önceki pozisyon] idim. [Araçlar/beceriler] konusunda güçlüyüm...",
+    "charsToGo": "{{count}} karakter daha",
+    "words": "{{count}} kelime",
+    "readiness": {
+      "placeholder": "Bu hâlâ bizim şablonumuz",
+      "keepGoing": "Devam et",
+      "strong": "Harika — bu iyi sonuç verecek",
+      "ok": "İyi, biraz daha eklesen daha iyi olur",
+      "thin": "Yetersiz — biraz ayrıntı ekle"
+    },
+    "blocked": {
+      "brackets": "[Köşeli parantez] içindeki kısımları kendi bilgilerinle değiştir — yapay zekâ kutuda ne varsa ona göre yazar.",
+      "template": "Bu hâlâ bizim örneğimiz. Kendi pozisyonlarını, şirketlerini ve becerilerini yaz ki özgeçmiş sana ait olsun."
+    },
+    "hintsTitle": "Bunları ekle, özgeçmiş gözle görülür şekilde iyileşsin",
+    "hint": {
+      "detail": "Birkaç cümle daha yaz — ne kadar çok bilgi verirsen özgeçmiş o kadar iyi olur",
+      "employer": "Çalıştığın şirketlerin veya kurumların adını yaz",
+      "numbers": "Bir sayı ekle — ekip büyüklüğü, yıl, bütçe, büyüme, ölçülebilir her şey",
+      "skills": "Öne çıkan becerilerini veya araçlarını sırala",
+      "education": "Diplomanı, eğitimini veya sertifikalarını belirt"
+    },
+    "generate": "Özgeçmişimi oluştur",
+    "generateBlocked": "Önce kendine göre düzenle",
+    "generating": "Özgeçmişin hazırlanıyor…",
+    "genericError": "Bir sorun oluştu. Tekrar dene.",
+    "confidence": {
+      "high": "Yüksek güven",
+      "moderate": "Orta güven",
+      "low": "Düşük güven — dikkatlice gözden geçir"
+    },
+    "assumptions": "Yapay zekâ şu varsayımları yaptı",
+    "section": {
+      "personal": "Kişisel bilgiler",
+      "summary": "Özet",
+      "experience": "Deneyim ({{count}})",
+      "skills": "Beceriler ({{count}})",
+      "education": "Eğitim"
+    },
+    "field": {
+      "name": "Ad",
+      "title": "Pozisyon",
+      "location": "Konum"
+    },
+    "roleUnknown": "(pozisyon bilinmiyor)",
+    "companyUnknown": "(şirket bilinmiyor)",
+    "present": "Devam ediyor",
+    "weakResult": "Yapay zekânın çalışacağı fazla bilgi yoktu, bu yüzden bu özgeçmiş neredeyse boş. Geri dönüp birkaç cümle eklemen sonucu tamamen değiştirir.",
+    "addMoreDetail": "Daha fazla ayrıntı ekle",
+    "useAnyway": "Yine de kullan",
+    "tryAgain": "Tekrar dene",
+    "createResume": "Özgeçmiş oluştur",
+    "guided": {
+      "stepOf": "Adım {{current}} / {{total}}",
+      "steps": {
+        "you": {
+          "title": "Sen kimsin?",
+          "subtitle": "Sadece temel bilgiler — bunlar özgeçmişinin en üstünde yer alacak."
+        },
+        "work": {
+          "title": "Nerede çalışıyorsun?",
+          "subtitle": "En son işin. Daha eskilerini sonra ekleyebilirsin."
+        },
+        "highlights": {
+          "title": "Orada ne yapıyorsun?",
+          "subtitle": "Bir iki cümle yeter. Sayılar bunu çok daha güçlü yapar."
+        },
+        "skills": {
+          "title": "Neyde iyisin?",
+          "subtitle": "Sana uyanlara dokun. Eksik kalan varsa kendin ekle."
+        },
+        "education": {
+          "title": "Eğitim ya da kurs?",
+          "subtitle": "İsteğe bağlı — sana uymuyorsa atla."
+        }
+      },
+      "nameLabel": "Adın",
+      "namePlaceholder": "Ayesha Khan",
+      "jobTitleLabel": "İstediğin pozisyon",
+      "jobTitlePlaceholder": "Hemşire",
+      "locationLabel": "Yaşadığın yer (isteğe bağlı)",
+      "locationPlaceholder": "Lahor",
+      "noJobYet": "Henüz çalışmadım",
+      "earlierJob": "Önceki iş",
+      "roleTitleLabel": "Pozisyon adı",
+      "roleTitlePlaceholder": "Servis Hemşiresi",
+      "companyLabel": "Şirket veya kurum",
+      "companyPlaceholder": "Shaukat Khanum Hastanesi",
+      "fromLabel": "Başlangıç",
+      "fromPlaceholder": "2021",
+      "toLabel": "Bitiş (boş = hâlâ çalışıyorum)",
+      "toPlaceholder": "2024",
+      "addEarlierJob": "Önceki bir iş ekle",
+      "noExperienceNote": "Henüz iş deneyimin yok mu? Sorun değil. Devam et — özgeçmişini becerilerin ve eğitimin üzerine kuracağız.",
+      "prompts": {
+        "daily": "Günlük olarak ne yapıyordun?",
+        "improved": "Neyi iyileştirdin ya da düzelttin?",
+        "led": "Birine liderlik ettin, eğitim verdin ya da yönettin mi?",
+        "numbers": "Sayı var mı? Kişi, para, hacim, kazanılan zaman"
+      },
+      "atCompany": "{{name}} bünyesinde",
+      "whatYouDid": "Ne yaptığın",
+      "highlightsPlaceholder": "Her vardiyada 30 hastaya bakıyorum, 5 yeni hemşireye eğitim verdim ve servisin nöbet çizelgesini hazırlıyorum.",
+      "addYourOwn": "Kendin ekle",
+      "educationLabel": "Eğitim veya kurs",
+      "educationPlaceholder": "Punjab Üniversitesi Hemşirelik lisans mezunuyum, 2021'de bitirdim.",
+      "buildResume": "Özgeçmişimi oluştur",
+      "switchToFreeText": "Kendim yazmayı tercih ederim",
+      "missing": {
+        "identity": "Önce adını ya da istediğin pozisyonu yaz — en üste bir şey gerekiyor.",
+        "substance": "Bir iş, beceri ya da eğitim ekle ki üzerine kurabilelim."
+      }
+    },
+    "compose": {
+      "sentenceJoin": " ",
+      "listSeparator": ", ",
+      "listAnd": " ve ",
+      "nameAndTitle": "Adım {{name}} ve {{title}} olarak çalışıyorum.",
+      "nameOnly": "Adım {{name}}.",
+      "titleOnly": "{{title}} olarak çalışıyorum.",
+      "location": "{{location}} şehrinde yaşıyorum.",
+      "noExperience": "Henüz tam zamanlı bir işte çalışmadım; ilk işimi arıyorum.",
+      "skills": "Şu konularda güçlüyüm: {{list}}.",
+      "dateRange": " {{start}} - {{end}} arasında",
+      "dateSince": " {{start}} yılından beri",
+      "dateUntil": " {{end}} yılına kadar",
+      "role": {
+        "currentFull": "Şu anda {{company}} bünyesinde {{title}} olarak{{dates}} çalışıyorum.",
+        "currentTitleOnly": "Şu anda {{title}} olarak{{dates}} çalışıyorum.",
+        "currentCompanyOnly": "Şu anda {{company}} bünyesinde{{dates}} çalışıyorum.",
+        "recentFull": "En son {{company}} bünyesinde {{title}} olarak{{dates}} çalıştım.",
+        "recentTitleOnly": "En son {{title}} olarak{{dates}} çalıştım.",
+        "recentCompanyOnly": "En son {{company}} bünyesinde{{dates}} çalıştım.",
+        "pastFull": "Ondan önce {{company}} bünyesinde {{title}} olarak{{dates}} çalıştım.",
+        "pastTitleOnly": "Ondan önce {{title}} olarak{{dates}} çalıştım.",
+        "pastCompanyOnly": "Ondan önce {{company}} bünyesinde{{dates}} çalıştım."
+      }
+    },
+    "skills": {
+      "tech": [
+        "JavaScript",
+        "Python",
+        "React",
+        "SQL",
+        "Git",
+        "AWS",
+        "Docker",
+        "REST API",
+        "Node.js",
+        "Test yazma",
+        "Çevik yöntemler",
+        "Linux"
+      ],
+      "healthcare": [
+        "Hasta bakımı",
+        "Yaşamsal bulgu takibi",
+        "İlaç uygulama",
+        "Elektronik hasta kaydı",
+        "Yara bakımı",
+        "Triyaj",
+        "Enfeksiyon kontrolü",
+        "Temel yaşam desteği",
+        "Bakım planı",
+        "Kan alma",
+        "Hasta iletişimi",
+        "Tıbbi terminoloji"
+      ],
+      "finance": [
+        "Excel",
+        "Finansal modelleme",
+        "Bütçeleme",
+        "Tahminleme",
+        "Mutabakat",
+        "QuickBooks",
+        "Satıcı hesapları",
+        "Denetim desteği",
+        "UFRS",
+        "Sapma analizi",
+        "SAP",
+        "Bordro"
+      ],
+      "marketing": [
+        "SEO",
+        "Google Analytics",
+        "İçerik yazarlığı",
+        "E-posta pazarlama",
+        "Sosyal medya",
+        "Ücretli reklam",
+        "Metin yazarlığı",
+        "Canva",
+        "HubSpot",
+        "A/B testi",
+        "Kampanya planlama",
+        "Marka stratejisi"
+      ],
+      "education": [
+        "Ders planlama",
+        "Sınıf yönetimi",
+        "Müfredat tasarımı",
+        "Ölçme ve değerlendirme",
+        "Farklılaştırılmış öğretim",
+        "Google Classroom",
+        "Veli iletişimi",
+        "Özel ders",
+        "Özel gereksinim desteği",
+        "Davranış yönetimi",
+        "Sınav değerlendirme",
+        "Öğrenci katılımı"
+      ],
+      "engineering": [
+        "AutoCAD",
+        "SolidWorks",
+        "Proje yönetimi",
+        "Kalite kontrol",
+        "Teknik çizim",
+        "Saha denetimi",
+        "MATLAB",
+        "Yalın üretim",
+        "İş sağlığı ve güvenliği",
+        "Bakım planlama",
+        "Kök neden analizi",
+        "Proje okuma"
+      ],
+      "design": [
+        "Figma",
+        "Adobe Photoshop",
+        "Illustrator",
+        "Prototipleme",
+        "Tel çerçeve tasarımı",
+        "Tipografi",
+        "Tasarım sistemleri",
+        "Kullanıcı araştırması",
+        "Marka kimliği",
+        "InDesign",
+        "Hareketli grafik",
+        "Erişilebilirlik"
+      ],
+      "sales": [
+        "CRM",
+        "Salesforce",
+        "Müşteri adayı bulma",
+        "Soğuk arama",
+        "Müzakere",
+        "Müşteri yönetimi",
+        "Satış hattı yönetimi",
+        "Ek satış",
+        "Müşteri karşılama",
+        "Ürün tanıtımı",
+        "Satış tahmini",
+        "Bölge planlama"
+      ],
+      "other": [
+        "Müşteri hizmetleri",
+        "İletişim",
+        "Takım çalışması",
+        "Zaman yönetimi",
+        "Microsoft Office",
+        "Problem çözme",
+        "Randevu planlama",
+        "Veri girişi",
+        "Stok takibi",
+        "Ekip eğitimi",
+        "Raporlama",
+        "Detaylara dikkat"
+      ]
+    }
+  },
+  "jobMatches": {
+    "title": "Özgeçmişine uyan ilanlar",
+    "subtitle": "Az önce oluşturduğun özgeçmişe göre puanlandı. Uyarlayıp başvurmak için birine dokun.",
+    "searching": "Uygun pozisyonlar aranıyor…",
+    "percent": "%{{score}} uyum",
+    "emptyBody": "Şu anda bu özgeçmişe yakın bir ilan bulamadık. Her gün yeni ilanlar yayınlanıyor.",
+    "errorBody": "İlanlar şu anda yüklenemedi. Özgeçmişin kaydedildi — ilan panosunu dene.",
+    "browseAll": "Tüm ilanları gör"
+  },
+  "applications": {
+    "title": "Başvurularım",
+    "apply": "Başvur",
+    "applied": "Başvuruldu",
+    "couldNotOpen": "İlan açılamadı",
+    "emptyTitle": "Henüz başvuru yok",
+    "emptyBody": "Uygulamadan bir ilana başvurduğunda burada görünür, böylece dönüşleri takip edebilirsin.",
+    "findJobs": "İlan bul",
+    "statOpen": "Devam eden",
+    "statFollowUp": "Yanıt yok",
+    "statThisWeek": "Bu hafta",
+    "appliedDaysAgo": "{{days}} gün önce başvuruldu",
+    "chaseIt": "{{days}} gündür yanıt yok — hatırlatmakta fayda var",
+    "viewPosting": "İlanı gör",
+    "removeTitle": "Başvuru kaldırılsın mı?",
+    "removeBody": "Bu yalnızca takip listenden kaldırır. {{title}}",
+    "status": {
+      "applied": "Başvuruldu",
+      "interviewing": "Görüşme",
+      "offer": "Teklif",
+      "rejected": "Olumsuz"
+    },
+    "dashboardNudge": "{{count}} yanıt bekliyor — hatırlatmakta fayda var",
+    "dashboardOpen": "{{count}} başvuru devam ediyor",
+    "writeFollowUp": "Hatırlatma yaz",
+    "prepareForInterview": "Mülakata hazırlan"
+  },
+  "followUp": {
+    "title": "Hatırlatma",
+    "writing": "Mesajın yazılıyor…",
+    "subject": "Konu",
+    "subjectPlaceholder": "Başvurumla ilgili",
+    "message": "Mesaj",
+    "messagePlaceholder": "Hatırlatma e-postan",
+    "editHint": "Göndermeden önce oku — sana ait gelmeyen yerleri değiştir.",
+    "rewrite": "Farklı bir tane yaz",
+    "copy": "Kopyala",
+    "share": "Paylaş",
+    "openMail": "E-postada aç",
+    "copied": "Panoya kopyalandı",
+    "noMailApp": "Bu cihazda e-posta uygulaması bulunamadı",
+    "error": "Mesajı yazamadık. Tekrar dene.",
+    "missing": "Bu başvuru artık listende değil.",
+    "notificationTitle": "Hatırlatma zamanı",
+    "notificationBody": "{{count}} başvuruya yanıt gelmedi. Kısa bir mesaj işe yarar."
+  },
+  "interview": {
+    "title": "Mülakat hazırlığı",
+    "preparing": "Özgeçmişin ve pozisyon inceleniyor…",
+    "error": "Hazırlayamadık. Tekrar dene.",
+    "askThem": "Sen de sor",
+    "regenerate": "Yeniden oluştur",
+    "share": "Paylaş",
+    "category": {
+      "role": "Pozisyon",
+      "experience": "Deneyimin",
+      "behavioral": "Çalışma tarzın",
+      "gap": "Üstüne gidilecek"
+    }
+  },
+  "jobAlerts": {
+    "offerTitle": "Yenileri çıkınca haber ver",
+    "offerBody": "Bu özgeçmişe uyan yeni ilanlar için günlük kontrol. Spam yok, tek bildirim.",
+    "turnOn": "Aç",
+    "onConfirmation": "İlan bildirimleri açık — yeni ilan çıkınca haber vereceğiz."
   }
 }

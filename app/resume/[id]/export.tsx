@@ -16,6 +16,8 @@ import { useGamification } from '@/hooks/useGamification';
 import { interstitialAd } from '@/services/ads';
 import { reviewSignals } from '@/services/review/reviewManager';
 import { useReviewPrompt } from '@/hooks/useReviewPrompt';
+import { useJobMatches } from '@/hooks/useJobMatches';
+import { MatchedJobsStrip } from '@/components/features/jobs/MatchedJobsStrip';
 import { ReviewPromptModal } from '@/components/features/review/ReviewPromptModal';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import { usePremium } from '@/hooks/usePremium';
@@ -72,12 +74,25 @@ export default function ExportResume() {
   // few sessions, etc.) so we can call it on every success.
   const { tryPrompt, modalProps: reviewModalProps } = useReviewPrompt();
 
+
   const [paperSize, setPaperSize] = useState<PaperSize>('letter');
   /** Which alternate format is currently generating (null when idle). */
   const [busyFormat, setBusyFormat] = useState<'word' | 'text' | null>(null);
   const [exportSuccess, setExportSuccess] = useState(false);
 
   const resume = getResume(id!);
+  // The export screen used to end the session. Now a successful export loads
+  // the jobs this resume actually matches — the user is at peak intent here,
+  // and this is the only place in the app where we know exactly what they
+  // just built. Nothing fetches until loadJobMatches() fires on success.
+  const {
+    matches: jobMatches,
+    isLoading: matchesLoading,
+    hasLoaded: matchesLoaded,
+    error: matchesError,
+    load: loadJobMatches,
+  } = useJobMatches(resume);
+
   const selectedTemplate = selectedTemplateId ? getTemplate(selectedTemplateId) : templates[0];
 
   const handleBack = () => {
@@ -143,6 +158,7 @@ export default function ExportResume() {
         // Record a positive review signal and attempt to surface the
         // prompt. tryPrompt() bails silently if the user isn't eligible.
         reviewSignals.pdfExported().catch(() => {});
+        loadJobMatches();
         setTimeout(() => { tryPrompt(); }, 3500);
         // Analytics: track the export with template + paper size so we can
         // see which combinations users actually ship.
@@ -244,6 +260,7 @@ export default function ExportResume() {
         if (!isPremium) setTimeout(() => { interstitialAd.tryShow(); }, 1500);
         // Share is also a strong positive signal — record + try prompt.
         reviewSignals.pdfExported().catch(() => {});
+        loadJobMatches();
         setTimeout(() => { tryPrompt(); }, 3500);
       } else {
         // Show error to user
@@ -301,7 +318,12 @@ export default function ExportResume() {
           template_id: selectedTemplate?.id,
           paper_size: paperSize,
         });
+        // A completed Word/text export is the same value moment as a PDF
+        // one — record it AND offer the prompt, which this path used to
+        // skip entirely.
         reviewSignals.pdfExported().catch(() => {});
+        loadJobMatches();
+        setTimeout(() => { tryPrompt(); }, 3500);
       } catch (err: any) {
         if (hapticEnabled) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         Alert.alert(
@@ -313,7 +335,7 @@ export default function ExportResume() {
         setBusyFormat(null);
       }
     },
-    [resume, busyFormat, hapticEnabled, selectedTemplate, paperSize],
+    [resume, busyFormat, hapticEnabled, selectedTemplate, paperSize, tryPrompt],
   );
 
   const handleSharePDF = useCallback(async () => {
@@ -783,6 +805,13 @@ export default function ExportResume() {
               </Pressable>
             </Animated.View>
           )}
+
+          <MatchedJobsStrip
+            matches={jobMatches}
+            isLoading={matchesLoading}
+            hasLoaded={matchesLoaded}
+            error={matchesError}
+          />
 
           {/* Tips */}
           <Animated.View

@@ -37,6 +37,7 @@ import { useResumeImport } from '@/hooks/useResumeImport';
 import { ImportReviewModal } from '@/components/features/import';
 import { GradientBackground } from '@/components/ui';
 import { gradientColors } from '@/constants/theme';
+import { useTranslation } from 'react-i18next';
 import { track, ANALYTICS_EVENTS } from '@/services/analytics/analytics';
 import * as Haptics from 'expo-haptics';
 import { Upload } from 'lucide-react-native';
@@ -46,41 +47,17 @@ const { width } = Dimensions.get('window');
 
 // Key features of FreeResume AI
 const FEATURES = [
-  {
-    icon: Sparkles,
-    title: 'AI-Powered Writing',
-    description: 'Smart suggestions to make your resume stand out',
-    color: '#F59E0B',
-  },
-  {
-    icon: Palette,
-    title: '26 Pro Templates',
-    description: 'Skill bars, icon contacts & ATS-ready designs',
-    color: '#8B5CF6',
-  },
-  {
-    icon: Zap,
-    title: 'Quick & Easy',
-    description: 'Create a professional resume in under 5 minutes',
-    color: '#10B981',
-  },
-  {
-    icon: Download,
-    title: 'PDF Export',
-    description: 'Download and share your resume instantly',
-    color: '#3B82F6',
-  },
+  { icon: Sparkles, key: 'ai', color: '#F59E0B' },
+  { icon: Palette, key: 'templates', color: '#8B5CF6' },
+  { icon: Zap, key: 'quick', color: '#10B981' },
+  { icon: Download, key: 'export', color: '#3B82F6' },
 ];
 
 // Bullet points for value proposition. Kept strictly TRUE — the app is
 // ad-supported with an optional upgrade, so we don't claim "no ads" or
 // "no watermarks" here (those used to be on this screen and contradicted
 // the actual export flow, which burned trust at the worst moment).
-const VALUE_POINTS = [
-  'No credit card needed',
-  'Free to build & edit',
-  'Ready in minutes',
-];
+const VALUE_POINTS = ['noCard', 'freeEdit', 'readyMinutes'] as const;
 
 // Animated feature card
 function FeatureCard({
@@ -193,6 +170,7 @@ function SparkleEffect() {
 }
 
 export default function Welcome() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { setOnboardingCompleted } = useUIStore();
   const {
@@ -241,8 +219,8 @@ export default function Welcome() {
       await selectAndParse();
     } catch (error) {
       Alert.alert(
-        'Import Failed',
-        'We couldn\'t read that file. Try a PDF, Word doc, or photo of your resume.',
+        t('onboarding.welcome.importFailedTitle'),
+        t('onboarding.welcome.importFailed'),
         [{ text: 'OK' }],
       );
     }
@@ -320,7 +298,7 @@ export default function Welcome() {
                 fontWeight: '500',
               }}
             >
-              Build Your Dream Resume for Free
+              {t('onboarding.welcome.tagline')}
             </Text>
 
             {/* FREE Badge */}
@@ -339,7 +317,7 @@ export default function Welcome() {
             >
               <Shield size={14} color="#10B981" style={{ marginRight: 6 }} />
               <Text style={{ color: '#10B981', fontSize: 13, fontWeight: '700' }}>
-                100% FREE • AI-POWERED • ATS-READY
+                {t('onboarding.welcome.badge')}
               </Text>
             </View>
           </Animated.View>
@@ -360,14 +338,14 @@ export default function Welcome() {
                 marginLeft: 4,
               }}
             >
-              Why Choose Us
+              {t('onboarding.welcome.whyChooseUs')}
             </Text>
             {FEATURES.map((feature, index) => (
               <FeatureCard
-                key={feature.title}
+                key={feature.key}
                 icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
+                title={t(`onboarding.welcome.features.${feature.key}.title`)}
+                description={t(`onboarding.welcome.features.${feature.key}.description`)}
                 color={feature.color}
                 delay={400 + index * 80}
               />
@@ -413,7 +391,7 @@ export default function Welcome() {
                       marginRight: 10,
                     }}
                   >
-                    Get Started Free
+                    {t('onboarding.welcome.getStarted')}
                   </Text>
                   <View
                     style={{
@@ -460,7 +438,9 @@ export default function Welcome() {
                     marginLeft: 10,
                   }}
                 >
-                  {isImporting ? 'Reading your resume…' : 'I already have a resume'}
+                  {isImporting
+                    ? t('onboarding.welcome.importing')
+                    : t('onboarding.welcome.haveResume')}
                 </Text>
               </Pressable>
             </View>
@@ -493,7 +473,7 @@ export default function Welcome() {
                       fontWeight: '500',
                     }}
                   >
-                    {point}
+                    {t(`onboarding.welcome.valuePoints.${point}`)}
                   </Text>
                 </Animated.View>
               ))}
@@ -514,7 +494,7 @@ export default function Welcome() {
                   textAlign: 'center',
                 }}
               >
-                ATS-friendly templates recruiters can actually read
+                {t('onboarding.welcome.trustBadge')}
               </Text>
             </Animated.View>
           </Animated.View>

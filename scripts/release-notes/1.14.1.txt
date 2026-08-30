@@ -1,0 +1,5 @@
+Fixes and polish for the new job-search features:
+
+• The guided resume builder now says exactly what it still needs, instead of a greyed-out button.
+• AI writing keeps working when a provider changes its requirements.
+• Job alert settings now show their true state.

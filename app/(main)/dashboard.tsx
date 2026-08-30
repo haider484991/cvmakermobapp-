@@ -20,8 +20,10 @@ import {
   LevelBadge,
   AchievementUnlockModal,
 } from '@/components/gamification';
-import { Plus, FileText, MoreVertical, Trash2, Copy, Edit3, Sparkles, Briefcase } from 'lucide-react-native';
+import { Plus, FileText, MoreVertical, Trash2, Copy, Edit3, Sparkles, Briefcase, ClipboardList } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useApplicationStore } from '@/stores/applicationStore';
+import { summarize } from '@/services/applications/applicationInsights';
 import { gradientColors } from '@/constants/theme';
 import * as Haptics from 'expo-haptics';
 import { useState, useCallback, useMemo, useEffect } from 'react';
@@ -31,6 +33,13 @@ export default function Dashboard() {
   const router = useRouter();
   const { colors } = useTheme();
   const { t } = useTranslation();
+  const applications = useApplicationStore((s) => s.applications);
+  const applicationList = useMemo(() => Object.values(applications), [applications]);
+  const applicationCount = applicationList.length;
+  const applicationStats = useMemo(
+    () => summarize(applicationList, Date.now()),
+    [applicationList],
+  );
   const { hapticEnabled } = useUIStore();
   const {
     getAllResumes,
@@ -343,6 +352,50 @@ export default function Dashboard() {
             <Text style={{ color: colors.textSecondary, fontSize: 20, fontWeight: '300' }}>›</Text>
           </Pressable>
         </Animated.View>
+
+        {/* Application tracker — only once it holds something. The list is
+            the one thing in this app that changes while the user is away, so
+            the follow-up count is what makes coming back worthwhile. */}
+        {applicationCount > 0 && (
+          <Animated.View entering={FadeInUp.delay(145)} style={{ marginTop: 12 }}>
+            <Pressable
+              onPress={() => {
+                if (hapticEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                track(ANALYTICS_EVENTS.APPLICATIONS_VIEWED, {
+                  total: applicationCount,
+                  needs_follow_up: applicationStats.needsFollowUp,
+                });
+                router.push('/applications');
+              }}
+              className="rounded-2xl p-5 flex-row items-center"
+              style={{
+                backgroundColor: colors.surface,
+                borderWidth: 1,
+                borderColor: applicationStats.needsFollowUp > 0 ? colors.warning + '55' : colors.border,
+              }}
+            >
+              <View
+                className="items-center justify-center mr-4"
+                style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: colors.primary + '15' }}
+              >
+                <ClipboardList size={24} color={colors.primary} strokeWidth={2.5} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-semibold" style={{ color: colors.text }}>
+                  {t('applications.title')}
+                </Text>
+                <Text className="text-xs mt-1" style={{ color: colors.textSecondary }}>
+                  {applicationStats.needsFollowUp > 0
+                    ? t('applications.dashboardNudge', {
+                        count: String(applicationStats.needsFollowUp),
+                      })
+                    : t('applications.dashboardOpen', { count: String(applicationStats.open) })}
+                </Text>
+              </View>
+              <Text style={{ color: colors.textSecondary, fontSize: 20, fontWeight: '300' }}>›</Text>
+            </Pressable>
+          </Animated.View>
+        )}
 
         {/* Create New Card — secondary path for users without a resume yet. */}
         <Animated.View entering={FadeInUp.delay(150)} style={{ marginTop: 12 }}>

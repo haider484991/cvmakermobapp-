@@ -1,0 +1,19 @@
+name = "freeresume-job-alerts"
+main = "src/index.ts"
+compatibility_date = "2026-08-01"
+
+# Daily at 09:00 UTC. One run per day is plenty — job boards do not refresh
+# faster than a person wants to be interrupted, and a second daily push is the
+# quickest way to get muted.
+[triggers]
+crons = ["0 9 * * *"]
+
+# Create with:  wrangler d1 create freeresume-job-alerts
+# then paste the returned database_id below.
+[[d1_databases]]
+binding = "DB"
+database_name = "freeresume-job-alerts"
+database_id = "f24114ce-1596-4eae-ab71-d26e99299f47"
+
+[observability]
+enabled = true
